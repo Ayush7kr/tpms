@@ -82,19 +82,25 @@ In strict conformance with approved technical requirements:
 
 ### 5. Visual Interface & Architecture Gallery
 
-The platform features an enterprise-grade UI engineered for speed, high contrast, and role clarity:
+The platform features an enterprise-grade UI engineered for speed, high contrast, and role clarity, captured live from the running system:
 
-#### Landing Page & Public Recruitment Portal
-![Landing Hero Overview](screenshots/landing_hero_overview.jpg)
+#### 5.1 Public Recruitment Portal
+![Landing Hero Overview](screenshots/01_landing_hero.png)
 
-#### Institutional Performance & Corporate Partner Highlights
-![Landing Features & Stats](screenshots/landing_features_stats.jpg)
+#### 5.2 Role-Based Authentication & Demo Switcher
+![Role-Based Sign-In](screenshots/02_role_based_login.png)
 
-#### Role-Based Authentication & Demo Persona Switcher
-![Role-Based Sign-In](screenshots/role_based_signin.png)
+#### 5.3 Student Candidate Dashboard & Programmatic Eligibility
+![Student Dashboard](screenshots/03_student_dashboard.png)
 
-#### Student Portal & Career Guidance Interface
-![Student Portal Career Guidance](screenshots/student_portal_career_guidance.jpg)
+#### 5.4 AI Career & Placement Mentorship Assistant
+![AI Career Assistant](screenshots/04_student_career_assistant.png)
+
+#### 5.5 TPO Operations Command Center
+![TPO Dashboard](screenshots/07_tpo_dashboard.png)
+
+#### 5.6 Executive Placement Analytics (Principal)
+![Principal Executive Analytics](screenshots/08_principal_analytics.png)
 
 ---
 

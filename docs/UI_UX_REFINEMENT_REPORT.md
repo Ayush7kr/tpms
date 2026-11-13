@@ -74,23 +74,43 @@ To ensure optimal institutional presentation, print clarity, and reduce maintena
 
 #### 4.1 Public Landing Page & Institutional Metrics
 The public portal introduces the institution's placement achievements with responsive statistics and partner showcases.
-![Landing Hero Overview](screenshots/landing_hero_overview.jpg)
+![Landing Hero Overview](screenshots/01_landing_hero.png)
 
-#### 4.2 Corporate Recruiters & Verification Process
-Overview of hiring partners, verified drives, and placement stats.
-![Landing Features & Stats](screenshots/landing_features_stats.jpg)
-
-#### 4.3 Role-Based Authentication & Demo Persona Switcher
+#### 4.2 Role-Based Authentication & Demo Persona Switcher
 Clean login portal featuring 1-click demo switcher for seamless mentor review.
-![Role-Based Sign-In](screenshots/role_based_signin.png)
+![Role-Based Sign-In](screenshots/02_role_based_login.png)
 
-#### 4.4 Student Portal & AI Career Placement Mentorship
-Dedicated student dashboard with real-time academic standing, eligibility engine, and AI placement assistant.
-![Student Portal Career Guidance](screenshots/student_portal_career_guidance.jpg)
+#### 4.3 Student Candidate Dashboard & Programmatic Eligibility
+Dedicated student dashboard with real-time academic standing, eligibility engine, and clickable ongoing campus placement drives.
+![Student Candidate Dashboard](screenshots/03_student_dashboard.png)
 
-#### 4.5 Campus Placement Drives Layout
-Table layout featuring clean, clickable company and designation links.
-![Placement Drive Prototype](screenshots/placement_drive_prototype.png)
+#### 4.4 AI Career & Placement Mentorship Assistant
+Conversational guidance interface with structured Markdown advice, study roadmaps, and starter prompt chips.
+![AI Career Assistant](screenshots/04_student_career_assistant.png)
+
+#### 4.5 Explore Campus Drives & Cut-Off Engine
+Catalog of active campus drives showing salary CTC, cut-offs, and 1-click apply.
+![Explore Campus Drives](screenshots/05_student_eligible_jobs.png)
+
+#### 4.6 Candidate Applied Drives Tracker & Selection Stepper
+Candidate application pipeline tracking multi-round recruitment stages.
+![Applied Drives Pipeline](screenshots/06_student_my_applications.png)
+
+#### 4.7 TPO Central Placement Operations Dashboard
+Placement officer dashboard tracking active drives, candidate rosters, and recruiter interactions.
+![TPO Central Dashboard](screenshots/07_tpo_dashboard.png)
+
+#### 4.8 Principal Institutional Executive Analytics
+High-level executive dashboard with branch-wise metrics and salary distribution charts.
+![Principal Executive Analytics](screenshots/08_principal_analytics.png)
+
+#### 4.9 Administrator User Provisioning & Governance Panel
+System governance dashboard managing accounts across Principal, TPO, and Department Assistants.
+![Admin User Management](screenshots/09_admin_users_panel.png)
+
+#### 4.10 Department Placement Assistant Scoped Student Roster
+Department-isolated candidate roster managing verified CSE student profiles and resumes.
+![Assistant Student Roster](screenshots/10_assistant_roster.png)
 
 ---
 

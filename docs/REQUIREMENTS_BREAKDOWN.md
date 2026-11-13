@@ -243,10 +243,16 @@ The user interface follows the **Linear / Stripe Enterprise Light Theme Design L
 ### 10.2 Screenshots & Visual Highlights
 
 #### Student Portal & Career Guidance Interface
-![Student Portal Career Guidance](screenshots/student_portal_career_guidance.jpg)
+![Student Portal Career Guidance](screenshots/04_student_career_assistant.png)
+
+#### Student Dashboard with Interactive Ongoing Drives
+![Student Dashboard](screenshots/03_student_dashboard.png)
 
 #### Role-Based Authentication Portal
-![Role-Based Sign-In](screenshots/role_based_signin.png)
+![Role-Based Sign-In](screenshots/02_role_based_login.png)
 
-#### Placement Drive Overview & Prototype Layout
-![Placement Drive Prototype](screenshots/placement_drive_prototype.png)
+#### Corporate Campus Drives Catalog & Cut-Off Engine
+![Explore Campus Drives](screenshots/05_student_eligible_jobs.png)
+
+#### Candidate Applied Drives Pipeline Stepper
+![Applied Drives Pipeline](screenshots/06_student_my_applications.png)

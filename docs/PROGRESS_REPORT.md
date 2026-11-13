@@ -322,4 +322,29 @@ All accounts are pre-seeded in the database with the default password: `apex@123
    - `python manage.py check`: 0 issues found.
    - Full automated test suite (`python manage.py test tests apps.career_assistant.tests`): **All 63 tests PASSED (100%) in 180s with 0 failures and 0 errors**.
 
+---
+
+## 11. Phase 10 — High-Fidelity Live Platform Screenshot Capture & Integration
+
+1. **Live Interface Capture Pipeline**:
+   - Developed `scratch/capture_all_screenshots.py` using Django's runtime test client and headless Chrome (`--headless=new`, 1440x900 viewport).
+   - Rendered real, active pages with live database context, authentic candidate profiles, and corporate drive records.
+   - Embedded local Bootstrap 5.3, Bootstrap Icons font assets, and custom Linear/Stripe design tokens.
+   - Successfully generated 10 pristine, high-resolution visual captures:
+     - `01_landing_hero.png` (Public landing hero, metrics & partner showcase)
+     - `02_role_based_login.png` (Authentication portal with 1-click persona switcher)
+     - `03_student_dashboard.png` (Candidate dashboard with clickable drives & eligibility verdicts)
+     - `04_student_career_assistant.png` (AI placement mentor with rich Markdown guidance & starter chips)
+     - `05_student_eligible_jobs.png` (Explore campus drives with real-time cut-off calculations)
+     - `06_student_my_applications.png` (Applied drives tracker with recruitment pipeline stepper)
+     - `07_tpo_dashboard.png` (Central placement operations dashboard)
+     - `08_principal_analytics.png` (Institutional executive analytics dashboard)
+     - `09_admin_users_panel.png` (System administrator user provisioning & staff governance panel)
+     - `10_assistant_roster.png` (Department placement assistant scoped student roster)
+
+2. **Documentation Modernization**:
+   - Integrated live visual captures across `README.md`, `docs/PROJECT_OVERVIEW.md`, `docs/REQUIREMENTS_BREAKDOWN.md`, and `docs/UI_UX_REFINEMENT_REPORT.md`.
+   - Purged all legacy and prototype mockups.
+
+
 

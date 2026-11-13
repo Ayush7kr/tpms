@@ -45,25 +45,47 @@ All demonstration accounts are pre-seeded in the database with the default passw
 
 ## 3. Platform Screenshots & Visual Interface
 
+Live, authentic interface captures from the running application:
+
 ### 3.1 Public Recruitment Portal & Institutional Overview
-The public landing page highlights institutional accreditation, verified placement percentages, and recruitment milestones.
-![Public Recruitment Portal](docs/screenshots/landing_hero_overview.jpg)
+The public landing page highlights institutional accreditation, verified placement percentages, real-time metrics, and corporate partner showcases.
+![Public Recruitment Portal](docs/screenshots/01_landing_hero.png)
 
-### 3.2 Corporate Partner Network & Hiring Track Record
-Corporate recruiters, hiring metrics, and verified candidate testimonials.
-![Institutional Hiring Statistics](docs/screenshots/landing_features_stats.jpg)
+### 3.2 Role-Based Authentication & 1-Click Demo Persona Switcher
+Clean, high-contrast login portal featuring role-selection tabs and an instant 1-click demonstration switcher for all 5 user roles.
+![Role-Based Authentication](docs/screenshots/02_role_based_login.png)
 
-### 3.3 Role-Based Authentication & 1-Click Persona Switcher
-Clean sign-in interface supporting all five institutional roles with instant demonstration switcher.
-![Role-Based Sign-In](docs/screenshots/role_based_signin.png)
+### 3.3 Student Portal — Interactive Drives & Academic Status
+Candidate dashboard displaying academic standing (B.Tech CSE, CGPA 8.85), active recruitment drives with clean clickable links, and live programmatic eligibility verdicts.
+![Student Candidate Dashboard](docs/screenshots/03_student_dashboard.png)
 
-### 3.4 Student Portal & AI Career Mentorship Interface
-Interactive candidate vault with real-time academic records, live eligibility badges, and AI placement assistant.
-![Student Candidate Portal](docs/screenshots/student_portal_career_guidance.jpg)
+### 3.4 AI Career & Placement Assistant Guidance Interface
+Personalized placement mentorship interface with rich Markdown guidance, skill gap analysis, starter prompt chips, and customized study roadmaps.
+![AI Career Assistant](docs/screenshots/04_student_career_assistant.png)
 
-### 3.5 Campus Placement Drives & Programmatic Eligibility
-Centralized drives table with clean clickable company and job links (`.drive-link`) and deterministic cut-off evaluations.
-![Placement Drives Prototype](docs/screenshots/placement_drive_prototype.png)
+### 3.5 Explore Campus Drives & Cut-Off Eligibility Engine
+Corporate drive catalog detailing salary CTC packages, drive dates, cut-off criteria, and instant 1-click application actions.
+![Explore Campus Drives](docs/screenshots/05_student_eligible_jobs.png)
+
+### 3.6 Applied Drives Tracker & Selection Pipeline Stepper
+Visual recruitment progression stepper (`Applied` → `Shortlisted` → `Technical Round` → `HR Round` → `Offered`) with status badges and withdrawal capability.
+![Applied Drives Pipeline](docs/screenshots/06_student_my_applications.png)
+
+### 3.7 TPO Central Placement Operations Dashboard
+Training & Placement Officer command center for monitoring institutional drives, student applications, company directories, and package statistics.
+![TPO Central Dashboard](docs/screenshots/07_tpo_dashboard.png)
+
+### 3.8 Principal Institutional Executive Analytics
+High-level executive oversight displaying branch-wise placement comparisons, tier distribution, and one-click placement CSV exports.
+![Executive Placement Analytics](docs/screenshots/08_principal_analytics.png)
+
+### 3.9 Administrator User Provisioning & Staff Governance Panel
+System governance dashboard managing accounts across Principal, TPO, and Department Assistants with status toggling and department allocations.
+![Admin User Management](docs/screenshots/09_admin_users_panel.png)
+
+### 3.10 Department Placement Assistant Scoped Student Roster
+Department-isolated student management portal displaying verified CSE candidate metrics, academic performance, and resume access.
+![Assistant Student Roster](docs/screenshots/10_assistant_roster.png)
 
 ---
 
