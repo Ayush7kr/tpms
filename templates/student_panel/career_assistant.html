@@ -1,0 +1,574 @@
+{% extends 'base/dashboard_base.html' %}
+
+{% block title %}AI Career & Placement Assistant — {{ block.super }}{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+  <div>
+    <h4 class="fw-bold text-dark mb-1 d-flex align-items-center gap-2">
+      <i class="bi bi-robot text-primary"></i> AI Career &amp; Placement Assistant
+    </h4>
+    <p class="text-muted small mb-0">Personalized placement mentorship, interview roadmaps &amp; skill-gap analysis grounded in your academic record.</p>
+  </div>
+  <div class="d-flex align-items-center gap-2">
+    {% if has_api_key %}
+      <span class="badge bg-success-subtle text-success py-2 px-3 border border-success-subtle">
+        <i class="bi bi-cpu-fill me-1"></i> Gemini AI Active
+      </span>
+    {% else %}
+      <span class="badge bg-primary-subtle text-primary py-2 px-3 border border-primary-subtle" title="Operating with personalized institutional placement logic">
+        <i class="bi bi-shield-check me-1"></i> Institutional Guidance Engine
+      </span>
+    {% endif %}
+  </div>
+</div>
+
+<div class="row g-4">
+  <!-- Left Column: Session History & Fast Actions -->
+  <div class="col-lg-4 col-xl-3">
+    <!-- New Chat Trigger -->
+    <form method="POST" action="{% url 'career_assistant:new_conversation' %}" class="mb-3">
+      {% csrf_token %}
+      <button type="submit" class="btn-tpms-primary w-100 py-2 d-flex align-items-center justify-content-center gap-2 shadow-xs">
+        <i class="bi bi-plus-circle"></i> New Career Session
+      </button>
+    </form>
+
+    <!-- Sessions List Card -->
+    <div class="tpms-card mb-4">
+      <div class="tpms-card-header d-flex justify-content-between align-items-center py-2">
+        <span class="tpms-card-title small fw-bold">
+          <i class="bi bi-chat-left-text me-1 text-primary"></i> Conversation History
+        </span>
+        <span class="badge bg-light text-muted">{{ conversations|length }}</span>
+      </div>
+      <div class="tpms-card-body p-0">
+        <div class="list-group list-group-flush small" style="max-height: 280px; overflow-y: auto;">
+          {% for conv in conversations %}
+            <div class="list-group-item d-flex justify-content-between align-items-center p-2 {% if conv.id == active_conversation.id %}active-session-item{% endif %}">
+              <a href="{% url 'career_assistant:career_assistant_detail' conv.id %}" class="text-decoration-none text-truncate me-2 {% if conv.id == active_conversation.id %}fw-bold text-primary{% else %}text-dark{% endif %}" style="font-size: 0.825rem;">
+                <i class="bi bi-chat-dots me-1 text-muted"></i> {{ conv.title }}
+              </a>
+              {% if conversations|length > 1 %}
+                <form method="POST" action="{% url 'career_assistant:delete_conversation' conv.id %}" onsubmit="return confirm('Delete this conversation history?');" class="d-inline">
+                  {% csrf_token %}
+                  <button type="submit" class="btn btn-sm btn-link text-danger p-0 border-0" title="Delete conversation">
+                    <i class="bi bi-trash"></i>
+                  </button>
+                </form>
+              {% endif %}
+            </div>
+          {% empty %}
+            <div class="p-3 text-center text-muted small">No previous sessions found.</div>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+
+    <!-- Student Quick Profile Card -->
+    <div class="tpms-card p-3 mb-0">
+      <h6 class="fw-bold text-dark small mb-2"><i class="bi bi-person-badge text-primary me-1"></i> Active Mentorship Context</h6>
+      <ul class="list-unstyled small text-muted mb-0 lh-lg" style="font-size: 0.8rem;">
+        <li><strong class="text-dark">Student:</strong> {{ profile.user.get_full_name }}</li>
+        <li><strong class="text-dark">Branch:</strong> {{ profile.department.code }} (Batch {{ profile.batch_year }})</li>
+        <li><strong class="text-dark">CGPA:</strong> <span class="text-primary fw-bold">{{ profile.graduation_cgpa }}</span> / 10.0</li>
+        <li><strong class="text-dark">Backlogs:</strong> {% if profile.active_backlogs == 0 %}<span class="text-success fw-semibold">0 Live</span>{% else %}<span class="text-danger fw-semibold">{{ profile.active_backlogs }} Live</span>{% endif %}</li>
+        <li><strong class="text-dark">Skills:</strong> {{ profile.skills|default:"Not recorded yet"|truncatechars:40 }}</li>
+      </ul>
+      <div class="pt-2 border-top mt-2">
+        <a href="{% url 'student_panel:profile' %}" class="small text-decoration-none text-primary fw-semibold">
+          <i class="bi bi-pencil-square me-1"></i> Edit Profile Skills &rarr;
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Right Column: Interactive Chat Interface -->
+  <div class="col-lg-8 col-xl-9">
+    <div class="tpms-card d-flex flex-column mb-0" style="height: 640px;">
+      
+      <!-- Chat Header -->
+      <div class="tpms-card-header d-flex justify-content-between align-items-center py-2 px-3 border-bottom">
+        <div class="d-flex align-items-center gap-2">
+          <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center shadow-xs" style="width: 34px; height: 34px;">
+            <i class="bi bi-robot fs-6"></i>
+          </div>
+          <div>
+            <h6 class="fw-bold text-dark mb-0 fs-6">{{ active_conversation.title }}</h6>
+            <span class="text-muted" style="font-size: 0.72rem;">Placement &amp; Career Development Cell • Apex Institute of Technology</span>
+          </div>
+        </div>
+
+        {% if active_conversation %}
+          <form method="POST" action="{% url 'career_assistant:clear_conversation' active_conversation.id %}" onsubmit="return confirm('Clear all messages in this conversation?');">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-sm btn-outline-secondary py-1 px-2" style="font-size: 0.75rem;" title="Clear Conversation">
+              <i class="bi bi-eraser me-1"></i> Clear Chat
+            </button>
+          </form>
+        {% endif %}
+      </div>
+
+      <!-- Messages Stream -->
+      <div class="tpms-card-body flex-grow-1 p-3 overflow-y-auto chat-messages-stream" id="chatStream" style="background-color: var(--tpms-bg-canvas);">
+        {% if not chat_messages %}
+          <div class="chat-empty-state text-center py-5 px-3" id="emptyChatPlaceholder">
+            <div class="rounded-circle bg-primary-subtle text-primary d-inline-flex align-items-center justify-content-center mb-3 shadow-xs" style="width: 54px; height: 54px; font-size: 1.5rem;">
+              <i class="bi bi-robot"></i>
+            </div>
+            <h5 class="fw-bold text-dark mb-1">Welcome to Your AI Career &amp; Placement Assistant</h5>
+            <p class="text-muted small mx-auto mb-4" style="max-width: 480px;">
+              Personalized placement mentorship grounded in your academic record, active target drives, and verified skills at Apex Institute of Technology.
+            </p>
+            <div class="row g-2 justify-content-center text-start mx-auto" style="max-width: 620px;">
+              <div class="col-sm-6">
+                <div class="p-3 border rounded-3 starter-card cursor-pointer h-100" onclick="applyPrompt('Analyze my skill gaps for upcoming campus drives')">
+                  <div class="d-flex align-items-center gap-2 mb-1">
+                    <i class="bi bi-lightning-charge text-warning"></i>
+                    <strong class="small text-dark">Skill Gap Analysis</strong>
+                  </div>
+                  <div class="text-muted small">Compare your recorded competencies against corporate hiring criteria.</div>
+                </div>
+              </div>
+              <div class="col-sm-6">
+                <div class="p-3 border rounded-3 starter-card cursor-pointer h-100" onclick="applyPrompt('Create a 30-day Full Stack Developer preparation roadmap.')">
+                  <div class="d-flex align-items-center gap-2 mb-1">
+                    <i class="bi bi-calendar-check text-primary"></i>
+                    <strong class="small text-dark">30-Day Study Roadmap</strong>
+                  </div>
+                  <div class="text-muted small">Get a structured weekly curriculum covering DSA, CS fundamentals &amp; aptitude.</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        {% endif %}
+
+        {% for msg in chat_messages %}
+          <div class="d-flex mb-3 {% if msg.sender == 'STUDENT' %}justify-content-end{% else %}justify-content-start{% endif %}">
+            <div class="chat-bubble-wrapper d-flex gap-2 {% if msg.sender == 'STUDENT' %}flex-row-reverse{% endif %}" style="max-width: 85%;">
+              <div class="avatar-sm rounded-circle d-flex align-items-center justify-content-center text-white flex-shrink-0 shadow-xs {% if msg.sender == 'STUDENT' %}bg-primary{% else %}bg-dark{% endif %}" style="width: 32px; height: 32px; font-size: 0.8rem;">
+                {% if msg.sender == 'STUDENT' %}
+                  <i class="bi bi-person-fill"></i>
+                {% else %}
+                  <i class="bi bi-robot"></i>
+                {% endif %}
+              </div>
+              <div>
+                <div class="chat-bubble p-3 rounded-3 shadow-xs {% if msg.sender == 'STUDENT' %}chat-bubble-student{% else %}chat-bubble-assistant{% endif %}">
+                  {% if msg.sender == 'STUDENT' %}
+                    <div class="chat-content-text">{{ msg.content|linebreaksbr }}</div>
+                  {% else %}
+                    <div class="chat-content-text markdown-content" data-message-role="assistant"><pre class="d-none raw-source">{{ msg.content }}</pre></div>
+                  {% endif %}
+                </div>
+                <div class="text-muted mt-1 px-1 {% if msg.sender == 'STUDENT' %}text-end{% endif %}" style="font-size: 0.68rem;">
+                  {{ msg.timestamp|date:"H:i" }} • {% if msg.sender == 'STUDENT' %}You{% else %}AI Career Assistant{% endif %}
+                </div>
+              </div>
+            </div>
+          </div>
+        {% endfor %}
+
+        <!-- Dynamic Typing Indicator -->
+        <div id="typingIndicator" class="d-none mb-3">
+          <div class="d-flex gap-2" style="max-width: 82%;">
+            <div class="avatar-sm rounded-circle d-flex align-items-center justify-content-center text-white flex-shrink-0 bg-dark shadow-xs" style="width: 32px; height: 32px;">
+              <i class="bi bi-robot"></i>
+            </div>
+            <div class="chat-bubble p-3 rounded-3 shadow-xs chat-bubble-assistant d-flex align-items-center gap-2">
+              <span class="spinner-border spinner-border-sm text-primary" role="status"></span>
+              <span class="text-muted small">Analyzing your placement record and preparing guidance...</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Suggested Starter Questions -->
+      <div class="px-3 pt-2 pb-1 border-top" style="background-color: var(--tpms-card-bg);">
+        <div class="d-flex gap-1 overflow-x-auto pb-1 prompt-chips-container">
+          <button type="button" class="btn btn-sm btn-outline-secondary prompt-chip py-1 px-2 text-nowrap" onclick="applyPrompt('What skills are currently in demand in the software industry?')">
+            <i class="bi bi-lightning-charge text-warning"></i> In-Demand Skills
+          </button>
+          <button type="button" class="btn btn-sm btn-outline-secondary prompt-chip py-1 px-2 text-nowrap" onclick="applyPrompt('Create a 30-day Full Stack Developer preparation roadmap.')">
+            <i class="bi bi-calendar3 text-primary"></i> 30-Day Roadmap
+          </button>
+          <button type="button" class="btn btn-sm btn-outline-secondary prompt-chip py-1 px-2 text-nowrap" onclick="applyPrompt('How should I prepare for upcoming campus drives?')">
+            <i class="bi bi-briefcase text-success"></i> Upcoming Drives Prep
+          </button>
+          <button type="button" class="btn btn-sm btn-outline-secondary prompt-chip py-1 px-2 text-nowrap" onclick="applyPrompt('What should I study for aptitude and logical reasoning tests?')">
+            <i class="bi bi-puzzle text-info"></i> Aptitude &amp; Reasoning
+          </button>
+          <button type="button" class="btn btn-sm btn-outline-secondary prompt-chip py-1 px-2 text-nowrap" onclick="applyPrompt('How can I improve my resume for high-paying placements?')">
+            <i class="bi bi-file-earmark-person text-danger"></i> Resume Polish
+          </button>
+        </div>
+      </div>
+
+      <!-- Chat Input Area -->
+      <div class="p-3 border-top" style="background-color: var(--tpms-card-bg);">
+        <form id="chatForm" onsubmit="return submitChatMessage(event);">
+          {% csrf_token %}
+          <input type="hidden" id="conversationId" value="{{ active_conversation.id }}">
+          
+          <div class="input-group">
+            <textarea 
+              id="messageInput" 
+              class="form-control-custom" 
+              placeholder="Ask anything about placement drives, roadmaps, interview prep or skill gaps (Press Enter to send)..." 
+              rows="1" 
+              style="resize: none; min-height: 46px; max-height: 120px; font-size: 0.9rem;"
+              onkeydown="handleTextareaKeydown(event)"
+              required
+            ></textarea>
+            <button type="submit" id="sendBtn" class="btn btn-primary px-4 d-flex align-items-center gap-1">
+              <i class="bi bi-send-fill" id="sendIcon"></i>
+              <span class="d-none d-sm-inline">Send</span>
+            </button>
+          </div>
+          <div class="d-flex justify-content-between align-items-center mt-2 px-1">
+            <span class="text-muted small" style="font-size: 0.72rem;">Press <strong>Enter</strong> to send, <strong>Shift + Enter</strong> for newline</span>
+            <span class="text-muted small" style="font-size: 0.72rem;">Integrated with your AIT profile &amp; TPMS database</span>
+          </div>
+        </form>
+      </div>
+
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<!-- Optional CDN scripts for Marked.js and DOMPurify -->
+<script src="https://cdn.jsdelivr.net/npm/marked@12.0.1/marked.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/dompurify@3.1.0/dist/purify.min.js"></script>
+
+<script>
+  function scrollChatToBottom() {
+    const stream = document.getElementById('chatStream');
+    if (stream) {
+      stream.scrollTop = stream.scrollHeight;
+    }
+  }
+
+  function handleTextareaKeydown(e) {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      document.getElementById('chatForm').dispatchEvent(new Event('submit', { cancelable: true }));
+    }
+  }
+
+  function applyPrompt(text) {
+    const input = document.getElementById('messageInput');
+    if (input) {
+      input.value = text;
+      input.focus();
+    }
+  }
+
+  /**
+   * Pure Vanilla JS fallback Markdown parser and XSS sanitizer.
+   * Handles: headings, code blocks, tables, blockquotes, lists, bold/italic, inline code, links, paragraphs.
+   */
+  function customSafeMarkdownParser(text) {
+    if (!text) return '';
+
+    // Step 1: Escape HTML special characters to prevent XSS
+    let escaped = text
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;');
+
+    // Step 2: Extract code blocks before line-by-line processing
+    const codeBlocks = [];
+    escaped = escaped.replace(/```([a-zA-Z0-9_\-\+]*)\n([\s\S]*?)```/g, function(match, lang, code) {
+      const idx = codeBlocks.length;
+      const langBadge = lang ? `<span class="badge bg-secondary mb-1 text-uppercase" style="font-size: 0.65rem;">${lang}</span>\n` : '';
+      codeBlocks.push(`<pre class="chat-code-block">${langBadge}<code>${code.trimEnd()}</code></pre>`);
+      return `%%CODEBLOCK_${idx}%%`;
+    });
+
+    // Step 3: Extract tables
+    const tableBlocks = [];
+    escaped = escaped.replace(/((?:\|[^\n]+\|\r?\n)+)/g, function(match) {
+      const lines = match.trim().split(/\r?\n/).filter(l => l.trim().startsWith('|'));
+      if (lines.length < 2) return match;
+
+      // Check if second line is separator (|---|---|)
+      const isTable = /^\|(?:\s*:?-+:?\s*\|)+$/.test(lines[1].trim());
+      if (!isTable) return match;
+
+      const headerCells = lines[0].split('|').slice(1, -1).map(c => `<th>${c.trim()}</th>`).join('');
+      let tbodyHtml = '';
+      for (let i = 2; i < lines.length; i++) {
+        const rowCells = lines[i].split('|').slice(1, -1).map(c => `<td>${c.trim()}</td>`).join('');
+        tbodyHtml += `<tr>${rowCells}</tr>`;
+      }
+
+      const tableHtml = `<div class="chat-table-wrapper"><table class="chat-table"><thead><tr>${headerCells}</tr></thead><tbody>${tbodyHtml}</tbody></table></div>`;
+      const idx = tableBlocks.length;
+      tableBlocks.push(tableHtml);
+      return `\n\n%%TABLEBLOCK_${idx}%%\n\n`;
+    });
+
+    // Step 4: Line-by-line parsing for Headings, Blockquotes, Lists
+    const rawLines = escaped.split(/\r?\n/);
+    const processedLines = [];
+    let inUl = false;
+    let inOl = false;
+
+    function closeLists() {
+      if (inUl) { processedLines.push('</ul>'); inUl = false; }
+      if (inOl) { processedLines.push('</ol>'); inOl = false; }
+    }
+
+    for (let i = 0; i < rawLines.length; i++) {
+      let line = rawLines[i];
+      const trimmed = line.trim();
+
+      // Check for headings
+      const h6Match = trimmed.match(/^######\s+(.*)$/);
+      const h5Match = trimmed.match(/^#####\s+(.*)$/);
+      const h4Match = trimmed.match(/^####\s+(.*)$/);
+      const h3Match = trimmed.match(/^###\s+(.*)$/);
+      const h2Match = trimmed.match(/^##\s+(.*)$/);
+      const h1Match = trimmed.match(/^#\s+(.*)$/);
+
+      if (h4Match || h5Match || h6Match) {
+        closeLists();
+        const content = (h4Match || h5Match || h6Match)[1];
+        processedLines.push(`<h6>${content}</h6>`);
+        continue;
+      }
+      if (h3Match) {
+        closeLists();
+        processedLines.push(`<h5>${h3Match[1]}</h5>`);
+        continue;
+      }
+      if (h2Match) {
+        closeLists();
+        processedLines.push(`<h4>${h2Match[1]}</h4>`);
+        continue;
+      }
+      if (h1Match) {
+        closeLists();
+        processedLines.push(`<h3>${h1Match[1]}</h3>`);
+        continue;
+      }
+
+      // Check for blockquote
+      const bqMatch = trimmed.match(/^>\s*(.*)$/);
+      if (bqMatch) {
+        closeLists();
+        processedLines.push(`<blockquote>${bqMatch[1]}</blockquote>`);
+        continue;
+      }
+
+      // Check for unordered list item
+      const ulMatch = line.match(/^(\s*)[-*]\s+(.*)$/);
+      if (ulMatch) {
+        if (inOl) { processedLines.push('</ol>'); inOl = false; }
+        if (!inUl) { processedLines.push('<ul>'); inUl = true; }
+        processedLines.push(`<li>${ulMatch[2]}</li>`);
+        continue;
+      }
+
+      // Check for ordered list item
+      const olMatch = line.match(/^(\s*)\d+\.\s+(.*)$/);
+      if (olMatch) {
+        if (inUl) { processedLines.push('</ul>'); inUl = false; }
+        if (!inOl) { processedLines.push('<ol>'); inOl = true; }
+        processedLines.push(`<li>${olMatch[2]}</li>`);
+        continue;
+      }
+
+      // Normal line
+      closeLists();
+      processedLines.push(line);
+    }
+    closeLists();
+
+    let body = processedLines.join('\n');
+
+    // Step 5: Inline formatting (Bold, Italic, Code, Links)
+    // Inline code
+    body = body.replace(/`([^`\n]+)`/g, '<code>$1</code>');
+    // Bold
+    body = body.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
+    body = body.replace(/__([^_]+)__/g, '<strong>$1</strong>');
+    // Italic
+    body = body.replace(/\*([^*]+)\*/g, '<em>$1</em>');
+    body = body.replace(/_([^_]+)_/g, '<em>$1</em>');
+    // Links: only permit http, https, or relative internal URLs
+    body = body.replace(/\[([^\]]+)\]\((https?:\/\/[^\s\)]+|\/[^\s\)]+|#[^\s\)]+)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer" class="chat-link">$1</a>');
+
+    // Step 6: Paragraph wrapping
+    const paragraphs = body.split(/\n{2,}/);
+    const htmlParas = paragraphs.map(p => {
+      const pTrimmed = p.trim();
+      if (!pTrimmed) return '';
+      // If block starts with a tag like <h, <ul, <ol, <blockquote, %%TABLE, %%CODE, do not wrap in <p>
+      if (/^(<h[1-6]|<ul|<ol|<blockquote|%%CODEBLOCK|%%TABLEBLOCK)/i.test(pTrimmed)) {
+        return pTrimmed.replace(/\n/g, '<br>');
+      }
+      return `<p>${pTrimmed.replace(/\n/g, '<br>')}</p>`;
+    });
+
+    let finalHtml = htmlParas.filter(Boolean).join('');
+
+    // Step 7: Restore code blocks and table blocks
+    finalHtml = finalHtml.replace(/%%CODEBLOCK_(\d+)%%/g, function(match, idx) {
+      return codeBlocks[parseInt(idx, 10)] || '';
+    });
+    finalHtml = finalHtml.replace(/%%TABLEBLOCK_(\d+)%%/g, function(match, idx) {
+      return tableBlocks[parseInt(idx, 10)] || '';
+    });
+
+    return finalHtml;
+  }
+
+  /**
+   * Primary Markdown renderer using Marked + DOMPurify with seamless fallback.
+   */
+  function renderMarkdown(text) {
+    if (!text) return '';
+    if (typeof marked !== 'undefined' && typeof DOMPurify !== 'undefined') {
+      try {
+        marked.setOptions({
+          gfm: true,
+          breaks: true
+        });
+        const parsed = marked.parse(text);
+        return DOMPurify.sanitize(parsed, {
+          ALLOWED_TAGS: [
+            'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'p', 'br', 'strong', 'em', 'u', 's',
+            'ul', 'ol', 'li', 'blockquote', 'pre', 'code', 'table', 'thead', 'tbody',
+            'tr', 'th', 'td', 'a', 'span', 'div', 'hr'
+          ],
+          ALLOWED_ATTR: ['href', 'target', 'class', 'rel', 'title']
+        });
+      } catch (e) {
+        console.warn('Marked parsing error, falling back to built-in renderer', e);
+      }
+    }
+    return customSafeMarkdownParser(text);
+  }
+
+  function submitChatMessage(e) {
+    e.preventDefault();
+    const input = document.getElementById('messageInput');
+    const sendBtn = document.getElementById('sendBtn');
+    const stream = document.getElementById('chatStream');
+    const convId = document.getElementById('conversationId').value;
+    const typingIndicator = document.getElementById('typingIndicator');
+    const placeholder = document.getElementById('emptyChatPlaceholder');
+
+    const msg = input.value.trim();
+    if (!msg) return false;
+
+    if (placeholder) {
+      placeholder.remove();
+    }
+
+    // Append student bubble immediately
+    const nowTime = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    const studentHtml = `
+      <div class="d-flex mb-3 justify-content-end">
+        <div class="chat-bubble-wrapper d-flex gap-2 flex-row-reverse" style="max-width: 85%;">
+          <div class="avatar-sm rounded-circle d-flex align-items-center justify-content-center text-white flex-shrink-0 bg-primary shadow-xs" style="width: 32px; height: 32px; font-size: 0.8rem;">
+            <i class="bi bi-person-fill"></i>
+          </div>
+          <div>
+            <div class="chat-bubble p-3 rounded-3 shadow-xs chat-bubble-student">
+              <div class="chat-content-text">${msg.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/\n/g, '<br>')}</div>
+            </div>
+            <div class="text-muted mt-1 px-1 text-end" style="font-size: 0.68rem;">
+              ${nowTime} • You
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+
+    typingIndicator.insertAdjacentHTML('beforebegin', studentHtml);
+    input.value = '';
+    sendBtn.disabled = true;
+    typingIndicator.classList.remove('d-none');
+    scrollChatToBottom();
+
+    // Call backend API
+    fetch("{% url 'career_assistant:chat_api' %}", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "X-CSRFToken": document.querySelector('[name=csrfmiddlewaretoken]').value
+      },
+      body: JSON.stringify({
+        conversation_id: convId,
+        message: msg
+      })
+    })
+    .then(res => res.json())
+    .then(data => {
+      typingIndicator.classList.add('d-none');
+      sendBtn.disabled = false;
+      input.focus();
+
+      if (data.success) {
+        const formattedReply = renderMarkdown(data.reply);
+        const assistantHtml = `
+          <div class="d-flex mb-3 justify-content-start">
+            <div class="chat-bubble-wrapper d-flex gap-2" style="max-width: 85%;">
+              <div class="avatar-sm rounded-circle d-flex align-items-center justify-content-center text-white flex-shrink-0 bg-dark shadow-xs" style="width: 32px; height: 32px; font-size: 0.8rem;">
+                <i class="bi bi-robot"></i>
+              </div>
+              <div>
+                <div class="chat-bubble p-3 rounded-3 shadow-xs chat-bubble-assistant">
+                  <div class="chat-content-text markdown-content">${formattedReply}</div>
+                </div>
+                <div class="text-muted mt-1 px-1" style="font-size: 0.68rem;">
+                  ${data.timestamp} • AI Career Assistant
+                </div>
+              </div>
+            </div>
+          </div>
+        `;
+        typingIndicator.insertAdjacentHTML('beforebegin', assistantHtml);
+        scrollChatToBottom();
+      } else {
+        const errHtml = `
+          <div class="alert alert-danger py-2 px-3 small mb-3">
+            <i class="bi bi-exclamation-triangle-fill me-1"></i> ${data.error || 'Failed to generate guidance. Please try again.'}
+          </div>
+        `;
+        typingIndicator.insertAdjacentHTML('beforebegin', errHtml);
+        scrollChatToBottom();
+      }
+    })
+    .catch(err => {
+      typingIndicator.classList.add('d-none');
+      sendBtn.disabled = false;
+      const errHtml = `
+        <div class="alert alert-danger py-2 px-3 small mb-3">
+          <i class="bi bi-wifi-off me-1"></i> Connection error. Please check your internet connection or server status.
+        </div>
+      `;
+      typingIndicator.insertAdjacentHTML('beforebegin', errHtml);
+      scrollChatToBottom();
+    });
+
+    return false;
+  }
+
+  document.addEventListener('DOMContentLoaded', function() {
+    // Render any historical assistant markdown content in the DOM
+    document.querySelectorAll('.chat-content-text[data-message-role="assistant"]').forEach(function(el) {
+      const rawEl = el.querySelector('.raw-source');
+      if (rawEl) {
+        el.innerHTML = renderMarkdown(rawEl.textContent);
+      }
+    });
+
+    scrollChatToBottom();
+  });
+</script>
+{% endblock %}

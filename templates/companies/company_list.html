@@ -1,0 +1,123 @@
+{% extends 'base/dashboard_base.html' %}
+
+{% block title %}Corporate Directory — {{ block.super }}{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+  <div>
+    <h4 class="fw-bold text-dark mb-1">Corporate Recruiting Partners</h4>
+    <p class="text-muted small mb-0">Directory of enterprise recruiters, tier classifications, and contact coordinators.</p>
+  </div>
+  {% if request.user.is_tnp_officer or request.user.is_admin %}
+    <a href="{% url 'companies:create' %}" class="btn-tpms-primary">
+      <i class="bi bi-building-add"></i> Add Corporate Partner
+    </a>
+  {% endif %}
+</div>
+
+<!-- Search & Filter Controls -->
+<div class="tpms-card mb-4 p-3">
+  <form method="GET" class="row g-2 align-items-center">
+    <div class="col-md-5">
+      <div class="input-group input-group-sm">
+        <span class="input-group-text bg-light border-end-0"><i class="bi bi-search text-muted"></i></span>
+        <input type="text" name="q" class="form-control border-start-0" placeholder="Search company, industry, or recruiter..." value="{{ query }}">
+      </div>
+    </div>
+    <div class="col-md-4">
+      <select name="tier" class="form-select form-select-sm">
+        <option value="">All Tiers</option>
+        {% for t_val, t_lbl in tiers %}
+          <option value="{{ t_val }}" {% if selected_tier == t_val %}selected{% endif %}>{{ t_lbl }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="col-md-3 d-flex gap-2">
+      <button type="submit" class="btn btn-sm btn-primary w-100">Filter</button>
+      {% if query or selected_tier %}
+        <a href="{% url 'companies:list' %}" class="btn btn-sm btn-outline-secondary">Reset</a>
+      {% endif %}
+    </div>
+  </form>
+</div>
+
+<div class="tpms-card">
+  <div class="tpms-card-header flex-wrap gap-2">
+    <div class="d-flex align-items-center gap-2">
+      <span class="tpms-card-title"><i class="bi bi-buildings-fill me-2 text-primary"></i> Employer Registry</span>
+      <span class="badge bg-light text-dark">{% if total_count %}{{ total_count }}{% else %}{{ companies|length }}{% endif %} Companies</span>
+    </div>
+  </div>
+
+  <div class="tpms-card-body p-0">
+    <div class="tpms-table-container border-0">
+      <table class="tpms-table" id="companyTable">
+        <thead>
+          <tr>
+            <th>Company Name</th>
+            <th>Industry Sector</th>
+            <th>Recruitment Tier</th>
+            <th>HR Point of Contact</th>
+            <th>Active Drives</th>
+            <th>Total Hires</th>
+            <th class="text-end">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for c in companies %}
+            <tr>
+              <td>
+                <a href="{% url 'companies:detail' c.id %}" class="fw-bold text-dark fs-6 text-decoration-none">
+                  {{ c.name }}
+                </a>
+                {% if c.website %}
+                  <div>
+                    <a href="{{ c.website }}" target="_blank" class="text-muted small text-decoration-none">
+                      <i class="bi bi-box-arrow-up-right me-1"></i> {{ c.website }}
+                    </a>
+                  </div>
+                {% endif %}
+              </td>
+              <td><span class="badge bg-light text-dark border">{{ c.industry_sector }}</span></td>
+              <td>
+                {% if c.tier == 'TIER_1_DREAM' %}
+                  <span class="badge bg-danger-subtle text-danger border border-danger-subtle fw-semibold">Tier 1 / Dream (>12 LPA)</span>
+                {% elif c.tier == 'TIER_2_CORE' %}
+                  <span class="badge bg-primary-subtle text-primary border border-primary-subtle fw-semibold">Tier 2 / Core (6-12 LPA)</span>
+                {% else %}
+                  <span class="badge bg-secondary-subtle text-secondary border border-secondary-subtle fw-semibold">Tier 3 / Mass (&lt;6 LPA)</span>
+                {% endif %}
+              </td>
+              <td>
+                <div class="fw-semibold text-dark small">{{ c.contact_person }}</div>
+                <div class="text-muted small"><i class="bi bi-envelope me-1"></i> {{ c.contact_email }}</div>
+                {% if c.contact_phone %}<div class="text-muted small"><i class="bi bi-telephone me-1"></i> {{ c.contact_phone }}</div>{% endif %}
+              </td>
+              <td><span class="badge bg-info-subtle text-dark">{{ c.active_openings_count }} Open</span></td>
+              <td><span class="badge bg-success-subtle text-success">{{ c.total_hires_count }} Placed</span></td>
+              <td class="text-end">
+                <div class="d-inline-flex gap-1">
+                  <a href="{% url 'companies:detail' c.id %}" class="btn btn-sm btn-light border py-1 px-2" title="View Profile">
+                    <i class="bi bi-eye text-primary"></i>
+                  </a>
+                  {% if request.user.is_tnp_officer or request.user.is_admin %}
+                    <a href="{% url 'companies:edit' c.id %}" class="btn btn-sm btn-light border py-1 px-2" title="Edit Company">
+                      <i class="bi bi-pencil text-secondary"></i>
+                    </a>
+                  {% endif %}
+                </div>
+              </td>
+            </tr>
+          {% empty %}
+            <tr>
+              <td colspan="7" class="text-center py-4 text-muted">No corporate partners found matching criteria.</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    {% include 'includes/pagination.html' with page_obj=companies %}
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,182 @@
+{% extends 'base/dashboard_base.html' %}
+
+{% block title %}T&P Officer Dashboard — {{ block.super }}{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <div>
+    <h4 class="fw-bold text-dark mb-1">Central Placement Officer Dashboard</h4>
+    <p class="text-muted small mb-0">Campus drive management, corporate relations, student eligibility cut-offs, and hiring statistics.</p>
+  </div>
+  <div class="d-flex gap-2">
+    <a href="{% url 'placements:post_job' %}" class="btn-tpms-primary">
+      <i class="bi bi-plus-circle-fill"></i> Post New Campus Drive
+    </a>
+    <a href="{% url 'companies:create' %}" class="btn-tpms-outline">
+      <i class="bi bi-building-add"></i> Add Recruiter
+    </a>
+  </div>
+</div>
+
+<!-- Primary Metric Cards -->
+<div class="row g-3 mb-4">
+  <div class="col-sm-6 col-xl-3">
+    <div class="metric-card">
+      <div class="metric-label">Enrolled Candidates</div>
+      <div class="metric-value">{{ total_students }}</div>
+      <div class="metric-sub text-muted">
+        <i class="bi bi-mortarboard text-primary"></i> Across {{ total_departments }} branches
+      </div>
+    </div>
+  </div>
+
+  <div class="col-sm-6 col-xl-3">
+    <div class="metric-card">
+      <div class="metric-label">Active Drives</div>
+      <div class="metric-value text-primary">{{ active_job_openings }}</div>
+      <div class="metric-sub text-muted">
+        <i class="bi bi-broadcast text-info"></i> Accepting applications
+      </div>
+    </div>
+  </div>
+
+  <div class="col-sm-6 col-xl-3">
+    <div class="metric-card">
+      <div class="metric-label">Placed Students</div>
+      <div class="metric-value text-success">{{ placed_students }}</div>
+      <div class="metric-sub text-muted">
+        <i class="bi bi-person-check text-success"></i> {{ unplaced_students }} unplaced candidates
+      </div>
+    </div>
+  </div>
+
+  <div class="col-sm-6 col-xl-3">
+    <div class="metric-card">
+      <div class="metric-label">Total Applications</div>
+      <div class="metric-value text-indigo">{{ total_applications }}</div>
+      <div class="metric-sub text-muted">
+        <i class="bi bi-send text-secondary"></i> Student drive submissions
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Package Benchmarks Ribbon (min / avg / max) -->
+<div class="row g-3 mb-4">
+  <div class="col-md-4">
+    <div class="p-3 bg-white border rounded-3 shadow-xs d-flex align-items-center justify-content-between">
+      <div>
+        <div class="text-muted text-uppercase" style="font-size: 0.7rem; font-weight: 700;">Minimum Package</div>
+        <div class="fs-4 fw-bold text-dark">{{ min_package }} LPA</div>
+      </div>
+      <div class="rounded-circle bg-light p-3 text-secondary"><i class="bi bi-arrow-down-left fs-4"></i></div>
+    </div>
+  </div>
+
+  <div class="col-md-4">
+    <div class="p-3 bg-white border rounded-3 shadow-xs d-flex align-items-center justify-content-between">
+      <div>
+        <div class="text-muted text-uppercase" style="font-size: 0.7rem; font-weight: 700;">Average Package</div>
+        <div class="fs-4 fw-bold text-primary">{{ avg_package }} LPA</div>
+      </div>
+      <div class="rounded-circle bg-primary-subtle p-3 text-primary"><i class="bi bi-graph-up fs-4"></i></div>
+    </div>
+  </div>
+
+  <div class="col-md-4">
+    <div class="p-3 bg-white border rounded-3 shadow-xs d-flex align-items-center justify-content-between">
+      <div>
+        <div class="text-muted text-uppercase" style="font-size: 0.7rem; font-weight: 700;">Highest Package</div>
+        <div class="fs-4 fw-bold text-success">{{ max_package }} LPA</div>
+      </div>
+      <div class="rounded-circle bg-success-subtle p-3 text-success"><i class="bi bi-trophy-fill fs-4"></i></div>
+    </div>
+  </div>
+</div>
+
+<div class="row g-4">
+  <!-- Recent Campus Drives Table -->
+  <div class="col-lg-7">
+    <div class="tpms-card h-100 mb-0">
+      <div class="tpms-card-header">
+        <span class="tpms-card-title"><i class="bi bi-megaphone-fill me-2 text-primary"></i> Current Placement Drives</span>
+        <a href="{% url 'placements:drives_list' %}" class="btn btn-sm btn-link text-decoration-none">View All Drives &rarr;</a>
+      </div>
+      <div class="tpms-card-body p-0">
+        <div class="tpms-table-container border-0">
+          <table class="tpms-table">
+            <thead>
+              <tr>
+                <th>Company & Designation</th>
+                <th>Package</th>
+                <th>Min CGPA</th>
+                <th>Drive Date</th>
+                <th>Applicants</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for d in recent_drives %}
+                <tr>
+                  <td>
+                    <a href="{% url 'placements:drive_detail' d.id %}" class="fw-bold text-dark text-decoration-none">
+                      {{ d.title }}
+                    </a>
+                    <div class="text-muted small">{{ d.company.name }}</div>
+                  </td>
+                  <td><span class="fw-bold text-success">{{ d.package_ctc }} LPA</span></td>
+                  <td>{{ d.min_graduation_cgpa }}</td>
+                  <td class="text-muted small">{{ d.drive_date|date:"M d, Y" }}</td>
+                  <td>
+                    <span class="badge bg-light text-dark border">{{ d.total_applicants_count }}</span>
+                  </td>
+                </tr>
+              {% empty %}
+                <tr>
+                  <td colspan="5" class="text-center py-4 text-muted">No placement drives posted yet.</td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Branch Breakdown -->
+  <div class="col-lg-5">
+    <div class="tpms-card h-100 mb-0">
+      <div class="tpms-card-header">
+        <span class="tpms-card-title"><i class="bi bi-pie-chart-fill me-2 text-indigo"></i> Department Placement Status</span>
+      </div>
+      <div class="tpms-card-body p-0">
+        <div class="tpms-table-container border-0">
+          <table class="tpms-table">
+            <thead>
+              <tr>
+                <th>Branch</th>
+                <th>Total</th>
+                <th>Placed</th>
+                <th>Unplaced</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for dept in dept_stats %}
+                <tr>
+                  <td class="fw-bold text-dark">{{ dept.code }}</td>
+                  <td>{{ dept.total_stu }}</td>
+                  <td><span class="badge bg-success-subtle text-success">{{ dept.placed_stu }}</span></td>
+                  <td><span class="badge bg-secondary-subtle text-muted">{{ dept.unplaced_stu }}</span></td>
+                </tr>
+              {% empty %}
+                <tr>
+                  <td colspan="4" class="text-center py-4 text-muted">No departments configured.</td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,264 @@
+{% extends 'base/dashboard_base.html' %}
+
+{% block title %}{% if is_create %}Enroll Student{% else %}Edit Student Profile{% endif %} — {{ block.super }}{% endblock %}
+
+{% block content %}
+<div class="mb-4">
+  <a href="{% url 'assistant_panel:student_roster' %}" class="text-muted small text-decoration-none">
+    <i class="bi bi-arrow-left me-1"></i> Back to Student Roster
+  </a>
+  <h4 class="fw-bold text-dark mt-2 mb-1">{% if is_create %}Enroll New Student Candidate{% else %}Edit Candidate: {{ profile.roll_number }} — {{ profile.user.get_full_name }}{% endif %}</h4>
+  <p class="text-muted small mb-0">Academic metrics are used by the automated eligibility cut-off engine.</p>
+</div>
+
+{% if errors %}
+  <div class="alert alert-danger small py-2 px-3 mb-4">
+    <strong>Please resolve the following input issues:</strong>
+    <ul class="mb-0 ps-3 mt-1">
+      {% for field, err in errors.items %}
+        <li>{{ err }}</li>
+      {% endfor %}
+    </ul>
+  </div>
+{% endif %}
+
+<div class="row">
+  <div class="col-lg-8">
+    <div class="tpms-card mb-4">
+      <div class="tpms-card-header">
+        <span class="tpms-card-title"><i class="bi bi-person-vcard me-2 text-primary"></i> Personal & Department Identification</span>
+      </div>
+      <div class="tpms-card-body">
+        <form method="POST">
+          {% csrf_token %}
+          <div class="row g-3 mb-3">
+            <div class="col-md-6">
+              <label class="form-label-custom" for="first_name">First Name <span class="text-danger">*</span></label>
+              <input 
+                type="text" 
+                name="first_name" 
+                id="first_name" 
+                class="form-control-custom" 
+                value="{% if form_data.first_name %}{{ form_data.first_name }}{% elif profile %}{{ profile.user.first_name }}{% endif %}"
+                required
+              >
+            </div>
+            <div class="col-md-6">
+              <label class="form-label-custom" for="last_name">Last Name <span class="text-danger">*</span></label>
+              <input 
+                type="text" 
+                name="last_name" 
+                id="last_name" 
+                class="form-control-custom" 
+                value="{% if form_data.last_name %}{{ form_data.last_name }}{% elif profile %}{{ profile.user.last_name }}{% endif %}"
+                required
+              >
+            </div>
+          </div>
+
+          <div class="row g-3 mb-3">
+            <div class="col-md-6">
+              <label class="form-label-custom" for="email">Institutional Email Address <span class="text-danger">*</span></label>
+              <input 
+                type="email" 
+                name="email" 
+                id="email" 
+                class="form-control-custom" 
+                value="{% if form_data.email %}{{ form_data.email }}{% elif profile %}{{ profile.user.email }}{% endif %}"
+                {% if not is_create %}readonly{% else %}required{% endif %}
+              >
+            </div>
+            <div class="col-md-6">
+              <label class="form-label-custom" for="phone">Phone Number</label>
+              <input 
+                type="text" 
+                name="phone" 
+                id="phone" 
+                class="form-control-custom" 
+                placeholder="+91 98765 00000"
+                value="{% if form_data.phone %}{{ form_data.phone }}{% elif profile %}{{ profile.user.phone }}{% endif %}"
+              >
+            </div>
+          </div>
+
+          <div class="row g-3 mb-3">
+            <div class="col-md-4">
+              <label class="form-label-custom" for="roll_number">College Roll Number <span class="text-danger">*</span></label>
+              <input 
+                type="text" 
+                name="roll_number" 
+                id="roll_number" 
+                class="form-control-custom" 
+                placeholder="e.g. 21CSE105"
+                value="{% if form_data.roll_number %}{{ form_data.roll_number }}{% elif profile %}{{ profile.roll_number }}{% endif %}"
+                {% if not is_create %}readonly{% else %}required{% endif %}
+              >
+            </div>
+
+            <div class="col-md-4">
+              <label class="form-label-custom" for="prn_number">University PRN / USN</label>
+              <input 
+                type="text" 
+                name="prn_number" 
+                id="prn_number" 
+                class="form-control-custom" 
+                placeholder="e.g. PRN21005"
+                value="{% if form_data.prn_number %}{{ form_data.prn_number }}{% elif profile %}{{ profile.prn_number }}{% endif %}"
+                {% if not is_create %}readonly{% endif %}
+              >
+            </div>
+
+            <div class="col-md-4">
+              <label class="form-label-custom" for="department_id">Department <span class="text-danger">*</span></label>
+              <select name="department_id" id="department_id" class="form-select-custom" required {% if not is_create %}disabled{% endif %}>
+                {% for d in assigned_depts %}
+                  <option value="{{ d.id }}" {% if form_data.department_id == d.id|stringformat:"s" or profile and profile.department.id == d.id %}selected{% endif %}>{{ d.code }} — {{ d.name }}</option>
+                {% endfor %}
+              </select>
+            </div>
+          </div>
+
+          <div class="row g-3 mb-4">
+            <div class="col-md-4">
+              <label class="form-label-custom" for="gender">Gender</label>
+              <select name="gender" id="gender" class="form-select-custom">
+                {% for g_val, g_label in genders %}
+                  <option value="{{ g_val }}" {% if form_data.gender == g_val or profile and profile.gender == g_val %}selected{% endif %}>{{ g_label }}</option>
+                {% endfor %}
+              </select>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label-custom" for="batch_year">Graduation Batch Year</label>
+              <input 
+                type="number" 
+                name="batch_year" 
+                id="batch_year" 
+                class="form-control-custom" 
+                value="{% if form_data.batch_year %}{{ form_data.batch_year }}{% elif profile %}{{ profile.batch_year }}{% else %}2025{% endif %}"
+                required
+              >
+            </div>
+            <div class="col-md-4">
+              <label class="form-label-custom" for="degree">Degree Program</label>
+              <input 
+                type="text" 
+                name="degree" 
+                id="degree" 
+                class="form-control-custom" 
+                value="{% if form_data.degree %}{{ form_data.degree }}{% elif profile %}{{ profile.degree }}{% else %}B.Tech{% endif %}"
+                required
+              >
+            </div>
+          </div>
+
+          <!-- Academic Scores Vault -->
+          <h6 class="fw-bold text-dark border-top pt-3 mb-3"><i class="bi bi-award me-1 text-primary"></i> Academic Scores & Backlog Record</h6>
+
+          <div class="row g-3 mb-3">
+            <div class="col-md-4">
+              <label class="form-label-custom" for="tenth_percentage">10th Standard % <span class="text-danger">*</span></label>
+              <input 
+                type="number" 
+                step="0.01" 
+                name="tenth_percentage" 
+                id="tenth_percentage" 
+                class="form-control-custom" 
+                placeholder="e.g. 85.50"
+                value="{% if form_data.tenth_percentage %}{{ form_data.tenth_percentage }}{% elif profile %}{{ profile.tenth_percentage }}{% else %}0.00{% endif %}"
+                required
+              >
+            </div>
+            <div class="col-md-4">
+              <label class="form-label-custom" for="twelfth_percentage">12th / Diploma % <span class="text-danger">*</span></label>
+              <input 
+                type="number" 
+                step="0.01" 
+                name="twelfth_percentage" 
+                id="twelfth_percentage" 
+                class="form-control-custom" 
+                placeholder="e.g. 82.00"
+                value="{% if form_data.twelfth_percentage %}{{ form_data.twelfth_percentage }}{% elif profile %}{{ profile.twelfth_percentage }}{% else %}0.00{% endif %}"
+                required
+              >
+            </div>
+            <div class="col-md-4">
+              <label class="form-label-custom" for="graduation_cgpa">Graduation CGPA (10.0) <span class="text-danger">*</span></label>
+              <input 
+                type="number" 
+                step="0.01" 
+                name="graduation_cgpa" 
+                id="graduation_cgpa" 
+                class="form-control-custom" 
+                placeholder="e.g. 8.25"
+                value="{% if form_data.graduation_cgpa %}{{ form_data.graduation_cgpa }}{% elif profile %}{{ profile.graduation_cgpa }}{% else %}0.00{% endif %}"
+                required
+              >
+            </div>
+          </div>
+
+          <div class="row g-3 mb-3">
+            <div class="col-md-6">
+              <label class="form-label-custom" for="active_backlogs">Current Active Backlogs <span class="text-danger">*</span></label>
+              <input 
+                type="number" 
+                name="active_backlogs" 
+                id="active_backlogs" 
+                class="form-control-custom" 
+                placeholder="0"
+                value="{% if form_data.active_backlogs %}{{ form_data.active_backlogs }}{% elif profile %}{{ profile.active_backlogs }}{% else %}0{% endif %}"
+                required
+              >
+            </div>
+
+            {% if not is_create %}
+              <div class="col-md-6">
+                <label class="form-label-custom" for="placement_status">Placement Status</label>
+                <select name="placement_status" id="placement_status" class="form-select-custom">
+                  {% for ps_val, ps_label in statuses %}
+                    <option value="{{ ps_val }}" {% if profile.placement_status == ps_val %}selected{% endif %}>{{ ps_label }}</option>
+                  {% endfor %}
+                </select>
+              </div>
+            {% endif %}
+          </div>
+
+          <div class="mb-4">
+            <label class="form-label-custom" for="skills">Technical Skills</label>
+            <input 
+              type="text" 
+              name="skills" 
+              id="skills" 
+              class="form-control-custom" 
+              placeholder="e.g. Python, Django, PostgreSQL, Docker"
+              value="{% if form_data.skills %}{{ form_data.skills }}{% elif profile %}{{ profile.skills }}{% endif %}"
+            >
+          </div>
+
+          <div class="d-flex gap-2">
+            <button type="submit" class="btn-tpms-primary">
+              <i class="bi bi-check-lg"></i> {% if is_create %}Enroll Student{% else %}Save Changes{% endif %}
+            </button>
+            <a href="{% url 'assistant_panel:student_roster' %}" class="btn-tpms-outline">Cancel</a>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-lg-4">
+    <div class="card p-3 border shadow-xs bg-light rounded-3 mb-3">
+      <h6 class="fw-bold text-dark"><i class="bi bi-shield-check text-primary me-1"></i> Department Isolation Rule</h6>
+      <p class="text-muted small mb-0 lh-base">
+        TnP Assistants can only enroll candidates and edit profiles for students who belong to their assigned engineering branches. All operations are audited.
+      </p>
+    </div>
+
+    <div class="card p-3 border shadow-xs bg-light rounded-3">
+      <h6 class="fw-bold text-dark"><i class="bi bi-key text-indigo me-1"></i> Default Account Password</h6>
+      <p class="text-muted small mb-0 lh-base">
+        Newly created student accounts can sign in with their institutional email and default password: <code class="text-primary">apex@123</code>.
+      </p>
+    </div>
+  </div>
+</div>
+{% endblock %}

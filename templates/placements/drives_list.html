@@ -1,0 +1,140 @@
+{% extends 'base/dashboard_base.html' %}
+
+{% block title %}Placement Drives — {{ block.super }}{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+  <div>
+    <h4 class="fw-bold text-dark mb-1">Campus Placement Drives</h4>
+    <p class="text-muted small mb-0">Active and upcoming recruitment drives, eligibility cut-offs, and registered applicants.</p>
+  </div>
+  {% if request.user.is_tnp_officer or request.user.is_admin %}
+    <a href="{% url 'placements:post_job' %}" class="btn-tpms-primary">
+      <i class="bi bi-plus-circle-fill"></i> Post New Drive
+    </a>
+  {% endif %}
+</div>
+
+<!-- Search & Filter Controls -->
+<div class="tpms-card mb-4 p-3">
+  <form method="GET" class="row g-2 align-items-center">
+    <div class="col-md-5">
+      <div class="input-group input-group-sm">
+        <span class="input-group-text bg-light border-end-0"><i class="bi bi-search text-muted"></i></span>
+        <input type="text" name="q" class="form-control border-start-0" placeholder="Search role title, company, or location..." value="{{ query }}">
+      </div>
+    </div>
+    <div class="col-md-4">
+      <select name="status" class="form-select form-select-sm">
+        <option value="">All Drive Statuses</option>
+        {% for s_val, s_label in statuses %}
+          <option value="{{ s_val }}" {% if selected_status == s_val %}selected{% endif %}>{{ s_label }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="col-md-3 d-flex gap-2">
+      <button type="submit" class="btn btn-sm btn-primary w-100">Filter</button>
+      {% if query or selected_status %}
+        <a href="{% url 'placements:drives_list' %}" class="btn btn-sm btn-outline-secondary">Reset</a>
+      {% endif %}
+    </div>
+  </form>
+</div>
+
+<div class="tpms-card">
+  <div class="tpms-card-header flex-wrap gap-2">
+    <div class="d-flex align-items-center gap-2">
+      <span class="tpms-card-title"><i class="bi bi-megaphone me-2 text-primary"></i> Recruitment Drives</span>
+      <span class="badge bg-light text-dark">{% if total_count %}{{ total_count }}{% else %}{{ drives|length }}{% endif %} Drives</span>
+    </div>
+  </div>
+
+  <div class="tpms-card-body p-0">
+    <div class="tpms-table-container border-0">
+      <table class="tpms-table" id="drivesTable">
+        <thead>
+          <tr>
+            <th>Company & Job Title</th>
+            <th>Package</th>
+            <th>Cut-Offs</th>
+            <th>Eligible Branches</th>
+            <th>Drive Date</th>
+            <th>Deadline</th>
+            <th>Status</th>
+            <th class="text-end">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for d in drives %}
+            <tr>
+              <td>
+                <a href="{% url 'placements:drive_detail' d.id %}" class="fw-bold text-dark text-decoration-none">
+                  {{ d.title }}
+                </a>
+                <div class="text-muted small">
+                  <a href="{% url 'companies:detail' d.company.id %}" class="text-muted text-decoration-none">
+                    {{ d.company.name }}
+                  </a>
+                  • <i class="bi bi-geo-alt"></i> {{ d.job_location }}
+                </div>
+              </td>
+              <td><span class="fw-bold text-success fs-6">{{ d.package_ctc }} LPA</span></td>
+              <td>
+                <div class="small text-dark">CGPA: <strong>{{ d.min_graduation_cgpa }}</strong></div>
+                <div class="text-muted small">Max Backlogs: {{ d.max_active_backlogs }}</div>
+              </td>
+              <td>
+                <div class="d-flex flex-wrap gap-1">
+                  {% for dept in d.allowed_departments.all %}
+                    <span class="badge bg-light text-dark border">{{ dept.code }}</span>
+                  {% endfor %}
+                </div>
+              </td>
+              <td class="text-dark small">{{ d.drive_date|date:"M d, Y" }}</td>
+              <td>
+                <span class="text-muted small {% if d.is_deadline_passed %}text-danger fw-semibold{% endif %}">
+                  {{ d.application_deadline|date:"M d, Y H:i" }}
+                </span>
+                {% if d.is_deadline_passed %}
+                  <div class="badge bg-danger-subtle text-danger" style="font-size: 0.65rem;">Closed</div>
+                {% endif %}
+              </td>
+              <td>
+                {% if d.status == 'PUBLISHED' %}
+                  <span class="badge-tpms badge-success-subtle">Published</span>
+                {% elif d.status == 'IN_PROGRESS' %}
+                  <span class="badge-tpms badge-primary-subtle">In Progress</span>
+                {% elif d.status == 'COMPLETED' %}
+                  <span class="badge-tpms badge-brand-subtle">Completed</span>
+                {% elif d.status == 'CANCELLED' %}
+                  <span class="badge bg-danger-subtle text-danger border border-danger-subtle">Cancelled</span>
+                {% else %}
+                  <span class="badge-tpms badge-warning-subtle">{{ d.get_status_display }}</span>
+                {% endif %}
+              </td>
+              <td class="text-end">
+                <div class="d-inline-flex gap-1">
+                  <a href="{% url 'placements:drive_detail' d.id %}" class="btn btn-sm btn-light border py-1 px-2" title="View Drive Details">
+                    <i class="bi bi-eye text-primary"></i>
+                  </a>
+                  {% if request.user.is_tnp_officer or request.user.is_admin %}
+                    <a href="{% url 'placements:job_edit' d.id %}" class="btn btn-sm btn-light border py-1 px-2" title="Edit Drive">
+                      <i class="bi bi-pencil text-secondary"></i>
+                    </a>
+                  {% endif %}
+                </div>
+              </td>
+            </tr>
+          {% empty %}
+            <tr>
+              <td colspan="8" class="text-center py-4 text-muted">No placement drives found matching criteria.</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    {% include 'includes/pagination.html' with page_obj=drives %}
+  </div>
+</div>
+{% endblock %}

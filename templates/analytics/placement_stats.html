@@ -1,0 +1,100 @@
+{% extends 'base/dashboard_base.html' %}
+
+{% block title %}Placement Analytics — {{ block.super }}{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <div>
+    <h4 class="fw-bold text-dark mb-1">Campus Placement Intelligence & Visual Analytics</h4>
+    <p class="text-muted small mb-0">Live aggregated statistics on placement percentages, branch velocity, and company participation.</p>
+  </div>
+</div>
+
+<!-- Primary Stats -->
+<div class="row g-3 mb-4">
+  <div class="col-sm-6 col-xl-3">
+    <div class="metric-card">
+      <div class="metric-label">Placement Percentage</div>
+      <div class="metric-value text-success">{{ metrics.placement_rate }}%</div>
+      <div class="metric-sub text-success">
+        <i class="bi bi-graph-up-arrow"></i> {{ metrics.placed_students }} of {{ metrics.total_students }} Placed
+      </div>
+    </div>
+  </div>
+
+  <div class="col-sm-6 col-xl-3">
+    <div class="metric-card">
+      <div class="metric-label">Unplaced Candidates</div>
+      <div class="metric-value text-secondary">{{ metrics.unplaced_students }}</div>
+      <div class="metric-sub text-muted">Active pool for upcoming drives</div>
+    </div>
+  </div>
+
+  <div class="col-sm-6 col-xl-3">
+    <div class="metric-card">
+      <div class="metric-label">Active Drives</div>
+      <div class="metric-value text-primary">{{ metrics.active_drives }}</div>
+      <div class="metric-sub text-muted">Currently accepting applications</div>
+    </div>
+  </div>
+
+  <div class="col-sm-6 col-xl-3">
+    <div class="metric-card">
+      <div class="metric-label">Corporate Recruiters</div>
+      <div class="metric-value text-indigo">{{ metrics.total_companies }}</div>
+      <div class="metric-sub text-muted">Active industry network</div>
+    </div>
+  </div>
+</div>
+
+<!-- Chart -->
+<div class="tpms-card mb-4">
+  <div class="tpms-card-header">
+    <span class="tpms-card-title"><i class="bi bi-bar-chart-line me-2 text-primary"></i> Branch-Wise Placement Comparison</span>
+  </div>
+  <div class="tpms-card-body">
+    <div style="height: 320px; position: relative;">
+      <canvas id="analyticsBarChart"></canvas>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const ctx = document.getElementById('analyticsBarChart');
+  if (ctx) {
+    new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: {{ chart_data.dept_labels|safe }},
+        datasets: [
+          {
+            label: 'Total Students',
+            data: {{ chart_data.dept_enrolled|safe }},
+            backgroundColor: '#e2e8f0',
+            borderRadius: 6
+          },
+          {
+            label: 'Placed Students',
+            data: {{ chart_data.dept_placed|safe }},
+            backgroundColor: '#10b981',
+            borderRadius: 6
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { position: 'top' } },
+        scales: {
+          y: { beginAtZero: true, grid: { color: '#f1f5f9' } },
+          x: { grid: { display: false } }
+        }
+      }
+    });
+  }
+});
+</script>
+{% endblock %}

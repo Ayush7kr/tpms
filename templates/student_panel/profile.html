@@ -1,0 +1,154 @@
+{% extends 'base/dashboard_base.html' %}
+
+{% block title %}Academic Vault & Profile — {{ block.super }}{% endblock %}
+
+{% block content %}
+<div class="mb-4">
+  <h4 class="fw-bold text-dark mb-1">Academic Vault & Resume</h4>
+  <p class="text-muted small mb-0">Your verified academic metrics, uploaded PDF resume, and technical skills profile.</p>
+</div>
+
+<div class="row g-4">
+  <!-- Left Column: Verified Academic Scores (Read-Only) -->
+  <div class="col-lg-5">
+    <div class="tpms-card mb-4">
+      <div class="tpms-card-header">
+        <span class="tpms-card-title"><i class="bi bi-shield-check me-2 text-success"></i> Verified Academic Metrics</span>
+        <span class="badge bg-light text-muted border">Managed by TnP Cell</span>
+      </div>
+      <div class="tpms-card-body p-0">
+        <ul class="list-group list-group-flush small">
+          <li class="list-group-item d-flex justify-content-between">
+            <span class="text-muted">Candidate Roll No</span>
+            <strong class="font-monospace text-dark">{{ profile.roll_number }}</strong>
+          </li>
+          <li class="list-group-item d-flex justify-content-between">
+            <span class="text-muted">University PRN / USN</span>
+            <span class="font-monospace">{{ profile.prn_number }}</span>
+          </li>
+          <li class="list-group-item d-flex justify-content-between">
+            <span class="text-muted">Department Branch</span>
+            <strong>{{ profile.department.name }} ({{ profile.department.code }})</strong>
+          </li>
+          <li class="list-group-item d-flex justify-content-between">
+            <span class="text-muted">Graduation Batch</span>
+            <strong>{{ profile.batch_year }} ({{ profile.degree }})</strong>
+          </li>
+          <li class="list-group-item d-flex justify-content-between">
+            <span class="text-muted">Graduation CGPA</span>
+            <strong class="text-primary fs-6">{{ profile.graduation_cgpa }} / 10.0</strong>
+          </li>
+          <li class="list-group-item d-flex justify-content-between">
+            <span class="text-muted">10th Standard %</span>
+            <strong>{{ profile.tenth_percentage }}%</strong>
+          </li>
+          <li class="list-group-item d-flex justify-content-between">
+            <span class="text-muted">12th / Diploma %</span>
+            <strong>{{ profile.twelfth_percentage }}%</strong>
+          </li>
+          <li class="list-group-item d-flex justify-content-between">
+            <span class="text-muted">Active Live Backlogs</span>
+            {% if profile.active_backlogs == 0 %}
+              <span class="badge bg-success-subtle text-success">0 Backlogs</span>
+            {% else %}
+              <span class="badge bg-danger-subtle text-danger">{{ profile.active_backlogs }} Live</span>
+            {% endif %}
+          </li>
+          <li class="list-group-item d-flex justify-content-between">
+            <span class="text-muted">Placement Status</span>
+            {% if profile.placement_status == 'PLACED' %}
+              <span class="badge bg-success-subtle text-success"><i class="bi bi-trophy"></i> Placed ({{ profile.salary_package }} LPA)</span>
+            {% else %}
+              <span class="badge bg-info-subtle text-dark">Active Candidate</span>
+            {% endif %}
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- Right Column: Editable Skills & Resume Upload -->
+  <div class="col-lg-7">
+    <div class="tpms-card">
+      <div class="tpms-card-header">
+        <span class="tpms-card-title"><i class="bi bi-file-earmark-person me-2 text-primary"></i> Resume & Candidate Portfolio</span>
+      </div>
+      <div class="tpms-card-body">
+        <form method="POST" enctype="multipart/form-data">
+          {% csrf_token %}
+
+          <!-- Resume Attachment -->
+          <div class="mb-4">
+            <label class="form-label-custom">PDF Resume Attachment</label>
+            {% if profile.resume %}
+              <div class="p-3 bg-light rounded border d-flex justify-content-between align-items-center mb-2">
+                <div class="d-flex align-items-center gap-2">
+                  <i class="bi bi-file-earmark-pdf-fill text-danger fs-4"></i>
+                  <div>
+                    <strong class="d-block text-dark small">Current Resume</strong>
+                    <span class="text-muted small">Uploaded PDF document</span>
+                  </div>
+                </div>
+                <a href="{% url 'students:download_resume' profile.id %}" target="_blank" class="btn btn-sm btn-outline-primary">
+                  <i class="bi bi-eye"></i> View Current
+                </a>
+              </div>
+            {% endif %}
+
+            <input type="file" name="resume" class="form-control-custom" accept=".pdf">
+            <div class="text-muted small mt-1">Upload updated resume in PDF format (Max 5MB).</div>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label-custom" for="skills">Technical & Professional Skills</label>
+            <textarea 
+              name="skills" 
+              id="skills" 
+              rows="3" 
+              class="form-control-custom" 
+              placeholder="e.g. Python, Django, PostgreSQL, Docker, AWS, React, Data Structures & Algorithms"
+            >{{ profile.skills }}</textarea>
+            <div class="text-muted small mt-1">Comma-separated skills highlighted to corporate recruiters.</div>
+          </div>
+
+          <div class="row g-3 mb-4">
+            <div class="col-md-6">
+              <label class="form-label-custom" for="linkedin_url">LinkedIn Profile URL</label>
+              <div class="input-group">
+                <span class="input-group-text bg-light border-end-0 text-muted"><i class="bi bi-linkedin"></i></span>
+                <input 
+                  type="url" 
+                  name="linkedin_url" 
+                  id="linkedin_url" 
+                  class="form-control-custom border-start-0" 
+                  placeholder="https://linkedin.com/in/username"
+                  value="{{ profile.linkedin_url|default:'' }}"
+                >
+              </div>
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label-custom" for="github_url">GitHub Profile URL</label>
+              <div class="input-group">
+                <span class="input-group-text bg-light border-end-0 text-muted"><i class="bi bi-github"></i></span>
+                <input 
+                  type="url" 
+                  name="github_url" 
+                  id="github_url" 
+                  class="form-control-custom border-start-0" 
+                  placeholder="https://github.com/username"
+                  value="{{ profile.github_url|default:'' }}"
+                >
+              </div>
+            </div>
+          </div>
+
+          <button type="submit" class="btn-tpms-primary">
+            <i class="bi bi-check-lg me-1"></i> Update Candidate Profile
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,140 @@
+{% extends 'base/dashboard_base.html' %}
+
+{% block title %}{% if is_create %}Add Company{% else %}Edit Company{% endif %} — {{ block.super }}{% endblock %}
+
+{% block content %}
+<div class="mb-4">
+  <a href="{% url 'companies:list' %}" class="text-muted small text-decoration-none">
+    <i class="bi bi-arrow-left me-1"></i> Back to Corporate Directory
+  </a>
+  <h4 class="fw-bold text-dark mt-2 mb-1">{% if is_create %}Add New Corporate Partner{% else %}Edit Company: {{ company.name }}{% endif %}</h4>
+  <p class="text-muted small mb-0">Maintain employer profile, recruitment tier, and HR point of contact details.</p>
+</div>
+
+<div class="row">
+  <div class="col-lg-8">
+    <div class="tpms-card">
+      <div class="tpms-card-header">
+        <span class="tpms-card-title"><i class="bi bi-building me-2 text-primary"></i> Company & Recruiter Profile</span>
+      </div>
+      <div class="tpms-card-body">
+        <form method="POST">
+          {% csrf_token %}
+          <div class="row g-3 mb-3">
+            <div class="col-md-6">
+              <label class="form-label-custom" for="name">Company Name <span class="text-danger">*</span></label>
+              <input 
+                type="text" 
+                name="name" 
+                id="name" 
+                class="form-control-custom {% if errors.name %}is-invalid border-danger{% endif %}" 
+                placeholder="e.g. Google India, Microsoft, TCS"
+                value="{% if form_data.name %}{{ form_data.name }}{% elif company %}{{ company.name }}{% endif %}"
+                required
+              >
+              {% if errors.name %}<div class="text-danger small mt-1">{{ errors.name }}</div>{% endif %}
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label-custom" for="industry_sector">Industry Sector <span class="text-danger">*</span></label>
+              <input 
+                type="text" 
+                name="industry_sector" 
+                id="industry_sector" 
+                class="form-control-custom {% if errors.industry_sector %}is-invalid border-danger{% endif %}" 
+                placeholder="e.g. Information Technology, Cloud, FinTech"
+                value="{% if form_data.industry_sector %}{{ form_data.industry_sector }}{% elif company %}{{ company.industry_sector }}{% endif %}"
+                required
+              >
+              {% if errors.industry_sector %}<div class="text-danger small mt-1">{{ errors.industry_sector }}</div>{% endif %}
+            </div>
+          </div>
+
+          <div class="row g-3 mb-3">
+            <div class="col-md-6">
+              <label class="form-label-custom" for="tier">Recruitment Tier <span class="text-danger">*</span></label>
+              <select name="tier" id="tier" class="form-select-custom" required>
+                {% for t_val, t_label in tiers %}
+                  <option value="{{ t_val }}" {% if form_data.tier == t_val or company and company.tier == t_val %}selected{% endif %}>{{ t_label }}</option>
+                {% endfor %}
+              </select>
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label-custom" for="website">Corporate Website</label>
+              <input 
+                type="url" 
+                name="website" 
+                id="website" 
+                class="form-control-custom" 
+                placeholder="https://example.com"
+                value="{% if form_data.website %}{{ form_data.website }}{% elif company %}{{ company.website }}{% endif %}"
+              >
+            </div>
+          </div>
+
+          <div class="row g-3 mb-3">
+            <div class="col-md-4">
+              <label class="form-label-custom" for="contact_person">HR Contact Person <span class="text-danger">*</span></label>
+              <input 
+                type="text" 
+                name="contact_person" 
+                id="contact_person" 
+                class="form-control-custom {% if errors.contact_person %}is-invalid border-danger{% endif %}" 
+                placeholder="e.g. Priya Sharma"
+                value="{% if form_data.contact_person %}{{ form_data.contact_person }}{% elif company %}{{ company.contact_person }}{% endif %}"
+                required
+              >
+              {% if errors.contact_person %}<div class="text-danger small mt-1">{{ errors.contact_person }}</div>{% endif %}
+            </div>
+
+            <div class="col-md-4">
+              <label class="form-label-custom" for="contact_email">HR Email <span class="text-danger">*</span></label>
+              <input 
+                type="email" 
+                name="contact_email" 
+                id="contact_email" 
+                class="form-control-custom {% if errors.contact_email %}is-invalid border-danger{% endif %}" 
+                placeholder="recruiter@company.com"
+                value="{% if form_data.contact_email %}{{ form_data.contact_email }}{% elif company %}{{ company.contact_email }}{% endif %}"
+                required
+              >
+              {% if errors.contact_email %}<div class="text-danger small mt-1">{{ errors.contact_email }}</div>{% endif %}
+            </div>
+
+            <div class="col-md-4">
+              <label class="form-label-custom" for="contact_phone">HR Phone Number</label>
+              <input 
+                type="text" 
+                name="contact_phone" 
+                id="contact_phone" 
+                class="form-control-custom" 
+                placeholder="+91 98765 00000"
+                value="{% if form_data.contact_phone %}{{ form_data.contact_phone }}{% elif company %}{{ company.contact_phone }}{% endif %}"
+              >
+            </div>
+          </div>
+
+          <div class="mb-4">
+            <label class="form-label-custom" for="address">Headquarters / Office Address</label>
+            <textarea 
+              name="address" 
+              id="address" 
+              rows="2" 
+              class="form-control-custom" 
+              placeholder="e.g. Cyber City, Bengaluru, Karnataka"
+            >{% if form_data.address %}{{ form_data.address }}{% elif company %}{{ company.address }}{% endif %}</textarea>
+          </div>
+
+          <div class="d-flex gap-2">
+            <button type="submit" class="btn-tpms-primary">
+              <i class="bi bi-check-lg"></i> {% if is_create %}Register Partner{% else %}Save Changes{% endif %}
+            </button>
+            <a href="{% url 'companies:list' %}" class="btn-tpms-outline">Cancel</a>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

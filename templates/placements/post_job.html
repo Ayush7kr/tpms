@@ -1,0 +1,270 @@
+{% extends 'base/dashboard_base.html' %}
+
+{% block title %}Post New Campus Drive — {{ block.super }}{% endblock %}
+
+{% block content %}
+<div class="mb-4">
+  <a href="{% url 'placements:drives_list' %}" class="text-muted small text-decoration-none">
+    <i class="bi bi-arrow-left me-1"></i> Back to Placement Drives
+  </a>
+  <h4 class="fw-bold text-dark mt-2 mb-1">Post New Campus Placement Drive</h4>
+  <p class="text-muted small mb-0">Define job specifications, compensation package, and programmatic eligibility cut-offs.</p>
+</div>
+
+{% if errors %}
+  <div class="alert alert-danger small py-2 px-3 mb-4">
+    <strong>Please correct the following errors:</strong>
+    <ul class="mb-0 ps-3 mt-1">
+      {% for field, err in errors.items %}
+        <li>{{ err }}</li>
+      {% endfor %}
+    </ul>
+  </div>
+{% endif %}
+
+<form method="POST">
+  {% csrf_token %}
+  <div class="row g-4">
+    <!-- Left Column: Role Details -->
+    <div class="col-lg-7">
+      <div class="tpms-card mb-4">
+        <div class="tpms-card-header">
+          <span class="tpms-card-title"><i class="bi bi-briefcase me-2 text-primary"></i> Company & Role Specifications</span>
+        </div>
+        <div class="tpms-card-body">
+          <div class="row g-3 mb-3">
+            <div class="col-md-6">
+              <label class="form-label-custom" for="company_id">Hiring Partner <span class="text-danger">*</span></label>
+              <select name="company_id" id="company_id" class="form-select-custom" required>
+                <option value="">Select Company</option>
+                {% for c in companies %}
+                  <option value="{{ c.id }}" {% if form_data.company_id == c.id|stringformat:"s" %}selected{% endif %}>{{ c.name }} ({{ c.get_tier_display }})</option>
+                {% endfor %}
+              </select>
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label-custom" for="title">Designation / Role Title <span class="text-danger">*</span></label>
+              <input 
+                type="text" 
+                name="title" 
+                id="title" 
+                class="form-control-custom" 
+                placeholder="e.g. Associate Software Engineer"
+                value="{{ form_data.title|default:'' }}"
+                required
+              >
+            </div>
+          </div>
+
+          <div class="row g-3 mb-3">
+            <div class="col-md-6">
+              <label class="form-label-custom" for="package_ctc">Annual CTC (in LPA) <span class="text-danger">*</span></label>
+              <div class="input-group">
+                <input 
+                  type="number" 
+                  step="0.01" 
+                  name="package_ctc" 
+                  id="package_ctc" 
+                  class="form-control-custom" 
+                  placeholder="e.g. 14.50"
+                  value="{{ form_data.package_ctc|default:'' }}"
+                  required
+                >
+                <span class="input-group-text bg-light border text-muted small">LPA</span>
+              </div>
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label-custom" for="job_location">Job Location <span class="text-danger">*</span></label>
+              <input 
+                type="text" 
+                name="job_location" 
+                id="job_location" 
+                class="form-control-custom" 
+                placeholder="e.g. Bengaluru / Pune / Remote"
+                value="{{ form_data.job_location|default:'' }}"
+                required
+              >
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label-custom" for="bond_details">Bond / Service Agreement Details</label>
+            <input 
+              type="text" 
+              name="bond_details" 
+              id="bond_details" 
+              class="form-control-custom" 
+              placeholder="e.g. No Bond or 1 Year Service Agreement"
+              value="{{ form_data.bond_details|default:'' }}"
+            >
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label-custom" for="role_description">Job Description & Responsibilities <span class="text-danger">*</span></label>
+            <textarea 
+              name="role_description" 
+              id="role_description" 
+              rows="5" 
+              class="form-control-custom" 
+              placeholder="Detailed responsibilities, tech stack, and evaluation process..."
+              required
+            >{{ form_data.role_description|default:'' }}</textarea>
+          </div>
+        </div>
+      </div>
+
+      <!-- Schedule & Timings -->
+      <div class="tpms-card">
+        <div class="tpms-card-header">
+          <span class="tpms-card-title"><i class="bi bi-calendar-event me-2 text-indigo"></i> Important Deadlines & Schedule</span>
+        </div>
+        <div class="tpms-card-body">
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label class="form-label-custom" for="application_deadline">Application Deadline <span class="text-danger">*</span></label>
+              <input 
+                type="datetime-local" 
+                name="application_deadline" 
+                id="application_deadline" 
+                class="form-control-custom" 
+                value="{{ form_data.application_deadline|default:'' }}"
+                required
+              >
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label-custom" for="drive_date">Campus Drive Date <span class="text-danger">*</span></label>
+              <input 
+                type="date" 
+                name="drive_date" 
+                id="drive_date" 
+                class="form-control-custom" 
+                value="{{ form_data.drive_date|default:'' }}"
+                required
+              >
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right Column: Programmatic Cut-Off Rules -->
+    <div class="col-lg-5">
+      <div class="tpms-card">
+        <div class="tpms-card-header">
+          <span class="tpms-card-title"><i class="bi bi-cpu me-2 text-danger"></i> Programmatic Eligibility Cut-Offs</span>
+        </div>
+        <div class="tpms-card-body">
+          <p class="text-muted small mb-3">
+            These rules will be programmatically verified against every student's academic record before allowing 1-click application.
+          </p>
+
+          <div class="mb-3">
+            <label class="form-label-custom" for="min_graduation_cgpa">Minimum Graduation CGPA (Scale 10.0)</label>
+            <input 
+              type="number" 
+              step="0.01" 
+              name="min_graduation_cgpa" 
+              id="min_graduation_cgpa" 
+              class="form-control-custom" 
+              placeholder="e.g. 7.50 (0 for no cutoff)"
+              value="{{ form_data.min_graduation_cgpa|default:'0.00' }}"
+            >
+          </div>
+
+          <div class="row g-3 mb-3">
+            <div class="col-6">
+              <label class="form-label-custom" for="min_tenth_percentage">Min 10th %</label>
+              <input 
+                type="number" 
+                step="0.01" 
+                name="min_tenth_percentage" 
+                id="min_tenth_percentage" 
+                class="form-control-custom" 
+                placeholder="e.g. 60.00"
+                value="{{ form_data.min_tenth_percentage|default:'0.00' }}"
+              >
+            </div>
+            <div class="col-6">
+              <label class="form-label-custom" for="min_twelfth_percentage">Min 12th %</label>
+              <input 
+                type="number" 
+                step="0.01" 
+                name="min_twelfth_percentage" 
+                id="min_twelfth_percentage" 
+                class="form-control-custom" 
+                placeholder="e.g. 60.00"
+                value="{{ form_data.min_twelfth_percentage|default:'0.00' }}"
+              >
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label-custom" for="max_active_backlogs">Max Permitted Live Backlogs</label>
+            <input 
+              type="number" 
+              name="max_active_backlogs" 
+              id="max_active_backlogs" 
+              class="form-control-custom" 
+              placeholder="e.g. 0"
+              value="{{ form_data.max_active_backlogs|default:'0' }}"
+            >
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label-custom">Eligible Academic Departments <span class="text-danger">*</span></label>
+            <div class="border rounded p-2 bg-light" style="max-height: 180px; overflow-y: auto;">
+              {% for dept in departments %}
+                <div class="form-check">
+                  <input 
+                    class="form-check-input" 
+                    type="checkbox" 
+                    name="allowed_departments" 
+                    value="{{ dept.id }}" 
+                    id="dept_{{ dept.id }}"
+                    {% if dept.id in selected_dept_ids or not form_data %}checked{% endif %}
+                  >
+                  <label class="form-check-label small" for="dept_{{ dept.id }}">
+                    <strong>{{ dept.code }}</strong> — {{ dept.name }}
+                  </label>
+                </div>
+              {% endfor %}
+            </div>
+            <div class="text-muted small mt-1">Each checked department's coordinator must approve before drive is visible to students.</div>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label-custom" for="allowed_batches">Target Batches (Comma Separated)</label>
+            <input 
+              type="text" 
+              name="allowed_batches" 
+              id="allowed_batches" 
+              class="form-control-custom" 
+              placeholder="e.g. 2025, 2026"
+              value="{{ form_data.allowed_batches|default:'2025, 2026' }}"
+            >
+          </div>
+
+          <div class="mb-4">
+            <label class="form-label-custom" for="allowed_degrees">Target Degrees</label>
+            <input 
+              type="text" 
+              name="allowed_degrees" 
+              id="allowed_degrees" 
+              class="form-control-custom" 
+              placeholder="e.g. B.Tech, M.Tech, MCA"
+              value="{{ form_data.allowed_degrees|default:'B.Tech' }}"
+            >
+          </div>
+
+          <button type="submit" class="btn-tpms-primary w-100 justify-content-center py-2 fs-6">
+            <i class="bi bi-broadcast me-1"></i> Publish Campus Drive
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</form>
+{% endblock %}

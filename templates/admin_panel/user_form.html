@@ -1,0 +1,137 @@
+{% extends 'base/dashboard_base.html' %}
+
+{% block title %}{% if is_create %}Provision User{% else %}Edit User{% endif %} — {{ block.super }}{% endblock %}
+
+{% block content %}
+<div class="mb-4">
+  <a href="{% url 'admin_panel:users' %}" class="text-muted small text-decoration-none">
+    <i class="bi bi-arrow-left me-1"></i> Back to User Directory
+  </a>
+  <h4 class="fw-bold text-dark mt-2 mb-1">{% if is_create %}Provision New User Account{% else %}Edit User: {{ user_obj.get_full_name }}{% endif %}</h4>
+  <p class="text-muted small mb-0">Custom administrator account creation with manual server-side security checks.</p>
+</div>
+
+<div class="row">
+  <div class="col-lg-8">
+    <div class="tpms-card">
+      <div class="tpms-card-header">
+        <span class="tpms-card-title"><i class="bi bi-shield-person me-2 text-primary"></i> Account Credentials & Profile</span>
+      </div>
+      <div class="tpms-card-body">
+        <form method="POST">
+          {% csrf_token %}
+          <div class="row g-3 mb-3">
+            <div class="col-md-6">
+              <label class="form-label-custom" for="first_name">First Name <span class="text-danger">*</span></label>
+              <input 
+                type="text" 
+                name="first_name" 
+                id="first_name" 
+                class="form-control-custom {% if errors.first_name %}is-invalid border-danger{% endif %}" 
+                value="{% if form_data.first_name %}{{ form_data.first_name }}{% elif user_obj %}{{ user_obj.first_name }}{% endif %}"
+                required
+              >
+              {% if errors.first_name %}<div class="text-danger small mt-1">{{ errors.first_name }}</div>{% endif %}
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label-custom" for="last_name">Last Name <span class="text-danger">*</span></label>
+              <input 
+                type="text" 
+                name="last_name" 
+                id="last_name" 
+                class="form-control-custom {% if errors.last_name %}is-invalid border-danger{% endif %}" 
+                value="{% if form_data.last_name %}{{ form_data.last_name }}{% elif user_obj %}{{ user_obj.last_name }}{% endif %}"
+                required
+              >
+              {% if errors.last_name %}<div class="text-danger small mt-1">{{ errors.last_name }}</div>{% endif %}
+            </div>
+          </div>
+
+          <div class="row g-3 mb-3">
+            <div class="col-md-6">
+              <label class="form-label-custom" for="email">Institutional Email Address <span class="text-danger">*</span></label>
+              <input 
+                type="email" 
+                name="email" 
+                id="email" 
+                class="form-control-custom {% if errors.email %}is-invalid border-danger{% endif %}" 
+                value="{% if form_data.email %}{{ form_data.email }}{% elif user_obj %}{{ user_obj.email }}{% endif %}"
+                required
+              >
+              {% if errors.email %}<div class="text-danger small mt-1">{{ errors.email }}</div>{% endif %}
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label-custom" for="role">Assigned Role <span class="text-danger">*</span></label>
+              <select name="role" id="role" class="form-select-custom {% if errors.role %}is-invalid border-danger{% endif %}" required>
+                {% for r_val, r_label in roles %}
+                  <option value="{{ r_val }}" {% if form_data.role == r_val or user_obj and user_obj.role == r_val %}selected{% endif %}>{{ r_label }}</option>
+                {% endfor %}
+              </select>
+              {% if errors.role %}<div class="text-danger small mt-1">{{ errors.role }}</div>{% endif %}
+            </div>
+          </div>
+
+          <div class="row g-3 mb-3">
+            <div class="col-md-6">
+              <label class="form-label-custom" for="phone">Contact Mobile Phone</label>
+              <input 
+                type="text" 
+                name="phone" 
+                id="phone" 
+                class="form-control-custom" 
+                placeholder="+91 98765 43210"
+                value="{% if form_data.phone %}{{ form_data.phone }}{% elif user_obj %}{{ user_obj.phone }}{% endif %}"
+              >
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label-custom" for="password">
+                Password {% if is_create %}<span class="text-danger">*</span>{% else %}<span class="text-muted font-normal">(Leave blank to keep current)</span>{% endif %}
+              </label>
+              <input 
+                type="password" 
+                name="password" 
+                id="password" 
+                class="form-control-custom {% if errors.password %}is-invalid border-danger{% endif %}" 
+                placeholder="Min 8 characters"
+                {% if is_create %}required{% endif %}
+              >
+              {% if errors.password %}<div class="text-danger small mt-1">{{ errors.password }}</div>{% endif %}
+            </div>
+          </div>
+
+          {% if not is_create %}
+            <div class="mb-4">
+              <div class="form-check form-switch">
+                <input class="form-check-input" type="checkbox" name="is_active" id="is_active" {% if user_obj.is_active %}checked{% endif %}>
+                <label class="form-check-label small fw-semibold text-dark" for="is_active">Account Active</label>
+              </div>
+            </div>
+          {% endif %}
+
+          <div class="d-flex gap-2">
+            <button type="submit" class="btn-tpms-primary">
+              <i class="bi bi-check-lg"></i> {% if is_create %}Provision User{% else %}Save Changes{% endif %}
+            </button>
+            <a href="{% url 'admin_panel:users' %}" class="btn-tpms-outline">Cancel</a>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-lg-4">
+    <div class="card p-3 border shadow-xs bg-light rounded-3">
+      <h6 class="fw-bold text-dark"><i class="bi bi-info-circle-fill text-primary me-1"></i> Role Guidance</h6>
+      <ul class="text-muted small ps-3 mb-0 lh-lg">
+        <li><strong>Principal:</strong> Executive viewing & institutional placement analytics.</li>
+        <li><strong>TnP Officer:</strong> Posts campus drives, manages companies, publishes study assets.</li>
+        <li><strong>TnP Assistant:</strong> Uploads student rosters and approves jobs for assigned branch.</li>
+        <li><strong>Student:</strong> Applies to eligible drives and tracks round status.</li>
+      </ul>
+    </div>
+  </div>
+</div>
+{% endblock %}

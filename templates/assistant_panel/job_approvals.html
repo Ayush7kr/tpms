@@ -1,0 +1,93 @@
+{% extends 'base/dashboard_base.html' %}
+
+{% block title %}Department Drive Approvals — {{ block.super }}{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <div>
+    <h4 class="fw-bold text-dark mb-1">Campus Placement Drive Approvals</h4>
+    <p class="text-muted small mb-0">Review central placement drives posted by the TPO and approve or reject participation for your department.</p>
+  </div>
+</div>
+
+<div class="tpms-card">
+  <div class="tpms-card-header">
+    <span class="tpms-card-title"><i class="bi bi-patch-check me-2 text-primary"></i> Pending & Reviewed Branch Drives</span>
+    <span class="badge bg-light text-dark">{{ approvals|length }} Drives</span>
+  </div>
+
+  <div class="tpms-card-body p-0">
+    <div class="tpms-table-container border-0">
+      <table class="tpms-table">
+        <thead>
+          <tr>
+            <th>Company & Designation</th>
+            <th>Department</th>
+            <th>Package</th>
+            <th>Cut-Offs</th>
+            <th>Deadline</th>
+            <th>Approval Status</th>
+            <th class="text-end">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for apprv in approvals %}
+            <tr>
+              <td>
+                <div class="fw-bold text-dark">{{ apprv.job_opening.title }}</div>
+                <div class="text-muted small">{{ apprv.job_opening.company.name }} • <i class="bi bi-geo-alt"></i> {{ apprv.job_opening.job_location }}</div>
+              </td>
+              <td><span class="badge bg-primary-subtle text-primary">{{ apprv.department.code }}</span></td>
+              <td><span class="fw-bold text-success">{{ apprv.job_opening.package_ctc }} LPA</span></td>
+              <td>
+                <div class="small">CGPA: <strong>{{ apprv.job_opening.min_graduation_cgpa }}</strong></div>
+                <div class="text-muted small">Max Backlogs: {{ apprv.job_opening.max_active_backlogs }}</div>
+              </td>
+              <td class="text-muted small">{{ apprv.job_opening.application_deadline|date:"M d, H:i" }}</td>
+              <td>
+                {% if apprv.status == 'APPROVED' %}
+                  <span class="badge-tpms badge-success-subtle"><i class="bi bi-check2-circle"></i> Approved</span>
+                  {% if apprv.reviewed_by %}<div class="text-muted" style="font-size: 0.7rem;">By {{ apprv.reviewed_by.get_full_name }}</div>{% endif %}
+                {% elif apprv.status == 'REJECTED' %}
+                  <span class="badge-tpms badge-danger-subtle"><i class="bi bi-x-circle"></i> Rejected</span>
+                {% else %}
+                  <span class="badge-tpms badge-warning-subtle"><i class="bi bi-hourglass-split"></i> Pending Action</span>
+                {% endif %}
+              </td>
+              <td class="text-end">
+                <div class="d-flex justify-content-end gap-1">
+                  {% if apprv.status != 'APPROVED' %}
+                    <form method="POST" class="d-inline">
+                      {% csrf_token %}
+                      <input type="hidden" name="approval_id" value="{{ apprv.id }}">
+                      <input type="hidden" name="decision" value="APPROVED">
+                      <button type="submit" class="btn btn-sm btn-success py-1 px-2" title="Approve for Branch">
+                        <i class="bi bi-check-lg"></i> Approve
+                      </button>
+                    </form>
+                  {% endif %}
+
+                  {% if apprv.status != 'REJECTED' %}
+                    <form method="POST" class="d-inline">
+                      {% csrf_token %}
+                      <input type="hidden" name="approval_id" value="{{ apprv.id }}">
+                      <input type="hidden" name="decision" value="REJECTED">
+                      <button type="submit" class="btn btn-sm btn-outline-danger py-1 px-2" title="Reject for Branch">
+                        <i class="bi bi-x-lg"></i> Reject
+                      </button>
+                    </form>
+                  {% endif %}
+                </div>
+              </td>
+            </tr>
+          {% empty %}
+            <tr>
+              <td colspan="7" class="text-center py-4 text-muted">No campus drives require approval for your assigned department.</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}

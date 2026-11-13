@@ -1,0 +1,140 @@
+{% extends 'base/dashboard_base.html' %}
+
+{% block title %}User Directory — {{ block.super }}{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+  <div>
+    <h4 class="fw-bold text-dark mb-1">User Directory & Staff Provisioning</h4>
+    <p class="text-muted small mb-0">Manage credentials, roles, and status for administrators, principals, TPOs, assistants, and students.</p>
+  </div>
+  <a href="{% url 'admin_panel:user_create' %}" class="btn-tpms-primary">
+    <i class="bi bi-person-plus-fill"></i> Provision New User
+  </a>
+</div>
+
+<!-- Search & Filter Controls -->
+<div class="tpms-card mb-4 p-3">
+  <form method="GET" class="row g-2 align-items-center">
+    <div class="col-md-5">
+      <div class="input-group input-group-sm">
+        <span class="input-group-text bg-light border-end-0"><i class="bi bi-search text-muted"></i></span>
+        <input type="text" name="q" class="form-control border-start-0" placeholder="Search name, email, or phone..." value="{{ query }}">
+      </div>
+    </div>
+    <div class="col-md-4">
+      <select name="role" class="form-select form-select-sm">
+        <option value="">All Roles</option>
+        {% for r_val, r_label in roles %}
+          <option value="{{ r_val }}" {% if selected_role == r_val %}selected{% endif %}>{{ r_label }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="col-md-3 d-flex gap-2">
+      <button type="submit" class="btn btn-sm btn-primary w-100">Filter</button>
+      {% if query or selected_role %}
+        <a href="{% url 'admin_panel:users' %}" class="btn btn-sm btn-outline-secondary">Reset</a>
+      {% endif %}
+    </div>
+  </form>
+</div>
+
+<div class="tpms-card">
+  <div class="tpms-card-header flex-wrap gap-2">
+    <div class="d-flex align-items-center gap-2">
+      <span class="tpms-card-title"><i class="bi bi-people-fill me-2 text-primary"></i> Registered Users</span>
+      <span class="badge bg-light text-dark">{% if total_count %}{{ total_count }}{% else %}{{ users|length }}{% endif %} Users</span>
+    </div>
+  </div>
+
+  <div class="tpms-card-body p-0">
+    <div class="tpms-table-container border-0">
+      <table class="tpms-table" id="usersTable">
+        <thead>
+          <tr>
+            <th>User</th>
+            <th>Role</th>
+            <th>Contact Phone</th>
+            <th>Status</th>
+            <th>Created</th>
+            <th class="text-end">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for u in users %}
+            <tr>
+              <td>
+                <div class="d-flex align-items-center gap-2">
+                  <div class="avatar-circle bg-light text-primary border rounded-circle d-flex align-items-center justify-content-center fw-bold" style="width: 34px; height: 34px; font-size: 0.8rem;">
+                    {{ u.first_name|slice:":1" }}{{ u.last_name|slice:":1" }}
+                  </div>
+                  <div>
+                    <div class="fw-bold text-dark">{{ u.get_full_name }}</div>
+                    <div class="text-muted small">{{ u.email }}</div>
+                  </div>
+                </div>
+              </td>
+              <td>
+                <span class="role-pill role-{{ u.role|lower }}">{{ u.get_role_display }}</span>
+              </td>
+              <td class="text-muted small">{{ u.phone|default:"—" }}</td>
+              <td>
+                {% if u.is_active %}
+                  <span class="badge-tpms badge-success-subtle"><i class="bi bi-check-circle-fill"></i> Active</span>
+                {% else %}
+                  <span class="badge-tpms badge-danger-subtle"><i class="bi bi-x-circle-fill"></i> Deactivated</span>
+                {% endif %}
+              </td>
+              <td class="text-muted small">{{ u.date_joined|date:"M d, Y" }}</td>
+              <td class="text-end">
+                <a href="{% url 'admin_panel:user_edit' u.id %}" class="btn btn-sm btn-light border py-1 px-2" title="Edit User">
+                  <i class="bi bi-pencil"></i>
+                </a>
+                {% if u.id != request.user.id %}
+                  <a href="{% url 'admin_panel:user_toggle' u.id %}" class="btn btn-sm {% if u.is_active %}btn-outline-warning{% else %}btn-outline-success{% endif %} py-1 px-2 ms-1" title="Toggle Active">
+                    <i class="bi {% if u.is_active %}bi-slash-circle{% else %}bi-check-circle{% endif %}"></i>
+                  </a>
+                  <button type="button" class="btn btn-sm btn-outline-danger py-1 px-2 ms-1" data-bs-toggle="modal" data-bs-target="#deleteUserModal{{ u.id }}" title="Delete User">
+                    <i class="bi bi-trash"></i>
+                  </button>
+
+                  <!-- Delete Confirmation Modal -->
+                  <div class="modal fade" id="deleteUserModal{{ u.id }}" tabindex="-1" aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-centered">
+                      <div class="modal-content text-start">
+                        <div class="modal-header border-0 pb-0">
+                          <h5 class="modal-title fw-bold text-dark"><i class="bi bi-exclamation-triangle-fill text-danger me-2"></i> Delete User Account</h5>
+                          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body small text-muted">
+                          Are you sure you want to permanently delete user <strong>{{ u.get_full_name }}</strong> ({{ u.email }}) with role <strong>{{ u.get_role_display }}</strong>?
+                          <div class="p-2 bg-light rounded border text-danger mt-2">
+                            This action cannot be undone. Associated profile and session data will be permanently deleted.
+                          </div>
+                        </div>
+                        <div class="modal-footer border-0 pt-0">
+                          <button type="button" class="btn btn-sm btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+                          <form method="POST" action="{% url 'admin_panel:user_delete' u.id %}">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-sm btn-danger px-3">Permanently Delete</button>
+                          </form>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                {% endif %}
+              </td>
+            </tr>
+          {% empty %}
+            <tr>
+              <td colspan="6" class="text-center py-4 text-muted">No users found matching criteria.</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    {% include 'includes/pagination.html' with page_obj=users %}
+  </div>
+</div>
+{% endblock %}

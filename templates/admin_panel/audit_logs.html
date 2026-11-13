@@ -1,0 +1,90 @@
+{% extends 'base/dashboard_base.html' %}
+
+{% block title %}Audit Trail — {{ block.super }}{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+  <div>
+    <h4 class="fw-bold text-dark mb-1">System Security & Operation Audit Trail</h4>
+    <p class="text-muted small mb-0">Immutable records of institutional actions, role assignments, student imports, and drive changes.</p>
+  </div>
+</div>
+
+<!-- Search & Filter Controls -->
+<div class="tpms-card mb-4 p-3">
+  <form method="GET" class="row g-2 align-items-center">
+    <div class="col-md-5">
+      <div class="input-group input-group-sm">
+        <span class="input-group-text bg-light border-end-0"><i class="bi bi-search text-muted"></i></span>
+        <input type="text" name="q" class="form-control border-start-0" placeholder="Search user, action, or summary..." value="{{ query }}">
+      </div>
+    </div>
+    <div class="col-md-4">
+      <select name="action" class="form-select form-select-sm">
+        <option value="">All Action Types</option>
+        {% for act in actions %}
+          <option value="{{ act }}" {% if action_filter == act %}selected{% endif %}>{{ act }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="col-md-3 d-flex gap-2">
+      <button type="submit" class="btn btn-sm btn-primary w-100">Filter</button>
+      {% if query or action_filter %}
+        <a href="{% url 'admin_panel:audit_logs' %}" class="btn btn-sm btn-outline-secondary">Reset</a>
+      {% endif %}
+    </div>
+  </form>
+</div>
+
+<div class="tpms-card">
+  <div class="tpms-card-header flex-wrap gap-2">
+    <div class="d-flex align-items-center gap-2">
+      <span class="tpms-card-title"><i class="bi bi-shield-check me-2 text-primary"></i> Historical Activity Logs</span>
+      <span class="badge bg-light text-dark">{% if total_count %}{{ total_count }}{% else %}{{ logs|length }}{% endif %} Events</span>
+    </div>
+  </div>
+  <div class="tpms-card-body p-0">
+    <div class="tpms-table-container border-0">
+      <table class="tpms-table">
+        <thead>
+          <tr>
+            <th>Timestamp</th>
+            <th>Initiator</th>
+            <th>Action</th>
+            <th>Target Entity</th>
+            <th>Operation Summary</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for log in logs %}
+            <tr>
+              <td class="text-muted small font-monospace">{{ log.created_at|date:"Y-m-d H:i:s" }}</td>
+              <td>
+                {% if log.user %}
+                  <span class="fw-semibold text-dark">{{ log.user.get_full_name }}</span>
+                  <div class="text-muted small" style="font-size: 0.75rem;">{{ log.user.email }}</div>
+                {% else %}
+                  <span class="text-muted">Automated System</span>
+                {% endif %}
+              </td>
+              <td>
+                <span class="badge bg-light text-dark border font-monospace">{{ log.action }}</span>
+              </td>
+              <td>
+                <span class="text-secondary small">{{ log.entity_type }} {% if log.entity_id %}#{{ log.entity_id }}{% endif %}</span>
+              </td>
+              <td class="text-dark small">{{ log.details|default:"—" }}</td>
+            </tr>
+          {% empty %}
+            <tr>
+              <td colspan="5" class="text-center py-4 text-muted">No audit events found matching criteria.</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    {% include 'includes/pagination.html' with page_obj=logs %}
+  </div>
+</div>
+{% endblock %}

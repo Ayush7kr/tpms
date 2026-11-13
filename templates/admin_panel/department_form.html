@@ -1,0 +1,82 @@
+{% extends 'base/dashboard_base.html' %}
+
+{% block title %}{% if is_create %}Add Department{% else %}Edit Department{% endif %} — {{ block.super }}{% endblock %}
+
+{% block content %}
+<div class="mb-4">
+  <a href="{% url 'admin_panel:departments' %}" class="text-muted small text-decoration-none">
+    <i class="bi bi-arrow-left me-1"></i> Back to Department Catalog
+  </a>
+  <h4 class="fw-bold text-dark mt-2 mb-1">{% if is_create %}Add New Academic Department{% else %}Edit Department: {{ dept.code }}{% endif %}</h4>
+  <p class="text-muted small mb-0">Configure academic branch code, official title, and operational status.</p>
+</div>
+
+<div class="row">
+  <div class="col-lg-7">
+    <div class="tpms-card">
+      <div class="tpms-card-header">
+        <span class="tpms-card-title"><i class="bi bi-building-add me-2 text-primary"></i> Department Information</span>
+      </div>
+      <div class="tpms-card-body">
+        <form method="POST">
+          {% csrf_token %}
+          <div class="mb-3">
+            <label class="form-label-custom" for="code">Department Code <span class="text-danger">*</span></label>
+            <input 
+              type="text" 
+              name="code" 
+              id="code" 
+              class="form-control-custom {% if errors.code %}is-invalid border-danger{% endif %}" 
+              placeholder="e.g. CSE, IT, ECE, MECH"
+              value="{% if form_data.code %}{{ form_data.code }}{% elif dept %}{{ dept.code }}{% endif %}"
+              required
+            >
+            {% if errors.code %}<div class="text-danger small mt-1">{{ errors.code }}</div>{% endif %}
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label-custom" for="name">Full Department Name <span class="text-danger">*</span></label>
+            <input 
+              type="text" 
+              name="name" 
+              id="name" 
+              class="form-control-custom {% if errors.name %}is-invalid border-danger{% endif %}" 
+              placeholder="e.g. Computer Science and Engineering"
+              value="{% if form_data.name %}{{ form_data.name }}{% elif dept %}{{ dept.name }}{% endif %}"
+              required
+            >
+            {% if errors.name %}<div class="text-danger small mt-1">{{ errors.name }}</div>{% endif %}
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label-custom" for="description">Summary / Overview</label>
+            <textarea 
+              name="description" 
+              id="description" 
+              rows="3" 
+              class="form-control-custom" 
+              placeholder="Brief description of the academic discipline..."
+            >{% if form_data.description %}{{ form_data.description }}{% elif dept %}{{ dept.description }}{% endif %}</textarea>
+          </div>
+
+          {% if not is_create %}
+            <div class="mb-4">
+              <div class="form-check form-switch">
+                <input class="form-check-input" type="checkbox" name="is_active" id="is_active" {% if dept.is_active %}checked{% endif %}>
+                <label class="form-check-label small fw-semibold text-dark" for="is_active">Department Active</label>
+              </div>
+            </div>
+          {% endif %}
+
+          <div class="d-flex gap-2">
+            <button type="submit" class="btn-tpms-primary">
+              <i class="bi bi-check-lg"></i> {% if is_create %}Create Department{% else %}Save Changes{% endif %}
+            </button>
+            <a href="{% url 'admin_panel:departments' %}" class="btn-tpms-outline">Cancel</a>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

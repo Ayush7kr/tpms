@@ -1,0 +1,117 @@
+{% extends 'base/dashboard_base.html' %}
+
+{% block title %}Edit {{ job.title }} — {{ block.super }}{% endblock %}
+
+{% block content %}
+<div class="mb-4">
+  <a href="{% url 'placements:drive_detail' job.id %}" class="text-muted small text-decoration-none">
+    <i class="bi bi-arrow-left me-1"></i> Back to Drive Overview
+  </a>
+  <div class="d-flex justify-content-between align-items-center mt-2">
+    <div>
+      <h4 class="fw-bold text-dark mb-1">Edit Campus Drive: {{ job.title }}</h4>
+      <p class="text-muted small mb-0">{{ job.company.name }} • Drive Date: {{ job.drive_date|date:"F d, Y" }}</p>
+    </div>
+    <span class="badge-tpms badge-brand-subtle">{{ job.get_status_display }}</span>
+  </div>
+</div>
+
+{% if errors %}
+  <div class="alert alert-danger small py-2 px-3 mb-4">
+    <strong>Please correct the following errors:</strong>
+    <ul class="mb-0 ps-3 mt-1">
+      {% for field, err in errors.items %}
+        <li>{{ err }}</li>
+      {% endfor %}
+    </ul>
+  </div>
+{% endif %}
+
+<form method="POST">
+  {% csrf_token %}
+  <div class="row g-4">
+    <div class="col-lg-8">
+      <div class="tpms-card mb-4">
+        <div class="tpms-card-header">
+          <span class="tpms-card-title"><i class="bi bi-pencil-square me-2 text-primary"></i> Drive Details & Lifecycle</span>
+        </div>
+        <div class="tpms-card-body">
+          <div class="row g-3 mb-3">
+            <div class="col-md-6">
+              <label class="form-label-custom" for="title">Designation / Role Title <span class="text-danger">*</span></label>
+              <input type="text" name="title" id="title" class="form-control-custom" value="{{ job.title }}" required>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label-custom" for="status">Drive Status Lifecycle <span class="text-danger">*</span></label>
+              <select name="status" id="status" class="form-select-custom" required>
+                {% for st_val, st_lbl in statuses %}
+                  <option value="{{ st_val }}" {% if job.status == st_val %}selected{% endif %}>{{ st_lbl }}</option>
+                {% endfor %}
+              </select>
+            </div>
+          </div>
+
+          <div class="row g-3 mb-3">
+            <div class="col-md-6">
+              <label class="form-label-custom" for="package_ctc">CTC Package (LPA) <span class="text-danger">*</span></label>
+              <input type="number" step="0.01" name="package_ctc" id="package_ctc" class="form-control-custom" value="{{ job.package_ctc }}" required>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label-custom" for="job_location">Job Location <span class="text-danger">*</span></label>
+              <input type="text" name="job_location" id="job_location" class="form-control-custom" value="{{ job.job_location }}" required>
+            </div>
+          </div>
+
+          <div class="row g-3 mb-3">
+            <div class="col-md-6">
+              <label class="form-label-custom" for="drive_date">Drive Date</label>
+              <input type="date" name="drive_date" id="drive_date" class="form-control-custom" value="{{ job.drive_date|date:'Y-m-d' }}">
+            </div>
+            <div class="col-md-6">
+              <label class="form-label-custom" for="application_deadline">Application Deadline</label>
+              <input type="datetime-local" name="application_deadline" id="application_deadline" class="form-control-custom" value="{{ job.application_deadline|date:'Y-m-d\TH:i' }}">
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label-custom" for="role_description">Job Description & Responsibilities <span class="text-danger">*</span></label>
+            <textarea name="role_description" id="role_description" rows="5" class="form-control-custom" required>{{ job.role_description }}</textarea>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label-custom" for="bond_details">Bond / Service Agreement Details</label>
+            <input type="text" name="bond_details" id="bond_details" class="form-control-custom" value="{{ job.bond_details|default:'' }}">
+          </div>
+
+          <div class="d-flex justify-content-end gap-2 mt-4">
+            <a href="{% url 'placements:drive_detail' job.id %}" class="btn btn-outline-secondary">Cancel</a>
+            <button type="submit" class="btn btn-primary px-4">Save Changes</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-lg-4">
+      <div class="tpms-card">
+        <div class="tpms-card-header">
+          <span class="tpms-card-title"><i class="bi bi-info-circle me-2 text-primary"></i> Target Branches</span>
+        </div>
+        <div class="tpms-card-body">
+          <p class="text-muted small mb-2">Branches eligible for this recruitment drive:</p>
+          <div class="d-flex flex-wrap gap-1 mb-3">
+            {% for dept in job.allowed_departments.all %}
+              <span class="badge bg-light text-dark border">{{ dept.code }} — {{ dept.name }}</span>
+            {% endfor %}
+          </div>
+          <div class="p-3 bg-light rounded small border">
+            <div class="mb-1"><strong>Company:</strong> {{ job.company.name }}</div>
+            <div class="mb-1"><strong>Min CGPA:</strong> {{ job.min_graduation_cgpa }}</div>
+            <div class="mb-1"><strong>Max Backlogs:</strong> {{ job.max_active_backlogs }}</div>
+            <div><strong>Batches:</strong> {{ job.allowed_batches }}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</form>
+{% endblock %}

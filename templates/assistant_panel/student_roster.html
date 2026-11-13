@@ -1,0 +1,131 @@
+{% extends 'base/dashboard_base.html' %}
+
+{% block title %}Department Student Roster — {{ block.super }}{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+  <div>
+    <h4 class="fw-bold text-dark mb-1">Department Student Roster</h4>
+    <p class="text-muted small mb-0">
+      Administering candidates for: 
+      {% for d in assigned_depts %}
+        <span class="badge bg-primary me-1">{{ d.code }}</span>
+      {% endfor %}
+    </p>
+  </div>
+  <div class="d-flex gap-2">
+    <a href="{% url 'students:bulk_import' %}" class="btn-tpms-outline">
+      <i class="bi bi-cloud-arrow-up-fill"></i> Ingest CSV / Excel
+    </a>
+    <a href="{% url 'assistant_panel:student_create' %}" class="btn-tpms-primary">
+      <i class="bi bi-person-plus-fill"></i> Add Single Student
+    </a>
+  </div>
+</div>
+
+<!-- Search & Filter Controls -->
+<div class="tpms-card mb-4 p-3">
+  <form method="GET" class="row g-2 align-items-center">
+    <div class="col-md-5">
+      <div class="input-group input-group-sm">
+        <span class="input-group-text bg-light border-end-0"><i class="bi bi-search text-muted"></i></span>
+        <input type="text" name="q" class="form-control border-start-0" placeholder="Search roll, name, email, or skill..." value="{{ query }}">
+      </div>
+    </div>
+    <div class="col-md-4">
+      <select name="status" class="form-select form-select-sm">
+        <option value="">All Placement Statuses</option>
+        {% for s_val, s_label in statuses %}
+          <option value="{{ s_val }}" {% if selected_status == s_val %}selected{% endif %}>{{ s_label }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="col-md-3 d-flex gap-2">
+      <button type="submit" class="btn btn-sm btn-primary w-100">Filter</button>
+      {% if query or selected_status %}
+        <a href="{% url 'assistant_panel:student_roster' %}" class="btn btn-sm btn-outline-secondary">Reset</a>
+      {% endif %}
+    </div>
+  </form>
+</div>
+
+<div class="tpms-card">
+  <div class="tpms-card-header flex-wrap gap-2">
+    <div class="d-flex align-items-center gap-2">
+      <span class="tpms-card-title"><i class="bi bi-mortarboard me-2 text-primary"></i> Enrolled Candidates</span>
+      <span class="badge bg-light text-dark">{% if total_count %}{{ total_count }}{% else %}{{ students|length }}{% endif %} Students</span>
+    </div>
+  </div>
+
+  <div class="tpms-card-body p-0">
+    <div class="tpms-table-container border-0">
+      <table class="tpms-table" id="rosterTable">
+        <thead>
+          <tr>
+            <th>Roll No</th>
+            <th>Candidate Name & Email</th>
+            <th>Dept</th>
+            <th>Batch</th>
+            <th>10th %</th>
+            <th>12th %</th>
+            <th>CGPA</th>
+            <th>Backlogs</th>
+            <th>Status</th>
+            <th class="text-end">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for s in students %}
+            <tr>
+              <td class="fw-bold text-dark">{{ s.roll_number }}</td>
+              <td>
+                <div class="fw-semibold text-dark">{{ s.user.get_full_name }}</div>
+                <div class="text-muted small">{{ s.user.email }}</div>
+              </td>
+              <td><span class="badge bg-light text-dark border">{{ s.department.code }}</span></td>
+              <td>{{ s.batch_year }}</td>
+              <td>{{ s.tenth_percentage }}%</td>
+              <td>{{ s.twelfth_percentage }}%</td>
+              <td><strong>{{ s.graduation_cgpa }}</strong></td>
+              <td>
+                {% if s.active_backlogs > 0 %}
+                  <span class="badge bg-danger-subtle text-danger">{{ s.active_backlogs }} Live</span>
+                {% else %}
+                  <span class="text-muted">0</span>
+                {% endif %}
+              </td>
+              <td>
+                {% if s.placement_status == 'PLACED' %}
+                  <span class="badge bg-success-subtle text-success">
+                    <i class="bi bi-trophy-fill me-1"></i> Placed ({{ s.placed_company.name|default:"Offered" }})
+                  </span>
+                {% elif s.placement_status == 'OPTED_OUT' %}
+                  <span class="badge bg-secondary-subtle text-secondary">Opted Out</span>
+                {% else %}
+                  <span class="badge bg-warning-subtle text-warning">Unplaced</span>
+                {% endif %}
+              </td>
+              <td class="text-end">
+                <div class="d-inline-flex gap-1">
+                  <a href="{% url 'students:detail' s.id %}" class="btn btn-sm btn-light border py-1 px-2" title="Inspect Profile">
+                    <i class="bi bi-eye text-primary"></i>
+                  </a>
+                  <a href="{% url 'assistant_panel:student_edit' s.id %}" class="btn btn-sm btn-light border py-1 px-2" title="Edit Candidate">
+                    <i class="bi bi-pencil text-secondary"></i>
+                  </a>
+                </div>
+              </td>
+            </tr>
+          {% empty %}
+            <tr>
+              <td colspan="10" class="text-center py-4 text-muted">No students found in your assigned department matching criteria.</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    {% include 'includes/pagination.html' with page_obj=students %}
+  </div>
+</div>
+{% endblock %}

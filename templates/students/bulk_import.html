@@ -1,0 +1,137 @@
+{% extends 'base/dashboard_base.html' %}
+
+{% block title %}Bulk Student Ingestion — {{ block.super }}{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+  <div>
+    <h4 class="fw-bold text-dark mb-1">Bulk Student Data Ingestion (CSV / Excel)</h4>
+    <p class="text-muted small mb-0">Onboard hundreds of department students in seconds with automatic account creation and duplicate prevention.</p>
+  </div>
+  <div class="d-flex gap-2">
+    <a href="{% url 'students:download_template' 'csv' %}" class="btn-tpms-outline">
+      <i class="bi bi-filetype-csv me-1"></i> CSV Template
+    </a>
+    <a href="{% url 'students:download_template' 'xlsx' %}" class="btn-tpms-outline">
+      <i class="bi bi-file-earmark-spreadsheet me-1"></i> Excel / Tabular
+    </a>
+  </div>
+</div>
+
+{% if result %}
+  <div class="card p-4 border rounded-3 mb-4 {% if result.success %}bg-success-subtle border-success-subtle{% else %}bg-danger-subtle border-danger-subtle{% endif %}">
+    <div class="d-flex align-items-center justify-content-between mb-2">
+      <h5 class="fw-bold text-dark mb-0">
+        {% if result.success %}
+          <i class="bi bi-check-circle-fill text-success me-2"></i> Ingestion Batch Complete
+        {% else %}
+          <i class="bi bi-x-circle-fill text-danger me-2"></i> Ingestion Error
+        {% endif %}
+      </h5>
+    </div>
+    <div class="d-flex gap-4 text-dark small mb-2">
+      <div><strong>{{ result.created_count }}</strong> Candidates Created</div>
+      <div><strong>{{ result.skipped_count }}</strong> Duplicate Records Skipped</div>
+      <div><strong>{{ result.errors|length }}</strong> Validation Warnings</div>
+    </div>
+    {% if result.errors %}
+      <div class="mt-2 bg-white p-3 rounded border small text-danger" style="max-height: 150px; overflow-y: auto;">
+        <strong class="d-block text-dark mb-1">Row Processing Errors:</strong>
+        <ul class="mb-0 ps-3">
+          {% for err in result.errors %}
+            <li>{{ err }}</li>
+          {% endfor %}
+        </ul>
+      </div>
+    {% endif %}
+  </div>
+{% endif %}
+
+<div class="row g-4">
+  <div class="col-lg-7">
+    <div class="tpms-card">
+      <div class="tpms-card-header">
+        <span class="tpms-card-title"><i class="bi bi-file-earmark-spreadsheet-fill me-2 text-success"></i> Upload Dataset</span>
+      </div>
+      <div class="tpms-card-body">
+        <form method="POST" enctype="multipart/form-data">
+          {% csrf_token %}
+          <div class="mb-3">
+            <label class="form-label-custom" for="department_id">Target Academic Department <span class="text-danger">*</span></label>
+            <select name="department_id" id="department_id" class="form-select-custom" required>
+              <option value="">Select Department</option>
+              {% for d in assigned_depts %}
+                <option value="{{ d.id }}">{{ d.code }} — {{ d.name }}</option>
+              {% endfor %}
+            </select>
+            <div class="text-muted small mt-1">Imported student profiles will be strictly bounded to this branch.</div>
+          </div>
+
+          <!-- Drag and Drop File Upload Area -->
+          <div class="mb-4">
+            <label class="form-label-custom">Select CSV or Excel (.xlsx) File <span class="text-danger">*</span></label>
+            <div class="file-drop-area border-2 border-dashed rounded-3 p-4 text-center bg-light" style="border-style: dashed !important; border-color: #cbd5e1 !important;">
+              <i class="bi bi-cloud-arrow-up text-primary display-5 d-block mb-2"></i>
+              <div class="fw-semibold text-dark mb-1">Click to browse or drag & drop candidate file</div>
+              <div class="text-muted small file-name-preview mb-3">Accepts .csv or .xlsx (Max 15MB)</div>
+              <input type="file" name="student_file" class="d-none" id="student_file" accept=".csv, .xlsx" required>
+              <label for="student_file" class="btn btn-sm btn-outline-primary px-3">
+                <i class="bi bi-folder2-open me-1"></i> Browse Files
+              </label>
+            </div>
+          </div>
+
+          <div class="p-3 bg-light rounded-3 small text-muted mb-4 border">
+            <div class="fw-semibold text-dark mb-1"><i class="bi bi-shield-lock-fill text-indigo me-1"></i> Automatic Credentials & Security</div>
+            <div>• Each student will automatically receive a user account with their email.</div>
+            <div>• Default initial password will be set to <code class="text-primary">apex@123</code>.</div>
+            <div>• Duplicates based on email or roll number will be safely skipped.</div>
+          </div>
+
+          <button type="submit" class="btn-tpms-primary w-100 justify-content-center py-2 fs-6">
+            <i class="bi bi-upload me-1"></i> Ingest Student Records
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-lg-5">
+    <div class="tpms-card">
+      <div class="tpms-card-header">
+        <span class="tpms-card-title"><i class="bi bi-question-circle me-2 text-primary"></i> Column Format Guide</span>
+      </div>
+      <div class="tpms-card-body">
+        <p class="text-muted small mb-3">Your spreadsheet must include these exact column headers:</p>
+        <div class="table-responsive small">
+          <table class="table table-sm table-bordered">
+            <thead class="bg-light">
+              <tr>
+                <th>Header</th>
+                <th>Type</th>
+                <th>Example</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td><code>roll_number</code></td><td>Text</td><td>21CSE101</td></tr>
+              <tr><td><code>prn_number</code></td><td>Text</td><td>PRN21001</td></tr>
+              <tr><td><code>first_name</code></td><td>Text</td><td>Rohan</td></tr>
+              <tr><td><code>last_name</code></td><td>Text</td><td>Sharma</td></tr>
+              <tr><td><code>email</code></td><td>Email</td><td>rohan@apex.edu.in</td></tr>
+              <tr><td><code>phone</code></td><td>Text</td><td>9876543210</td></tr>
+              <tr><td><code>tenth_percentage</code></td><td>Decimal</td><td>88.50</td></tr>
+              <tr><td><code>twelfth_percentage</code></td><td>Decimal</td><td>85.20</td></tr>
+              <tr><td><code>graduation_cgpa</code></td><td>Decimal</td><td>8.45</td></tr>
+              <tr><td><code>active_backlogs</code></td><td>Integer</td><td>0</td></tr>
+              <tr><td><code>skills</code></td><td>Text</td><td>Python, Django</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <a href="{% url 'students:download_template' 'csv' %}" class="btn btn-sm btn-outline-secondary w-100 mt-2">
+          <i class="bi bi-file-earmark-arrow-down"></i> Download Sample CSV File
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

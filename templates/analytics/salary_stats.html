@@ -1,0 +1,117 @@
+{% extends 'base/dashboard_base.html' %}
+
+{% block title %}Salary Benchmarks — {{ block.super }}{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <div>
+    <h4 class="fw-bold text-dark mb-1">Salary Benchmarks & Compensation Reports</h4>
+    <p class="text-muted small mb-0">Institutional CTC percentiles, tier breakdown, and department compensation averages.</p>
+  </div>
+</div>
+
+<div class="row g-3 mb-4">
+  <div class="col-md-4">
+    <div class="metric-card">
+      <div class="metric-label">Minimum Offered CTC</div>
+      <div class="metric-value text-dark">{{ metrics.min_pkg }} LPA</div>
+      <div class="metric-sub text-muted">Baseline compensation</div>
+    </div>
+  </div>
+
+  <div class="col-md-4">
+    <div class="metric-card">
+      <div class="metric-label">Institutional Average CTC</div>
+      <div class="metric-value text-primary">{{ metrics.avg_pkg }} LPA</div>
+      <div class="metric-sub text-muted">Across all placed candidates</div>
+    </div>
+  </div>
+
+  <div class="col-md-4">
+    <div class="metric-card">
+      <div class="metric-label">Highest Offered CTC</div>
+      <div class="metric-value text-success">{{ metrics.max_pkg }} LPA</div>
+      <div class="metric-sub text-success"><i class="bi bi-trophy"></i> Dream Tier package</div>
+    </div>
+  </div>
+</div>
+
+<!-- Doughnut Chart: Tier Spread -->
+<div class="row g-4 mb-4">
+  <div class="col-lg-5">
+    <div class="tpms-card h-100 mb-0">
+      <div class="tpms-card-header">
+        <span class="tpms-card-title"><i class="bi bi-pie-chart me-2 text-indigo"></i> Compensation Tier Distribution</span>
+      </div>
+      <div class="tpms-card-body d-flex flex-column align-items-center justify-content-center">
+        <div style="height: 240px; width: 100%; position: relative;">
+          <canvas id="salaryDoughnutChart"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-lg-7">
+    <div class="tpms-card h-100 mb-0">
+      <div class="tpms-card-header">
+        <span class="tpms-card-title"><i class="bi bi-table me-2 text-primary"></i> Department Average CTC Benchmarks</span>
+      </div>
+      <div class="tpms-card-body p-0">
+        <div class="tpms-table-container border-0">
+          <table class="tpms-table">
+            <thead>
+              <tr>
+                <th>Branch</th>
+                <th>Department Name</th>
+                <th>Placed Count</th>
+                <th>Average Compensation</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for d in dept_breakdown %}
+                <tr>
+                  <td><strong class="text-dark">{{ d.code }}</strong></td>
+                  <td>{{ d.name }}</td>
+                  <td><span class="badge bg-success-subtle text-success">{{ d.placed }}</span></td>
+                  <td><strong class="text-primary">{{ d.avg_pkg }} LPA</strong></td>
+                </tr>
+              {% empty %}
+                <tr>
+                  <td colspan="4" class="text-center py-4 text-muted">No salary data recorded yet.</td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const ctx = document.getElementById('salaryDoughnutChart');
+  if (ctx) {
+    new Chart(ctx, {
+      type: 'doughnut',
+      data: {
+        labels: {{ chart_data.tier_labels|safe }},
+        datasets: [{
+          data: {{ chart_data.tier_distribution|safe }},
+          backgroundColor: ['#ef4444', '#4f46e5', '#94a3b8'],
+          hoverOffset: 4
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { position: 'bottom' } },
+        cutout: '65%'
+      }
+    });
+  }
+});
+</script>
+{% endblock %}

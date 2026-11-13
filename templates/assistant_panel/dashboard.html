@@ -1,0 +1,159 @@
+{% extends 'base/dashboard_base.html' %}
+
+{% block title %}Department Coordinator Dashboard — {{ block.super }}{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <div>
+    <h4 class="fw-bold text-dark mb-1">
+      TnP Assistant Dashboard: 
+      {% for d in assigned_depts %}
+        <span class="badge bg-primary me-1">{{ d.code }}</span>
+      {% endfor %}
+    </h4>
+    <p class="text-muted small mb-0">Department-scoped candidate management, drive approvals, student data ingestion and verification.</p>
+  </div>
+  <div class="d-flex gap-2">
+    <a href="{% url 'students:bulk_import' %}" class="btn-tpms-primary">
+      <i class="bi bi-cloud-arrow-up-fill"></i> CSV / Excel Ingestion
+    </a>
+    <a href="{% url 'assistant_panel:student_create' %}" class="btn-tpms-outline">
+      <i class="bi bi-person-plus-fill"></i> Add Student
+    </a>
+  </div>
+</div>
+
+<!-- Department Scoped Metric Cards -->
+<div class="row g-3 mb-4">
+  <div class="col-sm-6 col-xl-3">
+    <div class="metric-card">
+      <div class="metric-label">Branch Enrolled Students</div>
+      <div class="metric-value">{{ total_students }}</div>
+      <div class="metric-sub text-muted">
+        <i class="bi bi-people text-primary"></i> In your assigned branches
+      </div>
+    </div>
+  </div>
+
+  <div class="col-sm-6 col-xl-3">
+    <div class="metric-card">
+      <div class="metric-label">Branch Placed Students</div>
+      <div class="metric-value text-success">{{ placed_students }}</div>
+      <div class="metric-sub text-success">
+        <i class="bi bi-check2-circle"></i> {{ unplaced_students }} unplaced
+      </div>
+    </div>
+  </div>
+
+  <div class="col-sm-6 col-xl-3">
+    <div class="metric-card">
+      <div class="metric-label">Drives Pending Approval</div>
+      <div class="metric-value {% if pending_approvals > 0 %}text-warning{% else %}text-muted{% endif %}">{{ pending_approvals }}</div>
+      <div class="metric-sub text-muted">
+        <a href="{% url 'assistant_panel:job_approvals' %}" class="text-decoration-none">Review drives &rarr;</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-sm-6 col-xl-3">
+    <div class="metric-card">
+      <div class="metric-label">Pending Verifications</div>
+      <div class="metric-value {% if pending_verifications > 0 %}text-danger{% else %}text-muted{% endif %}">{{ pending_verifications }}</div>
+      <div class="metric-sub text-muted">
+        <a href="{% url 'assistant_panel:verify_applications' %}" class="text-decoration-none">Verify marks &rarr;</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Package Ribbon for Department -->
+<div class="row g-3 mb-4">
+  <div class="col-md-4">
+    <div class="p-3 bg-white border rounded-3 shadow-xs d-flex align-items-center justify-content-between">
+      <div>
+        <div class="text-muted text-uppercase" style="font-size: 0.7rem; font-weight: 700;">Branch Min Package</div>
+        <div class="fs-4 fw-bold text-dark">{{ min_package }} LPA</div>
+      </div>
+      <i class="bi bi-cash text-secondary fs-4"></i>
+    </div>
+  </div>
+
+  <div class="col-md-4">
+    <div class="p-3 bg-white border rounded-3 shadow-xs d-flex align-items-center justify-content-between">
+      <div>
+        <div class="text-muted text-uppercase" style="font-size: 0.7rem; font-weight: 700;">Branch Avg Package</div>
+        <div class="fs-4 fw-bold text-primary">{{ avg_package }} LPA</div>
+      </div>
+      <i class="bi bi-graph-up text-primary fs-4"></i>
+    </div>
+  </div>
+
+  <div class="col-md-4">
+    <div class="p-3 bg-white border rounded-3 shadow-xs d-flex align-items-center justify-content-between">
+      <div>
+        <div class="text-muted text-uppercase" style="font-size: 0.7rem; font-weight: 700;">Branch Max Package</div>
+        <div class="fs-4 fw-bold text-success">{{ max_package }} LPA</div>
+      </div>
+      <i class="bi bi-trophy text-success fs-4"></i>
+    </div>
+  </div>
+</div>
+
+<!-- Department Candidates Preview -->
+<div class="tpms-card mb-0">
+  <div class="tpms-card-header">
+    <span class="tpms-card-title"><i class="bi bi-mortarboard-fill me-2 text-primary"></i> Recently Enrolled Branch Candidates</span>
+    <a href="{% url 'assistant_panel:student_roster' %}" class="btn btn-sm btn-link text-decoration-none">Full Branch Roster &rarr;</a>
+  </div>
+  <div class="tpms-card-body p-0">
+    <div class="tpms-table-container border-0">
+      <table class="tpms-table">
+        <thead>
+          <tr>
+            <th>Roll Number</th>
+            <th>Candidate Name</th>
+            <th>Email</th>
+            <th>Grad CGPA</th>
+            <th>Backlogs</th>
+            <th>Placement Status</th>
+            <th class="text-end">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for s in recent_students %}
+            <tr>
+              <td class="fw-bold text-dark">{{ s.roll_number }}</td>
+              <td>{{ s.user.get_full_name }}</td>
+              <td class="text-muted small">{{ s.user.email }}</td>
+              <td><strong>{{ s.graduation_cgpa }}</strong></td>
+              <td>
+                {% if s.active_backlogs == 0 %}
+                  <span class="badge bg-success-subtle text-success">0 Backlogs</span>
+                {% else %}
+                  <span class="badge bg-danger-subtle text-danger">{{ s.active_backlogs }} Live</span>
+                {% endif %}
+              </td>
+              <td>
+                {% if s.placement_status == 'PLACED' %}
+                  <span class="badge bg-success-subtle text-success"><i class="bi bi-check-circle-fill"></i> Placed</span>
+                {% else %}
+                  <span class="badge bg-light text-muted border">Unplaced</span>
+                {% endif %}
+              </td>
+              <td class="text-end">
+                <a href="{% url 'assistant_panel:student_edit' s.id %}" class="btn btn-sm btn-light border py-1 px-2" title="Edit Student">
+                  <i class="bi bi-pencil"></i>
+                </a>
+              </td>
+            </tr>
+          {% empty %}
+            <tr>
+              <td colspan="7" class="text-center py-4 text-muted">No students enrolled in this branch yet. Use CSV Ingestion to populate.</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}

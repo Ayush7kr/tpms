@@ -1,0 +1,468 @@
+{% extends 'base/base.html' %}
+{% load static %}
+
+{% block title %}Sign In — TPMS Portal — {{ INSTITUTE_NAME }}{% endblock %}
+
+{% block extra_css %}
+<style>
+  .auth-page-wrapper {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    background-color: var(--tpms-bg-canvas);
+    transition: background-color 0.2s ease, color 0.2s ease;
+  }
+
+  .auth-main-card {
+    background-color: var(--tpms-bg-surface);
+    border: 1px solid var(--tpms-border);
+    border-radius: 20px;
+    box-shadow: var(--tpms-shadow-lg);
+    overflow: hidden;
+  }
+
+  /* Left Image Showcase Section */
+  .auth-visual-panel {
+    position: relative;
+    background-image: url("{% static 'img/student_study.jpg' %}");
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    min-height: 560px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 2.75rem 2.25rem;
+    color: #ffffff;
+    overflow: hidden;
+  }
+
+  .auth-visual-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, rgba(15, 23, 42, 0.45) 0%, rgba(15, 23, 42, 0.25) 40%, rgba(11, 19, 41, 0.88) 100%);
+    backdrop-filter: blur(1px);
+    z-index: 1;
+  }
+
+  .auth-visual-content {
+    position: relative;
+    z-index: 2;
+  }
+
+  .auth-brand-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.4rem 0.85rem;
+    background: rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    border-radius: 50px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: #ffffff;
+    letter-spacing: -0.01em;
+  }
+
+  .auth-visual-quote {
+    font-size: 1.85rem;
+    font-weight: 800;
+    line-height: 1.25;
+    letter-spacing: -0.02em;
+    color: #ffffff;
+    margin-bottom: 0.75rem;
+    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+  }
+
+  .auth-visual-subtext {
+    font-size: 0.925rem;
+    line-height: 1.6;
+    color: rgba(255, 255, 255, 0.9);
+    margin-bottom: 1.5rem;
+    text-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
+  }
+
+  /* Right Authentication Form Section */
+  .auth-form-panel {
+    padding: 3.5rem 3rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    background-color: var(--tpms-bg-surface);
+  }
+
+  /* Integrated Input Styling with Perfect Alignment */
+  .auth-input-group {
+    position: relative;
+    display: flex;
+    align-items: center;
+    width: 100%;
+  }
+
+  .auth-input-icon-start {
+    position: absolute;
+    left: 1rem;
+    color: var(--tpms-text-muted);
+    font-size: 1.1rem;
+    pointer-events: none;
+    z-index: 4;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .auth-input-icon-end {
+    position: absolute;
+    right: 0.75rem;
+    z-index: 4;
+    background: transparent;
+    border: none;
+    color: var(--tpms-text-muted);
+    padding: 0.35rem 0.5rem;
+    border-radius: 6px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.1rem;
+    transition: color 0.15s ease;
+  }
+
+  .auth-input-icon-end:hover {
+    color: var(--tpms-text-main);
+  }
+
+  .auth-form-control {
+    width: 100%;
+    height: 48px;
+    padding: 0.65rem 1rem 0.65rem 2.75rem;
+    font-size: 0.95rem;
+    font-weight: 400;
+    line-height: 1.5;
+    color: var(--tpms-text-main);
+    background-color: var(--tpms-input-bg);
+    border: 1px solid var(--tpms-border);
+    border-radius: var(--tpms-radius-md);
+    transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out, background-color 0.2s ease;
+  }
+
+  .auth-form-control.has-end-icon {
+    padding-right: 2.75rem;
+  }
+
+  .auth-form-control:focus {
+    color: var(--tpms-text-main);
+    background-color: var(--tpms-input-bg);
+    border-color: var(--tpms-brand);
+    outline: 0;
+    box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.15);
+  }
+
+  .auth-form-control::placeholder {
+    color: var(--tpms-text-light);
+  }
+
+  .auth-submit-btn {
+    height: 48px;
+    font-size: 0.975rem;
+    font-weight: 600;
+    border-radius: var(--tpms-radius-md);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    box-shadow: var(--tpms-shadow-sm);
+    transition: all 0.18s ease;
+  }
+
+  .auth-submit-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: var(--tpms-shadow-md);
+  }
+
+  .auth-submit-btn:active {
+    transform: translateY(0);
+  }
+
+  @media (max-width: 991.98px) {
+    .auth-visual-panel {
+      min-height: 280px;
+      padding: 2rem 1.75rem;
+    }
+    .auth-form-panel {
+      padding: 2.5rem 1.75rem;
+    }
+    .auth-visual-quote {
+      font-size: 1.5rem;
+    }
+  }
+
+  @media (max-width: 575.98px) {
+    .auth-visual-panel {
+      min-height: 220px;
+      padding: 1.5rem 1.25rem;
+    }
+    .auth-visual-quote {
+      font-size: 1.35rem;
+    }
+    .auth-visual-subtext {
+      font-size: 0.85rem;
+      margin-bottom: 0.75rem;
+    }
+  }
+</style>
+{% endblock %}
+
+{% block layout_content %}
+<div class="auth-page-wrapper">
+  <!-- Minimal Clean Header -->
+  <header class="py-3 px-4 border-bottom d-flex align-items-center justify-content-between" style="background-color: var(--tpms-bg-surface); border-color: var(--tpms-border) !important;">
+    <a href="{% url 'core:landing' %}" class="d-flex align-items-center gap-2 text-decoration-none">
+      <div class="rounded-3 bg-primary text-white d-flex align-items-center justify-content-center fw-bold shadow-xs" style="width: 34px; height: 34px;">
+        <i class="bi bi-mortarboard-fill fs-6"></i>
+      </div>
+      <div>
+        <span class="fw-bold fs-6 lh-1 d-block" style="color: var(--tpms-text-main); letter-spacing: -0.01em;">{{ INSTITUTE_NAME }}</span>
+        <span class="text-muted text-uppercase" style="font-size: 0.68rem; letter-spacing: 0.04em; font-weight: 600;">Training &amp; Placement Management System</span>
+      </div>
+    </a>
+
+    <div class="d-flex align-items-center gap-2">
+      <a href="{% url 'core:landing' %}" class="btn-tpms-outline btn-sm py-1 px-3 d-inline-flex align-items-center gap-1" style="font-size: 0.825rem;">
+        <i class="bi bi-arrow-left"></i> <span class="d-none d-sm-inline">Back to</span> Homepage
+      </a>
+    </div>
+  </header>
+
+  <!-- Main Authentication Body -->
+  <main class="container my-auto py-4 py-md-5">
+    <div class="row justify-content-center">
+      <div class="col-12 col-xl-10">
+        <div class="auth-main-card">
+          <div class="row g-0">
+            
+            <!-- ================= LEFT STUDENT-STUDY VISUAL PANEL ================= -->
+            <div class="col-lg-6 auth-visual-panel">
+              <div class="auth-visual-overlay"></div>
+              
+              <!-- Top Branding -->
+              <div class="auth-visual-content">
+                <div class="auth-brand-pill">
+                  <i class="bi bi-mortarboard-fill text-warning"></i>
+                  <span>{{ INSTITUTE_SHORT_NAME }} TPMS Portal</span>
+                </div>
+              </div>
+
+              <!-- Bottom Heading & Message -->
+              <div class="auth-visual-content">
+                <h2 class="auth-visual-quote">
+                  Your Future Starts Here.
+                </h2>
+                <p class="auth-visual-subtext">
+                  Access placement opportunities, track your recruitment journey, and stay connected with your institution.
+                </p>
+                <div class="d-flex align-items-center gap-2 text-white-50 small" style="font-size: 0.78rem;">
+                  <i class="bi bi-shield-check text-success"></i>
+                  <span>Apex Institute of Technology • Training &amp; Placement Cell</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- ================= RIGHT SIGN-IN FORM PANEL ================= -->
+            <div class="col-lg-6 auth-form-panel">
+              <div class="mb-4">
+                <h3 class="fw-extrabold mb-1" style="color: var(--tpms-text-main); font-weight: 800; letter-spacing: -0.02em;">Welcome Back</h3>
+                <p class="text-muted small mb-0" style="font-size: 0.9rem;">
+                  Sign in to your Apex Institute of Technology account.
+                </p>
+              </div>
+
+              <!-- Alert Messages -->
+              {% if messages %}
+                {% for message in messages %}
+                  <div class="alert alert-{{ message.tags|default:'info' }} alert-dismissible fade show small py-2 px-3 mb-3 d-flex align-items-center gap-2" role="alert">
+                    <i class="bi bi-info-circle-fill"></i>
+                    <div>{{ message }}</div>
+                    <button type="button" class="btn-close py-2" data-bs-dismiss="alert"></button>
+                  </div>
+                {% endfor %}
+              {% endif %}
+
+              {% if error %}
+                <div class="alert alert-danger small py-2 px-3 mb-3 d-flex align-items-center gap-2" role="alert">
+                  <i class="bi bi-exclamation-triangle-fill fs-5 flex-shrink-0 text-danger"></i>
+                  <div>{{ error }}</div>
+                </div>
+              {% endif %}
+
+              <!-- Clean Authentication Form -->
+              <form method="POST" action="{% url 'accounts:login' %}" id="loginForm" onsubmit="return handleFormSubmit()">
+                {% csrf_token %}
+
+                <!-- Institutional Email -->
+                <div class="mb-3">
+                  <label class="form-label-custom mb-1" for="email">
+                    Institutional Email <span class="text-danger">*</span>
+                  </label>
+                  <div class="auth-input-group">
+                    <span class="auth-input-icon-start">
+                      <i class="bi bi-envelope"></i>
+                    </span>
+                    <input 
+                      type="email" 
+                      name="email" 
+                      id="email" 
+                      class="auth-form-control" 
+                      placeholder="e.g. rollnumber@apex.edu.in" 
+                      value="{{ submitted_email|default:'' }}"
+                      required 
+                      autofocus
+                      autocomplete="email"
+                    >
+                  </div>
+                </div>
+
+                <!-- Password with Integrated Visibility Toggle -->
+                <div class="mb-3">
+                  <div class="d-flex justify-content-between align-items-center mb-1">
+                    <label class="form-label-custom mb-0" for="password">
+                      Password <span class="text-danger">*</span>
+                    </label>
+                  </div>
+                  <div class="auth-input-group">
+                    <span class="auth-input-icon-start">
+                      <i class="bi bi-lock"></i>
+                    </span>
+                    <input 
+                      type="password" 
+                      name="password" 
+                      id="password" 
+                      class="auth-form-control has-end-icon" 
+                      placeholder="Enter your account password" 
+                      required
+                      autocomplete="current-password"
+                    >
+                    <button 
+                      type="button" 
+                      class="auth-input-icon-end" 
+                      id="passwordToggleBtn"
+                      onclick="togglePasswordVisibility()" 
+                      title="Show/Hide Password"
+                      aria-label="Toggle password visibility"
+                    >
+                      <i id="passwordToggleIcon" class="bi bi-eye"></i>
+                    </button>
+                  </div>
+                </div>
+
+                <!-- Remember Me & Forgot Password Helper -->
+                <div class="d-flex align-items-center justify-content-between mb-4">
+                  <div class="form-check">
+                    <input class="form-check-input" type="checkbox" name="remember_me" id="rememberMe" checked>
+                    <label class="form-check-label small" for="rememberMe" style="color: var(--tpms-text-muted); font-size: 0.85rem;">
+                      Remember me
+                    </label>
+                  </div>
+                  <a href="#helpModal" data-bs-toggle="modal" class="small text-decoration-none" style="color: var(--tpms-brand); font-size: 0.825rem; font-weight: 500;">
+                    Forgot password?
+                  </a>
+                </div>
+
+                <!-- Submit Button -->
+                <button type="submit" id="submitLoginBtn" class="btn-tpms-primary w-100 auth-submit-btn mb-4">
+                  <span class="spinner-border spinner-border-sm d-none me-2" id="loginSpinner" role="status"></span>
+                  <i class="bi bi-box-arrow-in-right" id="loginBtnIcon"></i>
+                  <span id="loginBtnText">Sign In</span>
+                </button>
+              </form>
+
+              <!-- Subtle Institutional Footer -->
+              <div class="pt-3 border-top text-center" style="border-color: var(--tpms-border) !important;">
+                <p class="text-muted small mb-0" style="font-size: 0.775rem;">
+                  Apex Institute of Technology | Training &amp; Placement Portal
+                </p>
+              </div>
+
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Page Footer -->
+  <footer class="py-3 text-center border-top" style="background-color: var(--tpms-bg-surface); border-color: var(--tpms-border) !important;">
+    <div class="container">
+      <p class="text-muted small mb-0" style="font-size: 0.75rem;">
+        &copy; {{ CURRENT_ACADEMIC_YEAR }} {{ INSTITUTE_NAME }}. All Rights Reserved. Strictly for authorized institutional use.
+      </p>
+    </div>
+  </footer>
+</div>
+
+<!-- Password Assistance Modal -->
+<div class="modal fade" id="helpModal" tabindex="-1" aria-labelledby="helpModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content" style="background-color: var(--tpms-bg-surface); border: 1px solid var(--tpms-border); border-radius: var(--tpms-radius-lg);">
+      <div class="modal-header border-bottom" style="border-color: var(--tpms-border) !important;">
+        <h5 class="modal-title fw-bold" id="helpModalLabel" style="color: var(--tpms-text-main);">
+          <i class="bi bi-key-fill text-primary me-2"></i>Account Password Assistance
+        </h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body" style="color: var(--tpms-text-muted); font-size: 0.9rem;">
+        <p class="mb-3">
+          For security and institutional compliance, credentials for the TPMS platform are managed directly by your department coordinator or the Career Development Cell.
+        </p>
+        <div class="p-3 rounded-3 mb-3" style="background-color: var(--tpms-bg-subtle); border: 1px solid var(--tpms-border);">
+          <div class="fw-bold mb-1" style="color: var(--tpms-text-main);">Contact Support:</div>
+          <div><i class="bi bi-envelope me-2 text-primary"></i>placements@apex.edu.in</div>
+          <div><i class="bi bi-telephone me-2 text-primary"></i>+91 (020) 2765-8000</div>
+          <div><i class="bi bi-geo-alt me-2 text-primary"></i>Academic Block A, Placement Directorate</div>
+        </div>
+        <p class="small text-muted mb-0">
+          Once signed in, you can update your personal account password at any time via <strong>Account &gt; Change Password</strong>.
+        </p>
+      </div>
+      <div class="modal-footer border-top" style="border-color: var(--tpms-border) !important;">
+        <button type="button" class="btn btn-sm btn-secondary" data-bs-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  function togglePasswordVisibility() {
+    const pwdInput = document.getElementById('password');
+    const toggleIcon = document.getElementById('passwordToggleIcon');
+    if (!pwdInput || !toggleIcon) return;
+
+    if (pwdInput.type === 'password') {
+      pwdInput.type = 'text';
+      toggleIcon.className = 'bi bi-eye-slash';
+    } else {
+      pwdInput.type = 'password';
+      toggleIcon.className = 'bi bi-eye';
+    }
+  }
+
+  function handleFormSubmit() {
+    const btn = document.getElementById('submitLoginBtn');
+    const spinner = document.getElementById('loginSpinner');
+    const icon = document.getElementById('loginBtnIcon');
+    const text = document.getElementById('loginBtnText');
+    if (btn && spinner && icon && text) {
+      spinner.classList.remove('d-none');
+      icon.classList.add('d-none');
+      text.textContent = 'Authenticating...';
+      setTimeout(() => {
+        btn.disabled = true;
+      }, 50);
+    }
+    return true;
+  }
+</script>
+{% endblock %}

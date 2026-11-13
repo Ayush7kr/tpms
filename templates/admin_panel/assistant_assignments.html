@@ -1,0 +1,106 @@
+{% extends 'base/dashboard_base.html' %}
+
+{% block title %}Assistant Department Allocations — {{ block.super }}{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <div>
+    <h4 class="fw-bold text-dark mb-1">TnP Assistant Department Allocations</h4>
+    <p class="text-muted small mb-0">Assign coordinators to specific academic branches. Enforces strict department-level data isolation.</p>
+  </div>
+</div>
+
+<div class="row g-4">
+  <!-- Assignment Form Card -->
+  <div class="col-lg-4">
+    <div class="tpms-card">
+      <div class="tpms-card-header">
+        <span class="tpms-card-title"><i class="bi bi-person-plus me-2 text-primary"></i> Allocate Assistant</span>
+      </div>
+      <div class="tpms-card-body">
+        <form method="POST">
+          {% csrf_token %}
+          <input type="hidden" name="action" value="assign">
+
+          <div class="mb-3">
+            <label class="form-label-custom" for="assistant_id">TnP Assistant Staff <span class="text-danger">*</span></label>
+            <select name="assistant_id" id="assistant_id" class="form-select-custom" required>
+              <option value="">Select Assistant</option>
+              {% for a in assistants %}
+                <option value="{{ a.id }}">{{ a.get_full_name }} ({{ a.email }})</option>
+              {% endfor %}
+            </select>
+          </div>
+
+          <div class="mb-4">
+            <label class="form-label-custom" for="department_id">Target Academic Department <span class="text-danger">*</span></label>
+            <select name="department_id" id="department_id" class="form-select-custom" required>
+              <option value="">Select Department</option>
+              {% for d in departments %}
+                <option value="{{ d.id }}">{{ d.code }} — {{ d.name }}</option>
+              {% endfor %}
+            </select>
+          </div>
+
+          <button type="submit" class="btn-tpms-primary w-100 justify-content-center">
+            <i class="bi bi-link-45deg me-1"></i> Allocate Department
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Active Allocations Table -->
+  <div class="col-lg-8">
+    <div class="tpms-card">
+      <div class="tpms-card-header">
+        <span class="tpms-card-title"><i class="bi bi-diagram-3 me-2 text-indigo"></i> Active Department Allocations</span>
+        <span class="badge bg-light text-dark">{{ assignments|length }} Active</span>
+      </div>
+      <div class="tpms-card-body p-0">
+        <div class="tpms-table-container border-0">
+          <table class="tpms-table">
+            <thead>
+              <tr>
+                <th>Department</th>
+                <th>Assigned Assistant</th>
+                <th>Allocated Date</th>
+                <th class="text-end">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for asgn in assignments %}
+                <tr>
+                  <td>
+                    <span class="fw-bold text-dark fs-6">{{ asgn.department.code }}</span>
+                    <div class="text-muted small">{{ asgn.department.name }}</div>
+                  </td>
+                  <td>
+                    <div class="fw-semibold text-dark">{{ asgn.assistant.get_full_name }}</div>
+                    <div class="text-muted small">{{ asgn.assistant.email }}</div>
+                  </td>
+                  <td class="text-muted small">{{ asgn.assigned_at|date:"M d, Y" }}</td>
+                  <td class="text-end">
+                    <form method="POST" class="d-inline" onsubmit="return confirm('Revoke this department allocation?');">
+                      {% csrf_token %}
+                      <input type="hidden" name="action" value="remove">
+                      <input type="hidden" name="assignment_id" value="{{ asgn.id }}">
+                      <button type="submit" class="btn btn-sm btn-outline-danger py-1 px-2" title="Revoke Allocation">
+                        <i class="bi bi-trash3"></i> Revoke
+                      </button>
+                    </form>
+                  </td>
+                </tr>
+              {% empty %}
+                <tr>
+                  <td colspan="4" class="text-center py-4 text-muted">No department assignments configured yet.</td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

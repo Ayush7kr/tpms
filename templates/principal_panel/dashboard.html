@@ -1,0 +1,213 @@
+{% extends 'base/dashboard_base.html' %}
+
+{% block title %}Principal Executive Dashboard — {{ block.super }}{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <div>
+    <h4 class="fw-bold text-dark mb-1">Institutional Placement & Governance Overview</h4>
+    <p class="text-muted small mb-0">Executive institutional monitoring, branch performance comparisons, and corporate recruitment analytics.</p>
+  </div>
+  <div class="d-flex gap-2">
+    <a href="{% url 'principal_panel:export_csv' %}" class="btn-tpms-outline">
+      <i class="bi bi-file-earmark-arrow-down me-1"></i> Export Institutional CSV
+    </a>
+    <a href="{% url 'principal_panel:department_reports' %}" class="btn-tpms-primary">
+      <i class="bi bi-diagram-3 me-1"></i> Branch Reports
+    </a>
+  </div>
+</div>
+
+<!-- Executive Metric Cards -->
+<div class="row g-3 mb-4">
+  <div class="col-sm-6 col-xl-3">
+    <div class="metric-card">
+      <div class="metric-label">Institutional Placement Rate</div>
+      <div class="metric-value text-success">{{ metrics.placement_rate }}%</div>
+      <div class="metric-sub text-success">
+        <i class="bi bi-check-circle-fill"></i> {{ metrics.placed_students }} of {{ metrics.total_students }} Placed
+      </div>
+    </div>
+  </div>
+
+  <div class="col-sm-6 col-xl-3">
+    <div class="metric-card">
+      <div class="metric-label">Average Annual CTC</div>
+      <div class="metric-value text-primary">{{ metrics.avg_pkg }} LPA</div>
+      <div class="metric-sub text-muted">
+        <i class="bi bi-arrow-up-right"></i> Min: {{ metrics.min_pkg }} LPA
+      </div>
+    </div>
+  </div>
+
+  <div class="col-sm-6 col-xl-3">
+    <div class="metric-card">
+      <div class="metric-label">Highest Package Offered</div>
+      <div class="metric-value text-dark">{{ metrics.max_pkg }} LPA</div>
+      <div class="metric-sub text-muted">
+        <i class="bi bi-trophy text-warning"></i> Tier 1 Dream Offer
+      </div>
+    </div>
+  </div>
+
+  <div class="col-sm-6 col-xl-3">
+    <div class="metric-card">
+      <div class="metric-label">Hiring Partners</div>
+      <div class="metric-value text-indigo">{{ metrics.total_companies }}</div>
+      <div class="metric-sub text-muted">
+        <i class="bi bi-buildings"></i> {{ metrics.active_drives }} active campus drives
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Interactive Chart.js Visualizations -->
+<div class="row g-4 mb-4">
+  <!-- Bar Chart: Branch Placement Performance -->
+  <div class="col-lg-8">
+    <div class="tpms-card mb-0 h-100">
+      <div class="tpms-card-header">
+        <span class="tpms-card-title"><i class="bi bi-bar-chart-fill me-2 text-primary"></i> Department-Wise Placement Distribution</span>
+        <span class="badge bg-light text-muted border">Enrolled vs Placed</span>
+      </div>
+      <div class="tpms-card-body">
+        <div style="height: 300px; position: relative;">
+          <canvas id="deptPlacementChart"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Doughnut Chart: Compensation Tier Spread -->
+  <div class="col-lg-4">
+    <div class="tpms-card mb-0 h-100">
+      <div class="tpms-card-header">
+        <span class="tpms-card-title"><i class="bi bi-pie-chart-fill me-2 text-indigo"></i> Salary Tier Spread</span>
+      </div>
+      <div class="tpms-card-body d-flex flex-column justify-content-center align-items-center">
+        <div style="height: 220px; width: 100%; position: relative;">
+          <canvas id="salaryTierChart"></canvas>
+        </div>
+        <div class="d-flex justify-content-center gap-3 mt-3 small text-muted">
+          <span><span class="badge bg-danger rounded-circle p-1"> </span> >12 LPA</span>
+          <span><span class="badge bg-primary rounded-circle p-1"> </span> 6-12 LPA</span>
+          <span><span class="badge bg-secondary rounded-circle p-1"> </span> &lt;6 LPA</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Department Summary Table -->
+<div class="tpms-card mb-0">
+  <div class="tpms-card-header">
+    <span class="tpms-card-title"><i class="bi bi-table me-2 text-primary"></i> Academic Disciplines Placement Roster</span>
+    <a href="{% url 'principal_panel:export_csv' %}" class="btn btn-sm btn-link text-decoration-none">Export Full Report &rarr;</a>
+  </div>
+  <div class="tpms-card-body p-0">
+    <div class="tpms-table-container border-0">
+      <table class="tpms-table">
+        <thead>
+          <tr>
+            <th>Branch Code</th>
+            <th>Department Name</th>
+            <th>Enrolled Students</th>
+            <th>Placed Students</th>
+            <th>Placement Rate</th>
+            <th>Avg CTC (LPA)</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for d in dept_breakdown %}
+            <tr>
+              <td><span class="fw-bold text-dark fs-6">{{ d.code }}</span></td>
+              <td>{{ d.name }}</td>
+              <td>{{ d.total }}</td>
+              <td><span class="badge bg-success-subtle text-success">{{ d.placed }}</span></td>
+              <td>
+                <div class="d-flex align-items-center gap-2">
+                  <div class="progress flex-grow-1" style="height: 6px;">
+                    <div class="progress-bar bg-success" role="progressbar" style="width: {{ d.rate }}%;"></div>
+                  </div>
+                  <span class="small fw-semibold text-dark">{{ d.rate }}%</span>
+                </div>
+              </td>
+              <td><strong class="text-primary">{{ d.avg_pkg }} LPA</strong></td>
+            </tr>
+          {% empty %}
+            <tr>
+              <td colspan="6" class="text-center py-4 text-muted">No departmental data available yet.</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  // Department Placement Bar Chart
+  const deptCtx = document.getElementById('deptPlacementChart');
+  if (deptCtx) {
+    new Chart(deptCtx, {
+      type: 'bar',
+      data: {
+        labels: {{ chart_data.dept_labels|safe }},
+        datasets: [
+          {
+            label: 'Total Enrolled',
+            data: {{ chart_data.dept_enrolled|safe }},
+            backgroundColor: '#cbd5e1',
+            borderRadius: 6,
+          },
+          {
+            label: 'Placed Candidates',
+            data: {{ chart_data.dept_placed|safe }},
+            backgroundColor: '#4f46e5',
+            borderRadius: 6,
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { position: 'top' }
+        },
+        scales: {
+          y: { beginAtZero: true, grid: { color: '#f1f5f9' } },
+          x: { grid: { display: false } }
+        }
+      }
+    });
+  }
+
+  // Salary Tier Doughnut Chart
+  const tierCtx = document.getElementById('salaryTierChart');
+  if (tierCtx) {
+    new Chart(tierCtx, {
+      type: 'doughnut',
+      data: {
+        labels: {{ chart_data.tier_labels|safe }},
+        datasets: [{
+          data: {{ chart_data.tier_distribution|safe }},
+          backgroundColor: ['#ef4444', '#4f46e5', '#94a3b8'],
+          hoverOffset: 4
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false }
+        },
+        cutout: '70%'
+      }
+    });
+  }
+});
+</script>
+{% endblock %}

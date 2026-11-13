@@ -1,0 +1,150 @@
+{% extends 'base/dashboard_base.html' %}
+
+{% block title %}Upload Study Material — {{ block.super }}{% endblock %}
+
+{% block content %}
+<div class="mb-4">
+  <a href="{% url 'study_materials:list' %}" class="text-muted small text-decoration-none">
+    <i class="bi bi-arrow-left me-1"></i> Back to Study Library
+  </a>
+  <h4 class="fw-bold text-dark mt-2 mb-1">Upload Preparation Resource</h4>
+  <p class="text-muted small mb-0">Publish study guides, video lecture playlists, practice links, or drive-specific materials.</p>
+</div>
+
+{% if errors %}
+  <div class="alert alert-danger small py-2 px-3 mb-4">
+    <strong>Please correct the following:</strong>
+    <ul class="mb-0 ps-3 mt-1">
+      {% for field, err in errors.items %}
+        <li>{{ err }}</li>
+      {% endfor %}
+    </ul>
+  </div>
+{% endif %}
+
+<div class="row">
+  <div class="col-lg-8">
+    <div class="tpms-card">
+      <div class="tpms-card-header">
+        <span class="tpms-card-title"><i class="bi bi-journal-plus me-2 text-primary"></i> Resource Specifications</span>
+      </div>
+      <div class="tpms-card-body">
+        <form method="POST" enctype="multipart/form-data">
+          {% csrf_token %}
+
+          <div class="mb-3">
+            <label class="form-label-custom" for="title">Resource Title <span class="text-danger">*</span></label>
+            <input 
+              type="text" 
+              name="title" 
+              id="title" 
+              class="form-control-custom" 
+              placeholder="e.g. TCS NQT Quantitative Aptitude & Reasoning Formula Handbook"
+              value="{{ form_data.title|default:'' }}"
+              required
+            >
+          </div>
+
+          <div class="row g-3 mb-3">
+            <div class="col-md-6">
+              <label class="form-label-custom" for="category">Topic Category <span class="text-danger">*</span></label>
+              <select name="category" id="category" class="form-select-custom" required>
+                <option value="">Select Category</option>
+                {% for c_val, c_label in categories %}
+                  <option value="{{ c_val }}" {% if form_data.category == c_val %}selected{% endif %}>{{ c_label }}</option>
+                {% endfor %}
+              </select>
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label-custom" for="resource_type">Resource Type <span class="text-danger">*</span></label>
+              <select name="resource_type" id="resource_type" class="form-select-custom" required onchange="toggleResourceInputs(this.value)">
+                {% for r_val, r_label in resource_types %}
+                  <option value="{{ r_val }}" {% if form_data.resource_type == r_val %}selected{% endif %}>{{ r_label }}</option>
+                {% endfor %}
+              </select>
+            </div>
+          </div>
+
+          <!-- File Upload Input -->
+          <div class="mb-3" id="fileInputContainer">
+            <label class="form-label-custom" for="file_attachment">Attach Document (PDF, DOCX)</label>
+            <input type="file" name="file_attachment" id="file_attachment" class="form-control-custom" accept=".pdf, .docx, .zip">
+          </div>
+
+          <!-- External URL Input -->
+          <div class="mb-3" id="urlInputContainer">
+            <label class="form-label-custom" for="external_url">External Video or Website URL</label>
+            <input 
+              type="url" 
+              name="external_url" 
+              id="external_url" 
+              class="form-control-custom" 
+              placeholder="https://youtube.com/... or https://drive.google.com/..."
+              value="{{ form_data.external_url|default:'' }}"
+            >
+          </div>
+
+          <div class="row g-3 mb-3">
+            <div class="col-md-6">
+              <label class="form-label-custom" for="department_id">Target Department</label>
+              <select name="department_id" id="department_id" class="form-select-custom">
+                <option value="">Universal / All Departments</option>
+                {% for d in departments %}
+                  <option value="{{ d.id }}" {% if form_data.department_id == d.id|stringformat:"s" %}selected{% endif %}>{{ d.code }} — {{ d.name }}</option>
+                {% endfor %}
+              </select>
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label-custom" for="job_opening_id">Tag Specific Drive (Optional)</label>
+              <select name="job_opening_id" id="job_opening_id" class="form-select-custom">
+                <option value="">General Preparation</option>
+                {% for j in jobs %}
+                  <option value="{{ j.id }}" {% if form_data.job_opening_id == j.id|stringformat:"s" %}selected{% endif %}>{{ j.title }} ({{ j.company.name }})</option>
+                {% endfor %}
+              </select>
+            </div>
+          </div>
+
+          <div class="mb-4">
+            <label class="form-label-custom" for="description">Summary / Syllabus Outline</label>
+            <textarea 
+              name="description" 
+              id="description" 
+              rows="3" 
+              class="form-control-custom" 
+              placeholder="Key concepts covered in this guide..."
+            >{{ form_data.description|default:'' }}</textarea>
+          </div>
+
+          <div class="d-flex gap-2">
+            <button type="submit" class="btn-tpms-primary">
+              <i class="bi bi-cloud-arrow-up me-1"></i> Publish Study Asset
+            </button>
+            <a href="{% url 'study_materials:list' %}" class="btn-tpms-outline">Cancel</a>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+function toggleResourceInputs(type) {
+  const fileContainer = document.getElementById('fileInputContainer');
+  const urlContainer = document.getElementById('urlInputContainer');
+  if (type === 'DOCUMENT_FILE') {
+    fileContainer.style.display = 'block';
+    urlContainer.style.display = 'none';
+  } else {
+    fileContainer.style.display = 'none';
+    urlContainer.style.display = 'block';
+  }
+}
+document.addEventListener('DOMContentLoaded', function() {
+  const typeSelect = document.getElementById('resource_type');
+  if (typeSelect) toggleResourceInputs(typeSelect.value);
+});
+</script>
+{% endblock %}
