@@ -1,0 +1,14 @@
+{% extends 'base/dashboard_base.html' %}
+
+{% block title %}Profile not set up{% endblock %}
+
+{% block content %}
+<div class="tpms-card" style="max-width:560px;margin:3rem auto">
+  <div class="tpms-card-body empty-state">
+    <i class="bi bi-person-exclamation"></i>
+    <h2 class="h5">Your academic record isn't set up yet</h2>
+    <p>Drives check your CGPA, marks and branch before you can apply, so your department coordinator needs to add your record first. Ask them to enroll <strong>{{ request.user.email }}</strong>.</p>
+    <a href="{% url 'accounts:notifications' %}" class="btn btn-outline-secondary btn-sm">View notifications</a>
+  </div>
+</div>
+{% endblock %}

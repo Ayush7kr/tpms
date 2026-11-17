@@ -1,3 +1,5 @@
+from datetime import timedelta
+from django.utils import timezone
 from decimal import Decimal
 from django.test import TestCase, Client
 from django.urls import reverse
@@ -72,8 +74,8 @@ class SecurityAuditTests(TestCase):
             max_active_backlogs=0,
             allowed_degrees='B.Tech',
             allowed_batches='2025',
-            application_deadline='2026-12-31 23:59:59',
-            drive_date='2027-01-15',
+            application_deadline=timezone.now() + timedelta(days=30),
+            drive_date=(timezone.now() + timedelta(days=40)).date(),
             created_by=self.tpo,
             status=JobStatus.PUBLISHED
         )

@@ -1,3 +1,4 @@
+from django.db.models import Q
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from apps.accounts.decorators import login_required_custom, role_required
@@ -21,7 +22,7 @@ def materials_list_view(request):
     # Student sees global materials + their department materials
     if request.user.is_student and hasattr(request.user, 'student_profile'):
         student_dept = request.user.student_profile.department
-        materials = materials.filter(department__in=[None, student_dept])
+        materials = materials.filter(Q(department__isnull=True) | Q(department=student_dept))
 
     if category_filter:
         materials = materials.filter(category=category_filter)
@@ -79,6 +80,12 @@ def material_upload_view(request):
             errors['file_attachment'] = 'Please choose a document file to upload.'
         if resource_type in [ResourceType.VIDEO_LINK, ResourceType.EXTERNAL_URL] and not external_url:
             errors['external_url'] = 'Please provide the external video or website URL.'
+        elif external_url and not external_url.startswith(('http://', 'https://')):
+            errors['external_url'] = 'Link must start with http:// or https://'
+        if category and category not in ResourceCategory.values:
+            errors['category'] = 'Please select a resource category.'
+        if resource_type and resource_type not in ResourceType.values:
+            errors['resource_type'] = 'Please select resource type.'
 
         if errors:
             return render(request, 'study_materials/material_form.html', {
@@ -91,8 +98,11 @@ def material_upload_view(request):
                 'active_nav': 'materials'
             })
 
-        dept_obj = Department.objects.filter(id=department_id).first() if department_id else None
-        job_obj = JobOpening.objects.filter(id=job_opening_id).first() if job_opening_id else None
+        dept_obj = departments.filter(id=department_id).first() if department_id and department_id.isdigit() else None
+        if request.user.is_tnp_assistant and dept_obj is None:
+            # Assistants publish to their own department only.
+            dept_obj = departments.first()
+        job_obj = JobOpening.objects.filter(id=job_opening_id).first() if job_opening_id and job_opening_id.isdigit() else None
 
         material = StudyMaterial.objects.create(
             title=title,

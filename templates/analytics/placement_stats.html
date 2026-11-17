@@ -5,8 +5,8 @@
 {% block content %}
 <div class="d-flex justify-content-between align-items-center mb-4">
   <div>
-    <h4 class="fw-bold text-dark mb-1">Campus Placement Intelligence & Visual Analytics</h4>
-    <p class="text-muted small mb-0">Live aggregated statistics on placement percentages, branch velocity, and company participation.</p>
+    <h1 class="page-title">Placement report</h1>
+    <p class="text-muted small mb-0">Placement rate by branch, from current records.</p>
   </div>
 </div>
 
@@ -14,7 +14,7 @@
 <div class="row g-3 mb-4">
   <div class="col-sm-6 col-xl-3">
     <div class="metric-card">
-      <div class="metric-label">Placement Percentage</div>
+      <div class="metric-label">Placement rate</div>
       <div class="metric-value text-success">{{ metrics.placement_rate }}%</div>
       <div class="metric-sub text-success">
         <i class="bi bi-graph-up-arrow"></i> {{ metrics.placed_students }} of {{ metrics.total_students }} Placed
@@ -24,25 +24,25 @@
 
   <div class="col-sm-6 col-xl-3">
     <div class="metric-card">
-      <div class="metric-label">Unplaced Candidates</div>
+      <div class="metric-label">Not yet placed</div>
       <div class="metric-value text-secondary">{{ metrics.unplaced_students }}</div>
-      <div class="metric-sub text-muted">Active pool for upcoming drives</div>
+      <div class="metric-sub text-muted">Still looking</div>
     </div>
   </div>
 
   <div class="col-sm-6 col-xl-3">
     <div class="metric-card">
-      <div class="metric-label">Active Drives</div>
+      <div class="metric-label">Open drives</div>
       <div class="metric-value text-primary">{{ metrics.active_drives }}</div>
-      <div class="metric-sub text-muted">Currently accepting applications</div>
+      <div class="metric-sub text-muted">Accepting applications</div>
     </div>
   </div>
 
   <div class="col-sm-6 col-xl-3">
     <div class="metric-card">
-      <div class="metric-label">Corporate Recruiters</div>
+      <div class="metric-label">Recruiters</div>
       <div class="metric-value text-indigo">{{ metrics.total_companies }}</div>
-      <div class="metric-sub text-muted">Active industry network</div>
+      <div class="metric-sub text-muted">On the directory</div>
     </div>
   </div>
 </div>
@@ -50,7 +50,7 @@
 <!-- Chart -->
 <div class="tpms-card mb-4">
   <div class="tpms-card-header">
-    <span class="tpms-card-title"><i class="bi bi-bar-chart-line me-2 text-primary"></i> Branch-Wise Placement Comparison</span>
+    <span class="tpms-card-title"><i class="bi bi-bar-chart-line me-2 text-primary"></i> Placed vs enrolled, by branch</span>
   </div>
   <div class="tpms-card-body">
     <div style="height: 320px; position: relative;">
@@ -73,13 +73,13 @@ document.addEventListener('DOMContentLoaded', function() {
           {
             label: 'Total Students',
             data: {{ chart_data.dept_enrolled|safe }},
-            backgroundColor: '#e2e8f0',
+            backgroundColor: '#d5dae3',
             borderRadius: 6
           },
           {
-            label: 'Placed Students',
+            label: 'Placed',
             data: {{ chart_data.dept_placed|safe }},
-            backgroundColor: '#10b981',
+            backgroundColor: '#15233f',
             borderRadius: 6
           }
         ]
@@ -89,7 +89,7 @@ document.addEventListener('DOMContentLoaded', function() {
         maintainAspectRatio: false,
         plugins: { legend: { position: 'top' } },
         scales: {
-          y: { beginAtZero: true, grid: { color: '#f1f5f9' } },
+          y: { beginAtZero: true, ticks: { precision: 0 } },
           x: { grid: { display: false } }
         }
       }

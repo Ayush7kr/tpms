@@ -7,15 +7,15 @@
   <a href="javascript:history.back()" class="text-muted small text-decoration-none">
     <i class="bi bi-arrow-left me-1"></i> Back
   </a>
-  <h4 class="fw-bold text-dark mt-2 mb-1">Update Candidate Selection Stage</h4>
-  <p class="text-muted small mb-0">Advance candidate through interview rounds or release final placement offer.</p>
+  <h1 class="page-title">Move to next round</h1>
+  <p class="text-muted small mb-0">The student is notified as soon as you save.</p>
 </div>
 
 <div class="row">
   <div class="col-lg-7">
     <div class="tpms-card">
       <div class="tpms-card-header">
-        <span class="tpms-card-title"><i class="bi bi-person-check me-2 text-primary"></i> Application Record</span>
+        <span class="tpms-card-title"><i class="bi bi-person-check me-2 text-primary"></i> Application</span>
       </div>
       <div class="tpms-card-body">
         <div class="p-3 bg-light rounded border mb-4">
@@ -27,7 +27,7 @@
             Applying for: <strong>{{ application.job_opening.title }}</strong> at {{ application.job_opening.company.name }}
           </div>
           <div class="small text-muted">
-            Package: <strong class="text-success">{{ application.job_opening.package_ctc }} LPA</strong> • Branch: {{ application.student.department.code }} • CGPA: {{ application.student.graduation_cgpa }}
+            Package: <strong class="text-success">{{ application.job_opening.package_ctc|floatformat:1 }} LPA</strong> • Branch: {{ application.student.department.code }} • CGPA: {{ application.student.graduation_cgpa }}
           </div>
         </div>
 
@@ -55,7 +55,7 @@
 
           <div class="p-3 bg-warning-subtle text-dark border border-warning-subtle rounded small mb-4">
             <i class="bi bi-info-circle-fill text-warning me-1"></i>
-            <strong>Automatic Status Synchronization:</strong> If you select <em>"Offer Extended / Selected"</em>, the student's institutional placement status will automatically update to <strong>PLACED</strong> with this company and compensation.
+            <strong>Automatic Status Synchronization:</strong> If you select <em>"Offer made"</em>, the student's institutional placement status will automatically update to <strong>PLACED</strong> with this company and compensation.
           </div>
 
           <div class="d-flex gap-2">

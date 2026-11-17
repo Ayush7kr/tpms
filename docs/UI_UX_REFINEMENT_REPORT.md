@@ -63,54 +63,67 @@ To ensure optimal institutional presentation, print clarity, and reduce maintena
   - Removed synchronous theme initialization scripts reading `localStorage`.
 - **Automatic Client State Reset**:
   - `static/js/app.js` runs `localStorage.removeItem('tpms-theme')` and `document.documentElement.removeAttribute('data-theme')` on `DOMContentLoaded` to instantly purge any cached user state.
-- **Unified Light Palette**:
-  - Main Background: `#F8FAFC`, Surface: `#FFFFFF`, Topbar: `#FFFFFF`, Border: `#E2E8F0`.
-  - Primary Text: `#0F172A`, Muted Text: `#64748B`, Accent: `#4F46E5` / `#2563EB`.
+- **Unified Institutional Palette**:
+  - Main Background: `#F8FAFC`, Surface: `#FFFFFF`, Topbar/Sidebar: `#0B192C` (Deep Ink Navy) with `#FF9F43` (Marigold) accents, Border: `#E2E8F0`.
+  - Primary Text: `#0B192C`, Muted Text: `#64748B`, Accent: `#FF9F43` / `#F39C12`.
   - High-Contrast Badges: Pass (`#15803d` on `#dcfce7`), Fail (`#b91c1c` on `#fee2e2`), Warning (`#b45309` on `#fef3c7`).
+- **Typography & Offline Bundling**:
+  - Schibsted Grotesk for headings and Public Sans for body and data grids.
+  - Zero CDN dependencies: Bootstrap 5.3, Bootstrap Icons, Chart.js, and font assets bundled locally in `static/vendor/`.
+- **Mobile Responsive Drawer**:
+  - Off-canvas drawer navigation for mobile screens, ensuring flawless usability across tablets and smartphones.
 
 ---
 
 ## 4. Visual Interface & Screenshot Gallery
 
-#### 4.1 Public Landing Page & Institutional Metrics
-The public portal introduces the institution's placement achievements with responsive statistics and partner showcases.
-![Landing Hero Overview](screenshots/01_landing_hero.png)
+#### 4.1 Public Landing Page & Live Database Metrics
+The public portal introduces the institution's placement achievements with real-time statistics queried live from SQLite.
+![Landing Hero Overview](screenshots/01_landing.png)
 
 #### 4.2 Role-Based Authentication & Demo Persona Switcher
-Clean login portal featuring 1-click demo switcher for seamless mentor review.
-![Role-Based Sign-In](screenshots/02_role_based_login.png)
+Clean login portal featuring 1-click demo persona switcher (`DEMO_MODE=True`) for seamless mentor evaluation.
+![Role-Based Sign-In](screenshots/02_login.png)
 
 #### 4.3 Student Candidate Dashboard & Programmatic Eligibility
-Dedicated student dashboard with real-time academic standing, eligibility engine, and clickable ongoing campus placement drives.
-![Student Candidate Dashboard](screenshots/03_student_dashboard.png)
+Dedicated candidate dashboard displaying academic standing, active recruitment pipeline, and verified profile metrics.
+![Student Candidate Dashboard](screenshots/03_student_home.png)
 
-#### 4.4 AI Career & Placement Mentorship Assistant
-Conversational guidance interface with structured Markdown advice, study roadmaps, and starter prompt chips.
-![AI Career Assistant](screenshots/04_student_career_assistant.png)
+#### 4.4 Student Open Drives & Real-Time Cut-Off Engine
+Direct side-by-side comparison between student record and drive cut-offs (CGPA, 10th/12th marks, backlogs, branch).
+![Student Drives and Cut-Offs](screenshots/04_student_drives_cutoffs.png)
 
-#### 4.5 Explore Campus Drives & Cut-Off Engine
-Catalog of active campus drives showing salary CTC, cut-offs, and 1-click apply.
-![Explore Campus Drives](screenshots/05_student_eligible_jobs.png)
+#### 4.5 Candidate Applied Drives Tracker & Selection Stepper
+Candidate application pipeline tracking multi-round recruitment stages with in-app notification indicators.
+![Applied Drives Pipeline](screenshots/05_student_applications.png)
 
-#### 4.6 Candidate Applied Drives Tracker & Selection Stepper
-Candidate application pipeline tracking multi-round recruitment stages.
-![Applied Drives Pipeline](screenshots/06_student_my_applications.png)
+#### 4.6 AI Career & Placement Mentorship Assistant
+Conversational guidance interface powered by Gemini with robust local rules-based fallback for student profile analysis.
+![AI Career Assistant](screenshots/06_career_assistant.png)
 
 #### 4.7 TPO Central Placement Operations Dashboard
 Placement officer dashboard tracking active drives, candidate rosters, and recruiter interactions.
-![TPO Central Dashboard](screenshots/07_tpo_dashboard.png)
+![TPO Central Dashboard](screenshots/07_officer_overview.png)
 
-#### 4.8 Principal Institutional Executive Analytics
+#### 4.8 Drive Detail & Recruitment Round Management
+Deep view into individual campus drives, applicant lists, and stage advancement.
+![Drive Detail](screenshots/08_drive_detail.png)
+
+#### 4.9 Principal Institutional Executive Analytics
 High-level executive dashboard with branch-wise metrics and salary distribution charts.
-![Principal Executive Analytics](screenshots/08_principal_analytics.png)
-
-#### 4.9 Administrator User Provisioning & Governance Panel
-System governance dashboard managing accounts across Principal, TPO, and Department Assistants.
-![Admin User Management](screenshots/09_admin_users_panel.png)
+![Principal Executive Analytics](screenshots/09_principal_overview.png)
 
 #### 4.10 Department Placement Assistant Scoped Student Roster
 Department-isolated candidate roster managing verified CSE student profiles and resumes.
-![Assistant Student Roster](screenshots/10_assistant_roster.png)
+![Assistant Student Roster](screenshots/10_coordinator_students.png)
+
+#### 4.11 Administrator User Provisioning & Governance Panel
+System governance dashboard managing accounts across Principal, TPO, and Department Assistants.
+![Admin User Management](screenshots/11_admin_users.png)
+
+#### 4.12 Mobile Responsive Open Drives Layout
+Off-canvas navigation drawer and mobile-adapted cut-off comparison cards.
+![Mobile Drives View](screenshots/12_mobile_drives.png)
 
 ---
 

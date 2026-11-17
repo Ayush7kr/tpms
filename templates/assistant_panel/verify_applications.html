@@ -1,19 +1,19 @@
 {% extends 'base/dashboard_base.html' %}
 
-{% block title %}Verify Candidate Applications — {{ block.super }}{% endblock %}
+{% block title %}Verify applicants — {{ block.super }}{% endblock %}
 
 {% block content %}
 <div class="d-flex justify-content-between align-items-center mb-4">
   <div>
-    <h4 class="fw-bold text-dark mb-1">Verify Candidate Applications</h4>
-    <p class="text-muted small mb-0">Cross-examine student declared marks and resumes against institutional records before forwarding to recruiters.</p>
+    <h1 class="page-title">Verify applicants</h1>
+    <p class="text-muted small mb-0">Check each applicant's marks against college records before the placement office shares them with the company.</p>
   </div>
 </div>
 
 <div class="tpms-card">
   <div class="tpms-card-header flex-wrap gap-2">
     <div class="d-flex align-items-center gap-2">
-      <span class="tpms-card-title"><i class="bi bi-shield-check me-2 text-primary"></i> Branch Candidate Submissions</span>
+      <span class="tpms-card-title"><i class="bi bi-shield-check me-2 text-primary"></i> Applicants</span>
       <span class="badge bg-light text-dark">{{ applications|length }} Submissions</span>
     </div>
     <input type="text" class="form-control form-control-sm" placeholder="Search applicant or company..." data-tpms-table-search="verifyTable" style="max-width: 220px;">
@@ -26,7 +26,7 @@
           <tr>
             <th>Student & Roll No</th>
             <th>Company & Drive</th>
-            <th>Academic Scores</th>
+            <th>Marks</th>
             <th>Submitted Resume</th>
             <th>Verification Status</th>
             <th class="text-end">Verification Action</th>
@@ -41,7 +41,7 @@
               </td>
               <td>
                 <div class="fw-semibold text-dark">{{ app.job_opening.title }}</div>
-                <div class="text-muted small">{{ app.job_opening.company.name }} ({{ app.job_opening.package_ctc }} LPA)</div>
+                <div class="text-muted small">{{ app.job_opening.company.name }} ({{ app.job_opening.package_ctc|floatformat:1 }} LPA)</div>
               </td>
               <td>
                 <div class="small">CGPA: <strong>{{ app.student.graduation_cgpa }}</strong></div>
@@ -71,7 +71,7 @@
               <td class="text-end">
                 <div class="dropdown d-inline">
                   <button class="btn btn-sm btn-light border dropdown-toggle py-1 px-2" style="font-size: 0.8rem;" data-bs-toggle="dropdown">
-                    Verify Action
+                    Verify
                   </button>
                   <ul class="dropdown-menu dropdown-menu-end shadow-sm" style="font-size: 0.8rem;">
                     <li>

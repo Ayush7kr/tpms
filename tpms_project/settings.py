@@ -8,13 +8,42 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # Add apps directory to sys.path so apps can be imported cleanly
 sys.path.insert(0, str(BASE_DIR / 'apps'))
 
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-tpms-production-grade-secret-key-apex-institute-2026'
+# Load variables from a local .env file if python-dotenv is installed.
+try:
+    from dotenv import load_dotenv
+    load_dotenv(BASE_DIR / '.env')
+except ImportError:
+    pass
 
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
 
-ALLOWED_HOSTS = ['*']
+def env_bool(name, default=False):
+    value = os.environ.get(name)
+    if value is None:
+        return default
+    return value.strip().lower() in ('1', 'true', 'yes', 'on')
+
+
+SECRET_KEY = os.environ.get(
+    'DJANGO_SECRET_KEY',
+    'django-insecure-local-development-key-change-me-before-deploying',
+)
+
+DEBUG = env_bool('DEBUG', True)
+
+ALLOWED_HOSTS = [h.strip() for h in os.environ.get('ALLOWED_HOSTS', '127.0.0.1,localhost').split(',') if h.strip()]
+
+# Demo mode shows the one-click role switcher on the login page and sidebar.
+# It lets anyone sign in as any role, so it must be off on a real deployment.
+DEMO_MODE = env_bool('DEMO_MODE', DEBUG)
+
+# Institution details shown across the interface.
+INSTITUTE_NAME = os.environ.get('TPMS_INSTITUTE_NAME', 'Apex Institute of Technology')
+INSTITUTE_SHORT_NAME = os.environ.get('TPMS_INSTITUTE_SHORT_NAME', 'AIT')
+CURRENT_ACADEMIC_YEAR = os.environ.get('TPMS_CURRENT_ACADEMIC_YEAR', '2025-26')
+
+# AI career assistant (optional). Without a key it falls back to built-in guidance.
+GEMINI_API_KEY = os.environ.get('GEMINI_API_KEY', '')
+GEMINI_MODEL = os.environ.get('GEMINI_MODEL', 'gemini-flash-latest')
 
 # Application definition
 INSTALLED_APPS = [
@@ -116,3 +145,13 @@ LOGOUT_REDIRECT_URL = 'core:landing'
 SESSION_COOKIE_AGE = 86400  # 24 hours in seconds
 SESSION_SAVE_EVERY_REQUEST = True
 SESSION_EXPIRE_AT_BROWSER_CLOSE = False
+
+# Upload limits (resumes, study materials, bulk import files)
+DATA_UPLOAD_MAX_MEMORY_SIZE = 10 * 1024 * 1024
+FILE_UPLOAD_MAX_MEMORY_SIZE = 10 * 1024 * 1024
+
+MESSAGE_TAGS = {40: 'danger'}
+
+if not DEBUG:
+    SESSION_COOKIE_SECURE = env_bool('SECURE_COOKIES', True)
+    CSRF_COOKIE_SECURE = env_bool('SECURE_COOKIES', True)

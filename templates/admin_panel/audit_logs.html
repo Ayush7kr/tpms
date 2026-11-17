@@ -5,8 +5,8 @@
 {% block content %}
 <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
   <div>
-    <h4 class="fw-bold text-dark mb-1">System Security & Operation Audit Trail</h4>
-    <p class="text-muted small mb-0">Immutable records of institutional actions, role assignments, student imports, and drive changes.</p>
+    <h1 class="page-title">Activity log</h1>
+    <p class="text-muted small mb-0">Who did what, and when: sign-ins, imports, drive changes and account edits.</p>
   </div>
 </div>
 
@@ -39,7 +39,7 @@
 <div class="tpms-card">
   <div class="tpms-card-header flex-wrap gap-2">
     <div class="d-flex align-items-center gap-2">
-      <span class="tpms-card-title"><i class="bi bi-shield-check me-2 text-primary"></i> Historical Activity Logs</span>
+      <span class="tpms-card-title"><i class="bi bi-shield-check me-2 text-primary"></i> Recent activity</span>
       <span class="badge bg-light text-dark">{% if total_count %}{{ total_count }}{% else %}{{ logs|length }}{% endif %} Events</span>
     </div>
   </div>

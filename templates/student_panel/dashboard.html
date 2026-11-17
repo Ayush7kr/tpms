@@ -1,192 +1,148 @@
 {% extends 'base/dashboard_base.html' %}
 
-{% block title %}Candidate Dashboard — {{ block.super }}{% endblock %}
+{% block title %}Home{% endblock %}
 
 {% block content %}
-<!-- Candidate Welcome Header -->
-<div class="d-flex justify-content-between align-items-center mb-4">
+<div class="page-head">
   <div>
-    <h4 class="fw-bold text-dark mb-1">Welcome back, {{ profile.user.first_name }}!</h4>
-    <p class="text-muted small mb-0">{{ profile.roll_number }} • {{ profile.department.name }} ({{ profile.department.code }}) • Batch {{ profile.batch_year }}</p>
+    <h1>Hi {{ profile.user.first_name }}</h1>
+    <p>{{ profile.roll_number }}, {{ profile.department.name }}, batch {{ profile.batch_year }}</p>
   </div>
-  <div>
-    {% if profile.placement_status == 'PLACED' %}
-      <span class="badge-tpms badge-success-subtle fs-6">
-        <i class="bi bi-trophy-fill text-warning"></i> Placed at {{ profile.placed_company.name }} ({{ profile.salary_package }} LPA)
-      </span>
-    {% else %}
-      <span class="badge-tpms badge-info-subtle fs-6">
-        <i class="bi bi-mortarboard"></i> Candidate Active & Eligible
-      </span>
-    {% endif %}
+  <div class="actions">
+    <a href="{% url 'student_panel:eligible_jobs' %}" class="btn btn-primary"><i class="bi bi-megaphone"></i> Browse open drives</a>
   </div>
 </div>
 
-<!-- Candidate Metric Cards -->
-<div class="row g-3 mb-4">
-  <div class="col-sm-6 col-xl-3">
-    <div class="metric-card">
-      <div class="metric-label">Graduation CGPA</div>
-      <div class="metric-value text-primary">{{ profile.graduation_cgpa }}</div>
-      <div class="metric-sub text-muted">
-        <i class="bi bi-award"></i> Scale of 10.0
-      </div>
+{% if profile.placement_status == 'PLACED' %}
+  <div class="d-flex align-items-center gap-3 p-3 mb-4 rounded-3" style="background:var(--marigold-soft);border:1px solid #f0d9a8">
+    <div class="avatar" style="background:var(--marigold);color:var(--ink)"><i class="bi bi-trophy-fill"></i></div>
+    <div>
+      <div class="fw-bold">You're placed at {{ profile.placed_company.name }}{% if profile.salary_package %}, {{ profile.salary_package|floatformat:1 }} LPA{% endif %}.</div>
+      <div class="small text-muted">Congratulations. You can still apply to drives that allow placed students; check with the placement office first.</div>
     </div>
   </div>
-
-  <div class="col-sm-6 col-xl-3">
-    <div class="metric-card">
-      <div class="metric-label">Eligible Drives</div>
-      <div class="metric-value text-success">{{ eligible_count }}</div>
-      <div class="metric-sub text-muted">
-        <i class="bi bi-check2-circle"></i> Out of {{ total_active_jobs }} active drives
-      </div>
-    </div>
-  </div>
-
-  <div class="col-sm-6 col-xl-3">
-    <div class="metric-card">
-      <div class="metric-label">Applications Submitted</div>
-      <div class="metric-value text-indigo">{{ my_applications|length }}</div>
-      <div class="metric-sub text-muted">
-        <i class="bi bi-send-check"></i> Actively tracked
-      </div>
-    </div>
-  </div>
-
-  <div class="col-sm-6 col-xl-3">
-    <div class="metric-card">
-      <div class="metric-label">Live Backlogs</div>
-      <div class="metric-value {% if profile.active_backlogs == 0 %}text-success{% else %}text-danger{% endif %}">
-        {{ profile.active_backlogs }}
-      </div>
-      <div class="metric-sub text-muted">
-        {% if profile.active_backlogs == 0 %}
-          <i class="bi bi-shield-check text-success"></i> All clearances met
-        {% else %}
-          <i class="bi bi-exclamation-triangle text-danger"></i> Needs clearing
-        {% endif %}
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- Active Drives with Live Programmatic Eligibility Evaluation -->
-<div class="tpms-card mb-4">
-  <div class="tpms-card-header">
-    <span class="tpms-card-title"><i class="bi bi-briefcase me-2 text-primary"></i> Ongoing Campus Drives & Programmatic Eligibility</span>
-    <a href="{% url 'student_panel:eligible_jobs' %}" class="btn btn-sm btn-link text-decoration-none">Explore All Drives &rarr;</a>
-  </div>
-  <div class="tpms-card-body p-0">
-    <div class="tpms-table-container border-0">
-      <table class="tpms-table">
-        <thead>
-          <tr>
-            <th>Company & Designation</th>
-            <th>Package</th>
-            <th>Drive Date</th>
-            <th>Eligibility Verdict</th>
-            <th class="text-end">Quick Action</th>
-          </tr>
-        </thead>
-        <tbody>
-          {% for item in evaluated_jobs %}
-            <tr>
-              <td>
-                <div class="d-flex flex-column">
-                  <a href="{% url 'placements:drive_detail' item.job.id %}" class="drive-link fs-6 mb-1 text-decoration-none" title="View {{ item.job.company.name }} drive notice">
-                    {{ item.job.company.name }} — <span class="fw-medium">{{ item.job.title }}</span>
-                  </a>
-                  <div class="text-muted small">
-                    <i class="bi bi-geo-alt me-1"></i>{{ item.job.job_location }}
-                    <span class="mx-1">•</span>
-                    <span>Min CGPA: {{ item.job.min_graduation_cgpa }}</span>
-                  </div>
-                </div>
-              </td>
-              <td><span class="fw-bold text-success">{{ item.job.package_ctc }} LPA</span></td>
-              <td class="text-muted small">{{ item.job.drive_date|date:"M d, Y" }}</td>
-              <td>
-                {% if item.eval.is_eligible %}
-                  <span class="badge-tpms badge-success-subtle"><i class="bi bi-check-circle-fill"></i> Eligible to Apply</span>
-                {% else %}
-                  <span class="badge-tpms badge-danger-subtle"><i class="bi bi-exclamation-circle-fill"></i> Not Eligible</span>
-                  <div class="text-danger small mt-1" style="font-size: 0.7rem;">
-                    {{ item.eval.failed_criteria|first }}
-                  </div>
-                {% endif %}
-              </td>
-              <td class="text-end">
-                {% if item.eval.has_applied %}
-                  <span class="badge bg-secondary-subtle text-secondary py-1 px-2"><i class="bi bi-check2"></i> Applied</span>
-                {% elif item.eval.can_apply %}
-                  <form method="POST" action="{% url 'applications:apply' item.job.id %}" class="d-inline">
-                    {% csrf_token %}
-                    <button type="submit" class="btn btn-sm btn-success py-1 px-3 fw-semibold">
-                      <i class="bi bi-send me-1"></i> 1-Click Apply
-                    </button>
-                  </form>
-                {% else %}
-                  <button class="btn btn-sm btn-light border py-1 px-2 text-muted" disabled>
-                    Ineligible
-                  </button>
-                {% endif %}
-              </td>
-            </tr>
-          {% empty %}
-            <tr>
-              <td colspan="5" class="text-center py-4 text-muted">No campus drives open for registration right now.</td>
-            </tr>
-          {% endfor %}
-        </tbody>
-      </table>
-    </div>
-  </div>
-</div>
-
-<!-- Tracked Applications Stepper -->
-{% if my_applications %}
-  <div class="tpms-card mb-0">
-    <div class="tpms-card-header">
-      <span class="tpms-card-title"><i class="bi bi-hourglass-split me-2 text-indigo"></i> My Active Recruitment Pipeline</span>
-      <a href="{% url 'student_panel:my_applications' %}" class="btn btn-sm btn-link text-decoration-none">Full Tracker &rarr;</a>
-    </div>
-    <div class="tpms-card-body">
-      {% for app in my_applications|slice:":2" %}
-        <div class="p-3 border rounded-3 mb-3 timeline-card">
-          <div class="d-flex justify-content-between align-items-center mb-2">
-            <div>
-              <strong class="text-dark">{{ app.job_opening.title }}</strong> at <span class="text-primary">{{ app.job_opening.company.name }}</span>
-            </div>
-            <span class="badge bg-primary">{{ app.get_stage_display }}</span>
-          </div>
-
-          <!-- Visual Recruitment Stage Stepper -->
-          <div class="stepper-pipeline">
-            <div class="stepper-step completed">
-              <div class="stepper-circle"><i class="bi bi-check-lg"></i></div>
-              <div class="stepper-title">Applied</div>
-            </div>
-            <div class="stepper-step {% if app.stage != 'APPLIED' %}completed{% else %}active{% endif %}">
-              <div class="stepper-circle">{% if app.stage != 'APPLIED' %}<i class="bi bi-check-lg"></i>{% else %}2{% endif %}</div>
-              <div class="stepper-title">Shortlist</div>
-            </div>
-            <div class="stepper-step {% if app.stage in 'ASSESSMENT,TECHNICAL_ROUND,HR_ROUND,OFFERED' %}completed{% elif app.stage == 'SHORTLISTED' %}active{% endif %}">
-              <div class="stepper-circle">3</div>
-              <div class="stepper-title">Test</div>
-            </div>
-            <div class="stepper-step {% if app.stage in 'TECHNICAL_ROUND,HR_ROUND,OFFERED' %}completed{% elif app.stage == 'ASSESSMENT' %}active{% endif %}">
-              <div class="stepper-circle">4</div>
-              <div class="stepper-title">Tech</div>
-            </div>
-            <div class="stepper-step {% if app.stage == 'OFFERED' %}completed{% elif app.stage == 'REJECTED' %}rejected{% endif %}">
-              <div class="stepper-circle">{% if app.stage == 'OFFERED' %}<i class="bi bi-trophy"></i>{% elif app.stage == 'REJECTED' %}<i class="bi bi-x-lg"></i>{% else %}5{% endif %}</div>
-              <div class="stepper-title">Offer</div>
-            </div>
-          </div>
-        </div>
-      {% endfor %}
-    </div>
+{% elif not profile.resume %}
+  <div class="alert alert-warning d-flex align-items-center gap-2 mb-4">
+    <i class="bi bi-file-earmark-arrow-up"></i>
+    <div class="flex-grow-1">Add your resume before applying. Recruiters see it alongside your application.</div>
+    <a href="{% url 'student_panel:profile' %}" class="btn btn-sm btn-outline-secondary">Upload resume</a>
   </div>
 {% endif %}
+
+<div class="row g-3 mb-4">
+  <div class="col-6 col-xl-3">
+    <div class="metric-card is-highlight">
+      <div class="metric-label">You can apply now</div>
+      <div class="metric-value"><span class="accent">{{ open_to_apply|length }}</span> <small>drive{{ open_to_apply|length|pluralize }}</small></div>
+      <div class="metric-sub">Eligible, open, not yet applied</div>
+    </div>
+  </div>
+  <div class="col-6 col-xl-3">
+    <div class="metric-card">
+      <div class="metric-label">Eligible for</div>
+      <div class="metric-value">{{ eligible_count }} <small>of {{ total_active_jobs }}</small></div>
+      <div class="metric-sub">Published drives this season</div>
+    </div>
+  </div>
+  <div class="col-6 col-xl-3">
+    <div class="metric-card">
+      <div class="metric-label">Applications in progress</div>
+      <div class="metric-value">{{ active_applications|length }}</div>
+      <div class="metric-sub">{{ my_applications|length }} submitted in total</div>
+    </div>
+  </div>
+  <div class="col-6 col-xl-3">
+    <div class="metric-card">
+      <div class="metric-label">CGPA</div>
+      <div class="metric-value">{{ profile.graduation_cgpa }}</div>
+      <div class="metric-sub">{% if profile.active_backlogs %}<span class="text-danger">{{ profile.active_backlogs }} active backlog{{ profile.active_backlogs|pluralize }}</span>{% else %}No active backlogs{% endif %}</div>
+    </div>
+  </div>
+</div>
+
+<div class="row g-4">
+  <div class="col-xl-8">
+    <section class="tpms-card">
+      <div class="tpms-card-header">
+        <h2 class="tpms-card-title">{% if open_to_apply %}Ready for you to apply{% else %}Latest drives{% endif %}</h2>
+        <a href="{% url 'student_panel:eligible_jobs' %}" class="small fw-semibold text-decoration-none">All drives</a>
+      </div>
+      {% if open_to_apply %}
+        {% for item in open_to_apply|slice:":3" %}{% include 'includes/drive_row.html' %}{% endfor %}
+      {% else %}
+        {% for item in evaluated_jobs|slice:":3" %}
+          {% include 'includes/drive_row.html' %}
+        {% empty %}
+          <div class="empty-state">
+            <i class="bi bi-megaphone"></i>
+            <h3>No drives are open right now</h3>
+            <p>You'll get a notification as soon as the placement office posts one.</p>
+          </div>
+        {% endfor %}
+      {% endif %}
+    </section>
+  </div>
+
+  <div class="col-xl-4">
+    <section class="tpms-card">
+      <div class="tpms-card-header">
+        <h2 class="tpms-card-title">Your applications</h2>
+        <a href="{% url 'student_panel:my_applications' %}" class="small fw-semibold text-decoration-none">Details</a>
+      </div>
+      {% if my_applications %}
+        <ul class="list-group list-group-flush">
+          {% for app in my_applications|slice:":5" %}
+            <li class="list-group-item">
+              <div class="d-flex justify-content-between align-items-baseline gap-2">
+                <a href="{% url 'placements:drive_detail' app.job_opening.id %}" class="drive-link">{{ app.job_opening.company.name }}</a>
+                {% if app.stage == 'OFFERED' %}<span class="verdict offer">Offer</span>
+                {% elif app.stage == 'REJECTED' %}<span class="verdict no">Not selected</span>
+                {% elif app.stage == 'WITHDRAWN' %}<span class="verdict closed">Withdrawn</span>
+                {% else %}<span class="small text-muted">{{ app.get_stage_display }}</span>{% endif %}
+              </div>
+              <div class="small text-muted mb-2">{{ app.job_opening.title }}</div>
+              <div class="d-flex gap-1" aria-hidden="true">
+                {% for step in app.steps %}
+                  <span class="flex-fill rounded-pill" style="height:4px;background:{% if step.state == 'completed' %}var(--ink){% elif step.state == 'active' %}var(--marigold){% elif step.state == 'rejected' %}var(--bad){% else %}var(--line){% endif %}"></span>
+                {% endfor %}
+              </div>
+            </li>
+          {% endfor %}
+        </ul>
+      {% else %}
+        <div class="empty-state">
+          <i class="bi bi-send"></i>
+          <p>Applications you submit will show here, with the round you're in.</p>
+        </div>
+      {% endif %}
+    </section>
+
+    <section class="tpms-card">
+      <div class="tpms-card-header">
+        <h2 class="tpms-card-title">Study material</h2>
+        <a href="{% url 'study_materials:list' %}" class="small fw-semibold text-decoration-none">Library</a>
+      </div>
+      {% if prep_materials %}
+        <ul class="list-group list-group-flush">
+          {% for m in prep_materials %}
+            <li class="list-group-item">
+              <a href="{% if m.external_url %}{{ m.external_url }}{% elif m.file_attachment %}{{ m.file_attachment.url }}{% else %}{% url 'study_materials:list' %}{% endif %}" target="_blank" rel="noopener" class="drive-link d-block" style="font-size:.9rem">{{ m.title }}</a>
+              <span class="small text-muted">{{ m.get_category_display }}</span>
+            </li>
+          {% endfor %}
+        </ul>
+      {% else %}
+        <div class="empty-state"><p>Your placement office hasn't shared any material yet.</p></div>
+      {% endif %}
+    </section>
+
+    <a href="{% url 'career_assistant:career_assistant' %}" class="tpms-card d-flex align-items-center gap-3 p-3 text-decoration-none">
+      <div class="avatar" style="background:var(--paper);color:var(--ink)"><i class="bi bi-chat-square-text"></i></div>
+      <div>
+        <div class="fw-semibold text-dark">Ask the career assistant</div>
+        <div class="small text-muted">Prep plans for a specific drive, resume tips, skill gaps</div>
+      </div>
+    </a>
+  </div>
+</div>
 {% endblock %}

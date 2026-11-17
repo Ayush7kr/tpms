@@ -5,17 +5,17 @@
 {% block content %}
 <div class="mb-4">
   <a href="{% url 'admin_panel:departments' %}" class="text-muted small text-decoration-none">
-    <i class="bi bi-arrow-left me-1"></i> Back to Department Catalog
+    <i class="bi bi-arrow-left me-1"></i> Back to All departments
   </a>
-  <h4 class="fw-bold text-dark mt-2 mb-1">{% if is_create %}Add New Academic Department{% else %}Edit Department: {{ dept.code }}{% endif %}</h4>
-  <p class="text-muted small mb-0">Configure academic branch code, official title, and operational status.</p>
+  <h1 class="page-title">{% if is_create %}Add a department{% else %}Edit {{ dept.code }}{% endif %}</h1>
+  <p class="text-muted small mb-0">Short code, full name and whether the branch is active.</p>
 </div>
 
 <div class="row">
   <div class="col-lg-7">
     <div class="tpms-card">
       <div class="tpms-card-header">
-        <span class="tpms-card-title"><i class="bi bi-building-add me-2 text-primary"></i> Department Information</span>
+        <span class="tpms-card-title"><i class="bi bi-building-add me-2 text-primary"></i> Department</span>
       </div>
       <div class="tpms-card-body">
         <form method="POST">

@@ -1,0 +1,56 @@
+{% comment %}One drive, from the student's point of view. Expects `item` = {job, eval, initials}.{% endcomment %}
+{% with job=item.job ev=item.eval %}
+<article class="drive-row">
+  <div class="company-mark" aria-hidden="true">{{ item.initials }}</div>
+  <div class="min-w-0">
+    <a href="{% url 'placements:drive_detail' job.id %}" class="drive-title">{{ job.company.name }}</a>
+    <div class="text-dark" style="font-size:.92rem">{{ job.title }}</div>
+    <div class="drive-meta">
+      <span><i class="bi bi-geo-alt"></i>{{ job.job_location }}</span>
+      <span><i class="bi bi-calendar-event"></i>Drive {{ job.drive_date|date:"j M" }}</span>
+      {% if ev.is_deadline_passed %}
+        <span class="text-danger"><i class="bi bi-clock"></i>Applications closed</span>
+      {% else %}
+        <span><i class="bi bi-clock"></i>Apply by {{ job.application_deadline|date:"j M, g:i A" }}</span>
+      {% endif %}
+      {% if job.bond_details %}<span><i class="bi bi-file-earmark-text"></i>{{ job.bond_details }}</span>{% endif %}
+    </div>
+
+    <div class="cutoffs mt-3" role="list" aria-label="Your record against this drive's cut-offs">
+      {% for c in ev.checks %}
+        <div class="cutoff {% if not c.ok %}is-fail{% elif not c.needed and c.kind == 'min' %}is-none{% else %}is-ok{% endif %}" role="listitem">
+          <div class="cutoff-label">{{ c.label }} <i class="bi {% if c.ok %}bi-check-circle-fill{% else %}bi-x-circle-fill{% endif %}" aria-label="{% if c.ok %}meets{% else %}below{% endif %} cut-off"></i></div>
+          <div class="cutoff-figures">
+            {% if c.label == 'CGPA' %}{{ c.yours|floatformat:2 }}{% elif c.suffix %}{{ c.yours|floatformat:"-1" }}{{ c.suffix }}{% else %}{{ c.yours }}{% endif %}
+            {% if c.kind == 'max' %}<span class="need">/ max {{ c.needed }}</span>
+            {% elif c.needed %}<span class="need">/ {% if c.label == 'CGPA' %}{{ c.needed|floatformat:2 }}{% else %}{{ c.needed|floatformat:"-1" }}{{ c.suffix }}{% endif %}</span>
+            {% else %}<span class="need">no cut-off</span>{% endif %}
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+    {% if ev.other_reasons %}
+      <ul class="reason-list">{% for r in ev.other_reasons %}<li>{{ r }}</li>{% endfor %}</ul>
+    {% endif %}
+  </div>
+
+  <div class="drive-side">
+    <div class="drive-pay">{{ job.package_ctc|floatformat:1 }} <small>LPA</small></div>
+    {% if ev.has_applied %}
+      <a href="{% url 'student_panel:my_applications' %}" class="verdict {% if ev.application.stage == 'OFFERED' %}offer{% else %}applied{% endif %} text-decoration-none">
+        <i class="bi {% if ev.application.stage == 'OFFERED' %}bi-trophy-fill{% else %}bi-send-check{% endif %}"></i>
+        {% if ev.application.stage == 'OFFERED' %}Offer received{% else %}Applied, {{ ev.application.get_stage_display|lower }}{% endif %}
+      </a>
+    {% elif ev.can_apply %}
+      <form method="post" action="{% url 'applications:apply' job.id %}" data-confirm="Apply to {{ job.company.name }} for {{ job.title }}? Your profile and resume will be shared with the placement office.">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-primary btn-sm">Apply</button>
+      </form>
+    {% elif ev.is_deadline_passed %}
+      <span class="verdict closed"><i class="bi bi-lock"></i>Closed</span>
+    {% else %}
+      <span class="verdict no"><i class="bi bi-x-circle"></i>Not eligible</span>
+    {% endif %}
+  </div>
+</article>
+{% endwith %}

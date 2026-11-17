@@ -39,6 +39,39 @@ def dashboard_view(request):
     })
 
 
+def _num(value):
+    try:
+        return float(value)
+    except (TypeError, ValueError):
+        return None
+
+
+def _filtered_students(params):
+    """Applies the report filters. Shared by the on-screen report and the CSV export."""
+    qs = StudentProfile.objects.select_related('user', 'department', 'placed_company')
+    if _num(params.get('min_cgpa')) is not None:
+        qs = qs.filter(graduation_cgpa__gte=_num(params.get('min_cgpa')))
+    if _num(params.get('min_tenth')) is not None:
+        qs = qs.filter(tenth_percentage__gte=_num(params.get('min_tenth')))
+    if _num(params.get('min_twelfth')) is not None:
+        qs = qs.filter(twelfth_percentage__gte=_num(params.get('min_twelfth')))
+    if (params.get('dept_id') or '').isdigit():
+        qs = qs.filter(department_id=params.get('dept_id'))
+    if (params.get('batch') or '').isdigit():
+        qs = qs.filter(batch_year=params.get('batch'))
+    if params.get('status'):
+        qs = qs.filter(placement_status=params.get('status'))
+    query = (params.get('q') or '').strip()
+    if query:
+        qs = qs.filter(
+            Q(roll_number__icontains=query) |
+            Q(user__first_name__icontains=query) |
+            Q(user__last_name__icontains=query) |
+            Q(user__email__icontains=query)
+        )
+    return qs
+
+
 @principal_required
 def department_reports_view(request):
     """
@@ -53,36 +86,7 @@ def department_reports_view(request):
     status_filter = request.GET.get('status', '')
     query = request.GET.get('q', '').strip()
 
-    students_qs = StudentProfile.objects.select_related('user', 'department', 'placed_company').all().order_by('-graduation_cgpa')
-
-    if min_cgpa:
-        try:
-            students_qs = students_qs.filter(graduation_cgpa__gte=float(min_cgpa))
-        except ValueError:
-            pass
-    if min_tenth:
-        try:
-            students_qs = students_qs.filter(tenth_percentage__gte=float(min_tenth))
-        except ValueError:
-            pass
-    if min_twelfth:
-        try:
-            students_qs = students_qs.filter(twelfth_percentage__gte=float(min_twelfth))
-        except ValueError:
-            pass
-    if dept_id:
-        students_qs = students_qs.filter(department_id=dept_id)
-    if batch:
-        students_qs = students_qs.filter(batch_year=batch)
-    if status_filter:
-        students_qs = students_qs.filter(placement_status=status_filter)
-    if query:
-        students_qs = students_qs.filter(
-            Q(roll_number__icontains=query) |
-            Q(user__first_name__icontains=query) |
-            Q(user__last_name__icontains=query) |
-            Q(user__email__icontains=query)
-        )
+    students_qs = _filtered_students(request.GET).order_by('-graduation_cgpa')
 
     departments = Department.objects.filter(is_active=True).order_by('code')
     batches = StudentProfile.objects.values_list('batch_year', flat=True).distinct().order_by('-batch_year')
@@ -129,27 +133,10 @@ def export_placement_csv_view(request):
     """
     Exports institutional placement records to CSV, preserving active filters if specified.
     """
-    min_cgpa = request.GET.get('min_cgpa', '')
-    dept_id = request.GET.get('dept_id', '')
-    batch = request.GET.get('batch', '')
-    status_filter = request.GET.get('status', '')
-
-    students_qs = StudentProfile.objects.select_related('user', 'department', 'placed_company').order_by('department__code', 'roll_number')
-
-    if min_cgpa:
-        try:
-            students_qs = students_qs.filter(graduation_cgpa__gte=float(min_cgpa))
-        except ValueError:
-            pass
-    if dept_id:
-        students_qs = students_qs.filter(department_id=dept_id)
-    if batch:
-        students_qs = students_qs.filter(batch_year=batch)
-    if status_filter:
-        students_qs = students_qs.filter(placement_status=status_filter)
+    students_qs = _filtered_students(request.GET).order_by('department__code', 'roll_number')
 
     response = HttpResponse(content_type='text/csv')
-    response['Content-Disposition'] = 'attachment; filename="tpms_institutional_placement_report.csv"'
+    response['Content-Disposition'] = 'attachment; filename="placement_report.csv"'
 
     writer = csv.writer(response)
     writer.writerow([

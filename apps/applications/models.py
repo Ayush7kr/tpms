@@ -6,20 +6,20 @@ from apps.students.models import StudentProfile
 
 
 class ApplicationStage(models.TextChoices):
-    APPLIED = 'APPLIED', 'Application Submitted'
-    SHORTLISTED = 'SHORTLISTED', 'Resume Shortlisted'
-    ASSESSMENT = 'ASSESSMENT', 'Online Assessment / Aptitude'
-    TECHNICAL_ROUND = 'TECHNICAL_ROUND', 'Technical Interview'
-    HR_ROUND = 'HR_ROUND', 'HR / Leadership Interview'
-    OFFERED = 'OFFERED', 'Offer Extended / Selected'
-    REJECTED = 'REJECTED', 'Not Selected'
-    WITHDRAWN = 'WITHDRAWN', 'Application Withdrawn'
+    APPLIED = 'APPLIED', 'Applied'
+    SHORTLISTED = 'SHORTLISTED', 'Shortlisted'
+    ASSESSMENT = 'ASSESSMENT', 'Online test'
+    TECHNICAL_ROUND = 'TECHNICAL_ROUND', 'Technical interview'
+    HR_ROUND = 'HR_ROUND', 'HR interview'
+    OFFERED = 'OFFERED', 'Offer made'
+    REJECTED = 'REJECTED', 'Not selected'
+    WITHDRAWN = 'WITHDRAWN', 'Withdrawn'
 
 
 class VerificationStatus(models.TextChoices):
-    PENDING = 'PENDING', 'Pending Assistant Verification'
-    VERIFIED = 'VERIFIED', 'Verified & Cleared'
-    FLAGGED = 'FLAGGED', 'Flagged / Mark Discrepancy'
+    PENDING = 'PENDING', 'Awaiting verification'
+    VERIFIED = 'VERIFIED', 'Verified'
+    FLAGGED = 'FLAGGED', 'Mismatch flagged'
 
 
 class JobApplication(models.Model):

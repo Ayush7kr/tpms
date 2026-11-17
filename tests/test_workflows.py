@@ -1,4 +1,6 @@
 from decimal import Decimal
+from datetime import timedelta
+from django.utils import timezone
 import io
 import openpyxl
 from django.test import TestCase, Client
@@ -94,8 +96,8 @@ class WorkflowsEndToEndTests(TestCase):
             'allowed_departments': [str(self.dept_cse.id), str(self.dept_ece.id)],
             'allowed_batches': '2025',
             'allowed_degrees': 'B.Tech',
-            'application_deadline': '2026-12-31 23:59:59',
-            'drive_date': '2027-01-10'
+            'application_deadline': (timezone.now() + timedelta(days=30)).strftime('%Y-%m-%d %H:%M'),
+            'drive_date': (timezone.now() + timedelta(days=40)).strftime('%Y-%m-%d')
         }
         response = self.client.post(reverse('placements:post_job'), post_data)
         self.assertEqual(response.status_code, 302)
@@ -155,7 +157,7 @@ class WorkflowsEndToEndTests(TestCase):
             max_active_backlogs=0,
             allowed_degrees='B.Tech',
             allowed_batches='2025',
-            application_deadline='2026-12-31 23:59:59',
+            application_deadline=timezone.now() + timedelta(days=30),
             drive_date='2027-01-20',
             created_by=self.tpo,
             status=JobStatus.PUBLISHED
@@ -194,7 +196,7 @@ class WorkflowsEndToEndTests(TestCase):
             max_active_backlogs=0,
             allowed_degrees='B.Tech',
             allowed_batches='2025',
-            application_deadline='2026-12-31 23:59:59',
+            application_deadline=timezone.now() + timedelta(days=30),
             drive_date='2027-01-25',
             created_by=self.tpo,
             status=JobStatus.PUBLISHED
@@ -250,7 +252,7 @@ class WorkflowsEndToEndTests(TestCase):
             max_active_backlogs=0,
             allowed_degrees='B.Tech',
             allowed_batches='2025',
-            application_deadline='2026-12-31 23:59:59',
+            application_deadline=timezone.now() + timedelta(days=30),
             drive_date='2027-01-30',
             created_by=self.tpo,
             status=JobStatus.PUBLISHED
@@ -365,7 +367,7 @@ class WorkflowsEndToEndTests(TestCase):
             'allowed_departments': [str(self.dept_cse.id)],
             'allowed_batches': '2025',
             'allowed_degrees': 'B.Tech',
-            'application_deadline': '2026-12-31 23:59:59',
+            'application_deadline': (timezone.now() + timedelta(days=30)).strftime('%Y-%m-%d %H:%M'),
             'drive_date': '2027-01-18'
         }
         response = self.client.post(reverse('placements:post_job'), post_data)
@@ -393,7 +395,7 @@ class WorkflowsEndToEndTests(TestCase):
             max_active_backlogs=0,
             allowed_degrees='B.Tech',
             allowed_batches='2025',
-            application_deadline='2026-12-31 23:59:59',
+            application_deadline=timezone.now() + timedelta(days=30),
             drive_date='2027-01-20',
             created_by=self.tpo,
             status=JobStatus.PUBLISHED

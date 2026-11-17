@@ -72,7 +72,15 @@ def assistant_required(view_func):
 
 
 def student_required(view_func):
-    return role_required(['STUDENT'])(view_func)
+    """Student-only view. Students without an academic profile get an explanation instead of a crash."""
+    @wraps(view_func)
+    def _with_profile(request, *args, **kwargs):
+        from django.shortcuts import render
+        from apps.students.models import StudentProfile
+        if not StudentProfile.objects.filter(user=request.user).exists():
+            return render(request, 'public/profile_missing.html', {'active_nav': 'dashboard'}, status=200)
+        return view_func(request, *args, **kwargs)
+    return role_required(['STUDENT'])(_with_profile)
 
 
 def get_user_department_ids(user):

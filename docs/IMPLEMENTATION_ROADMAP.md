@@ -19,6 +19,7 @@ flowchart TD
     P8 --> P9["Phase 9: Comprehensive Demonstration Seeding"]
     P9 --> P10["Phase 10: AI Career & Placement Assistant"]
     P10 --> P11["Phase 11: Interactive Drives & Enterprise Light UI Polish"]
+    P11 --> P12["Phase 12: Security Hardening, Bug Fixes & Design System Overhaul"]
 ```
 
 ---
@@ -117,4 +118,12 @@ flowchart TD
 - **Key Tasks**:
   - Transform company names and designations on the Student Dashboard into clean clickable links (`.drive-link`) navigating to verified drive details.
   - Strip distracting dark-mode toggles and `[data-theme="dark"]` overrides to maintain a high-contrast Linear/Stripe institutional design.
-  - Verify zero functional regressions across all 5 roles with 100% test pass rate (63 tests).
+
+### Phase 12: Security Hardening, Defect Remediation & Design System Overhaul
+- **Objectives**: Remediate critical security vulnerabilities, fix application lifecycle bugs, deploy the Ink Navy & Marigold design system, and expand the test suite.
+- **Key Tasks**:
+  - **Security**: Fix demo role switcher authorization (POST only), restrict resume downloads behind authenticated view, switch staff activation to POST, and restrict placement analytics to staff.
+  - **Bug Fixes**: Add `read_by` to `Notification` for per-user unread tracking of role broadcasts, fix cross-department study material queries, enforce allowed degrees on drives, support re-application after withdrawal, and fix multi-offer salary overwrites.
+  - **AI Assistant**: Upgrade career assistant to direct REST API with configurable `GEMINI_MODEL` (`gemini-flash-latest`) and fix duplicate message submission.
+  - **Design System**: Deploy Ink Navy (`#0B192C`) and Marigold (`#FF9F43`) design tokens, bundle Bootstrap 5.3, Bootstrap Icons, Chart.js, and font families locally in `static/vendor/` for 100% offline capability.
+  - **Verification**: Authored 14 regression tests in `tests/test_fixes.py`, bringing the automated test suite to **77 total tests** (100% passing).

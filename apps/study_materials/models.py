@@ -6,17 +6,17 @@ from apps.placements.models import JobOpening
 
 
 class ResourceCategory(models.TextChoices):
-    APTITUDE = 'APTITUDE', 'Quantitative Aptitude & Logical Reasoning'
-    TECHNICAL_CODING = 'TECHNICAL_CODING', 'Data Structures, Algorithms & Coding'
-    CORE_ENGINEERING = 'CORE_ENGINEERING', 'Core Branch Concepts & Gate Prep'
-    HR_INTERVIEW = 'HR_INTERVIEW', 'HR Interview, Behavioral & Soft Skills'
-    RESUME_BUILDING = 'RESUME_BUILDING', 'Resume Formats, Cover Letters & Portfolio'
+    APTITUDE = 'APTITUDE', 'Aptitude & reasoning'
+    TECHNICAL_CODING = 'TECHNICAL_CODING', 'Coding & DSA'
+    CORE_ENGINEERING = 'CORE_ENGINEERING', 'Core subjects'
+    HR_INTERVIEW = 'HR_INTERVIEW', 'HR & behavioural'
+    RESUME_BUILDING = 'RESUME_BUILDING', 'Resume & portfolio'
 
 
 class ResourceType(models.TextChoices):
-    DOCUMENT_FILE = 'DOCUMENT_FILE', 'PDF / Document Attachment'
-    VIDEO_LINK = 'VIDEO_LINK', 'Video Lecture / Workshop'
-    EXTERNAL_URL = 'EXTERNAL_URL', 'External Tutorial / Practice Link'
+    DOCUMENT_FILE = 'DOCUMENT_FILE', 'Document'
+    VIDEO_LINK = 'VIDEO_LINK', 'Video'
+    EXTERNAL_URL = 'EXTERNAL_URL', 'Link'
 
 
 class StudyMaterial(models.Model):

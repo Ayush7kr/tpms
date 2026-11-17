@@ -10,6 +10,37 @@ from apps.applications.models import JobApplication
 from apps.study_materials.models import StudyMaterial
 
 
+STEP_ORDER = ['APPLIED', 'SHORTLISTED', 'ASSESSMENT', 'TECHNICAL_ROUND', 'HR_ROUND', 'OFFERED']
+STEP_LABELS = ['Applied', 'Shortlisted', 'Test', 'Technical', 'HR', 'Offer']
+
+
+def application_steps(app):
+    """Progress steps for one application, as a list of {label, state}."""
+    if app.stage in STEP_ORDER:
+        current = STEP_ORDER.index(app.stage)
+        steps = []
+        for i, label in enumerate(STEP_LABELS):
+            if i < current or app.stage == 'OFFERED':
+                state = 'completed'
+            elif i == current:
+                state = 'active'
+            else:
+                state = ''
+            steps.append({'label': label, 'state': state, 'n': i + 1})
+        return steps
+    # Rejected or withdrawn: only the first step is known to be done.
+    steps = [{'label': l, 'state': '', 'n': i + 1} for i, l in enumerate(STEP_LABELS)]
+    steps[0]['state'] = 'completed'
+    if app.stage == 'REJECTED':
+        steps[-1] = {'label': 'Not selected', 'state': 'rejected', 'n': 6}
+    return steps
+
+
+def initials(name):
+    words = [w for w in name.replace('&', ' ').split() if w[0].isalnum()]
+    return ''.join(w[0] for w in words[:2]).upper() or '?'
+
+
 @student_required
 def dashboard_view(request):
     """
@@ -19,25 +50,7 @@ def dashboard_view(request):
     - Live recruitment stage tracker for active applications
     - Recent study materials
     """
-    profile = getattr(request.user, 'student_profile', None)
-    if not profile:
-        profile = StudentProfile.objects.filter(user=request.user).first()
-    if not profile:
-        from apps.departments.models import Department
-        default_dept = Department.objects.first()
-        if not default_dept:
-            default_dept = Department.objects.create(code='GEN', name='General Engineering')
-        profile = StudentProfile.objects.create(
-            user=request.user,
-            department=default_dept,
-            roll_number=f"ROLL{request.user.id}",
-            prn_number=f"PRN{request.user.id}",
-            batch_year=2025,
-            degree='B.Tech',
-            tenth_percentage=Decimal('0.00'),
-            twelfth_percentage=Decimal('0.00'),
-            graduation_cgpa=Decimal('0.00')
-        )
+    profile = request.user.student_profile
 
     # Active drives with evaluated eligibility
     active_jobs = JobOpening.objects.filter(status='PUBLISHED').select_related('company').prefetch_related('allowed_departments').order_by('-created_at')
@@ -54,16 +67,25 @@ def dashboard_view(request):
         })
 
     # Student's submitted applications
-    my_applications = JobApplication.objects.filter(student=profile).select_related('job_opening__company').order_by('-applied_at')
+    my_applications = list(JobApplication.objects.filter(student=profile).select_related('job_opening__company').order_by('-applied_at'))
+    for app in my_applications:
+        app.steps = application_steps(app)
+    active_applications = [a for a in my_applications if a.stage not in ('WITHDRAWN', 'REJECTED')]
+    for item in evaluated_jobs:
+        item['initials'] = initials(item['job'].company.name)
+    open_to_apply = [i for i in evaluated_jobs if i['eval']['can_apply']]
 
     # Prep materials
+    from django.db.models import Q
     prep_materials = StudyMaterial.objects.filter(
-        department__isnull=True
+        Q(department__isnull=True) | Q(department=profile.department)
     ).order_by('-created_at')[:4]
 
     return render(request, 'student_panel/dashboard.html', {
         'profile': profile,
         'evaluated_jobs': evaluated_jobs[:5],
+        'open_to_apply': open_to_apply,
+        'active_applications': active_applications,
         'eligible_count': eligible_count,
         'total_active_jobs': active_jobs.count(),
         'my_applications': my_applications,
@@ -82,21 +104,25 @@ def eligible_jobs_view(request):
 
     filter_mode = request.GET.get('filter', 'all')  # 'all', 'eligible_only', 'applied'
 
-    evaluated_jobs = []
-    for job in active_jobs:
-        eval_result = EligibilityEngine.evaluate(profile, job)
-
-        if filter_mode == 'eligible_only' and not eval_result['is_eligible']:
-            continue
-        if filter_mode == 'applied' and not eval_result['has_applied']:
-            continue
-
-        evaluated_jobs.append({
-            'job': job,
-            'eval': eval_result
-        })
+    every = [
+        {'job': job, 'eval': EligibilityEngine.evaluate(profile, job), 'initials': initials(job.company.name)}
+        for job in active_jobs
+    ]
+    counts = {
+        'all': len(every),
+        'eligible_only': sum(1 for i in every if i['eval']['is_eligible']),
+        'applied': sum(1 for i in every if i['eval']['has_applied']),
+    }
+    if filter_mode == 'eligible_only':
+        evaluated_jobs = [i for i in every if i['eval']['is_eligible']]
+    elif filter_mode == 'applied':
+        evaluated_jobs = [i for i in every if i['eval']['has_applied']]
+    else:
+        filter_mode = 'all'
+        evaluated_jobs = every
 
     return render(request, 'student_panel/eligible_jobs.html', {
+        'counts': counts,
         'profile': profile,
         'evaluated_jobs': evaluated_jobs,
         'filter_mode': filter_mode,
@@ -110,7 +136,13 @@ def my_applications_view(request):
     Tracks recruitment round stepper for candidate applications.
     """
     profile = request.user.student_profile
-    applications = JobApplication.objects.filter(student=profile).select_related('job_opening__company').order_by('-applied_at')
+    applications = list(JobApplication.objects.filter(student=profile).select_related('job_opening__company').order_by('-applied_at'))
+    for app in applications:
+        app.steps = application_steps(app)
+        app.can_reapply = (
+            app.stage == 'WITHDRAWN' and app.job_opening.status == 'PUBLISHED'
+            and not app.job_opening.is_deadline_passed
+        )
 
     return render(request, 'student_panel/my_applications.html', {
         'profile': profile,
@@ -132,18 +164,32 @@ def profile_view(request):
         github_url = request.POST.get('github_url', '').strip()
         resume_file = request.FILES.get('resume')
 
-        profile.skills = skills
-        profile.linkedin_url = linkedin_url
-        profile.github_url = github_url
+        from django.core.validators import URLValidator
+        from django.core.exceptions import ValidationError
+        url_check = URLValidator(schemes=['http', 'https'])
+        for label, value in (('LinkedIn', linkedin_url), ('GitHub', github_url)):
+            if value:
+                try:
+                    url_check(value)
+                except ValidationError:
+                    messages.error(request, f"{label} link must be a full web address starting with https://")
+                    return redirect('student_panel:profile')
+
+        profile.skills = ", ".join(s.strip() for s in skills.split(',') if s.strip())
+        profile.linkedin_url = linkedin_url or None
+        profile.github_url = github_url or None
 
         if resume_file:
             if not resume_file.name.lower().endswith('.pdf'):
-                messages.error(request, "Resume must be an uploaded PDF document.")
+                messages.error(request, "Resume must be a PDF file.")
+                return redirect('student_panel:profile')
+            if resume_file.size > 5 * 1024 * 1024:
+                messages.error(request, "Resume must be smaller than 5 MB.")
                 return redirect('student_panel:profile')
             profile.resume = resume_file
 
         profile.save()
-        messages.success(request, "Your profile and resume have been updated.")
+        messages.success(request, "Profile saved.")
         return redirect('student_panel:profile')
 
     return render(request, 'student_panel/profile.html', {

@@ -1,9 +1,11 @@
 from django.shortcuts import render
-from apps.accounts.decorators import login_required_custom
+from apps.accounts.decorators import role_required
+
+STAFF_ROLES = ['ADMIN', 'PRINCIPAL', 'TNP_OFFICER', 'TNP_ASSISTANT']
 from apps.analytics.services.analytics_service import AnalyticsService
 
 
-@login_required_custom
+@role_required(STAFF_ROLES)
 def placement_stats_view(request):
     """
     Renders placement visual analytics with Chart.js charts.
@@ -20,7 +22,7 @@ def placement_stats_view(request):
     })
 
 
-@login_required_custom
+@role_required(STAFF_ROLES)
 def salary_stats_view(request):
     """
     Renders salary benchmark insights (Min/Avg/Max CTC).

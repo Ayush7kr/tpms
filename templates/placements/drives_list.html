@@ -5,12 +5,12 @@
 {% block content %}
 <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
   <div>
-    <h4 class="fw-bold text-dark mb-1">Campus Placement Drives</h4>
-    <p class="text-muted small mb-0">Active and upcoming recruitment drives, eligibility cut-offs, and registered applicants.</p>
+    <h1 class="page-title">Drives</h1>
+    <p class="text-muted small mb-0">Every drive this season, with its cut-offs and applicants.</p>
   </div>
   {% if request.user.is_tnp_officer or request.user.is_admin %}
     <a href="{% url 'placements:post_job' %}" class="btn-tpms-primary">
-      <i class="bi bi-plus-circle-fill"></i> Post New Drive
+      <i class="bi bi-plus-circle-fill"></i> Post a drive
     </a>
   {% endif %}
 </div>
@@ -44,7 +44,7 @@
 <div class="tpms-card">
   <div class="tpms-card-header flex-wrap gap-2">
     <div class="d-flex align-items-center gap-2">
-      <span class="tpms-card-title"><i class="bi bi-megaphone me-2 text-primary"></i> Recruitment Drives</span>
+      <span class="tpms-card-title"><i class="bi bi-megaphone me-2 text-primary"></i> All drives</span>
       <span class="badge bg-light text-dark">{% if total_count %}{{ total_count }}{% else %}{{ drives|length }}{% endif %} Drives</span>
     </div>
   </div>
@@ -78,7 +78,7 @@
                   • <i class="bi bi-geo-alt"></i> {{ d.job_location }}
                 </div>
               </td>
-              <td><span class="fw-bold text-success fs-6">{{ d.package_ctc }} LPA</span></td>
+              <td><span class="fw-bold fs-6">{{ d.package_ctc|floatformat:1 }} LPA</span></td>
               <td>
                 <div class="small text-dark">CGPA: <strong>{{ d.min_graduation_cgpa }}</strong></div>
                 <div class="text-muted small">Max Backlogs: {{ d.max_active_backlogs }}</div>

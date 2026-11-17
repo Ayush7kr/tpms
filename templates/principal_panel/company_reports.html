@@ -1,18 +1,18 @@
 {% extends 'base/dashboard_base.html' %}
 
-{% block title %}Corporate Ties & Hiring Partners — {{ block.super }}{% endblock %}
+{% block title %}Corporate Ties & Recruiters — {{ block.super }}{% endblock %}
 
 {% block content %}
 <div class="d-flex justify-content-between align-items-center mb-4">
   <div>
-    <h4 class="fw-bold text-dark mb-1">Corporate Recruiting Ties & Participation</h4>
-    <p class="text-muted small mb-0">Overview of campus recruiting partners, drive frequency, and total student selections.</p>
+    <h1 class="page-title">Recruiters</h1>
+    <p class="text-muted small mb-0">Drives held and students hired, by company.</p>
   </div>
 </div>
 
 <div class="tpms-card">
   <div class="tpms-card-header">
-    <span class="tpms-card-title"><i class="bi bi-buildings me-2 text-primary"></i> Partner Hiring Summary</span>
+    <span class="tpms-card-title"><i class="bi bi-buildings me-2 text-primary"></i> Hiring by company</span>
     <span class="badge bg-light text-dark">{{ companies|length }} Corporate Partners</span>
   </div>
 

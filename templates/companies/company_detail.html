@@ -34,7 +34,7 @@
           <i class="bi bi-pencil me-1"></i> Edit Company Profile
         </a>
         <a href="{% url 'placements:post_job' %}" class="btn btn-sm btn-primary">
-          <i class="bi bi-plus-circle me-1"></i> Post New Drive
+          <i class="bi bi-plus-circle me-1"></i> Post a drive
         </a>
       </div>
     {% endif %}
@@ -45,7 +45,7 @@
 <div class="row g-3 mb-4">
   <div class="col-sm-6 col-lg-4">
     <div class="metric-card">
-      <div class="metric-label">Active Drives</div>
+      <div class="metric-label">Open drives</div>
       <div class="metric-value text-primary">{{ active_drives|length }}</div>
       <div class="metric-trend text-muted"><i class="bi bi-broadcast me-1"></i> Accepting Applications</div>
     </div>
@@ -60,7 +60,7 @@
   <div class="col-sm-6 col-lg-4">
     <div class="metric-card">
       <div class="metric-label">Average CTC Package</div>
-      <div class="metric-value text-dark">{{ avg_package }} <span class="fs-6 fw-normal text-muted">LPA</span></div>
+      <div class="metric-value text-dark">{{ avg_package|floatformat:1 }} <span class="fs-6 fw-normal text-muted">LPA</span></div>
       <div class="metric-trend text-muted"><i class="bi bi-cash-stack me-1"></i> Mean Compensation</div>
     </div>
   </div>
@@ -71,7 +71,7 @@
   <div class="col-lg-4">
     <div class="tpms-card mb-4">
       <div class="tpms-card-header">
-        <span class="tpms-card-title"><i class="bi bi-person-lines-fill me-2 text-primary"></i> HR Point of Contact</span>
+        <span class="tpms-card-title"><i class="bi bi-person-lines-fill me-2 text-primary"></i> Recruiter contact</span>
       </div>
       <div class="tpms-card-body small">
         <div class="mb-3">
@@ -102,7 +102,7 @@
     <!-- Active Placement Drives Card -->
     <div class="tpms-card">
       <div class="tpms-card-header">
-        <span class="tpms-card-title"><i class="bi bi-briefcase me-2 text-success"></i> Active Campus Drives</span>
+        <span class="tpms-card-title"><i class="bi bi-briefcase me-2 text-success"></i> Open drives</span>
       </div>
       <div class="tpms-card-body p-0">
         <ul class="list-group list-group-flush small">
@@ -112,7 +112,7 @@
                 <a href="{% url 'placements:drive_detail' drive.id %}" class="fw-bold text-dark text-decoration-none">
                   {{ drive.title }}
                 </a>
-                <span class="badge bg-success-subtle text-success">{{ drive.package_ctc }} LPA</span>
+                <span class="badge bg-success-subtle">{{ drive.package_ctc|floatformat:1 }} LPA</span>
               </div>
               <div class="text-muted" style="font-size: 0.75rem;">
                 <i class="bi bi-geo-alt"></i> {{ drive.job_location }} • Drive Date: {{ drive.drive_date|date:"M d, Y" }}
@@ -128,10 +128,10 @@
 
   <!-- Right Column: Past Drives & Placed Alumni -->
   <div class="col-lg-8">
-    <!-- Placed Students Roster -->
+    <!-- Placed Roster -->
     <div class="tpms-card mb-4">
       <div class="tpms-card-header">
-        <span class="tpms-card-title"><i class="bi bi-trophy-fill me-2 text-warning"></i> Selected Candidates ({{ hired_students|length }})</span>
+        <span class="tpms-card-title"><i class="bi bi-trophy-fill me-2 text-warning"></i> Students hired ({{ hired_students|length }})</span>
       </div>
       <div class="tpms-card-body p-0">
         <div class="tpms-table-container border-0">
@@ -153,7 +153,7 @@
                   </td>
                   <td><span class="badge bg-light text-dark border">{{ s.department.code }}</span></td>
                   <td>{{ s.batch_year }}</td>
-                  <td><strong class="text-success">{{ s.salary_package }} LPA</strong></td>
+                  <td><strong class="text-success">{{ s.salary_package|floatformat:1 }} LPA</strong></td>
                 </tr>
               {% empty %}
                 <tr>
@@ -170,7 +170,7 @@
     {% if past_drives %}
       <div class="tpms-card">
         <div class="tpms-card-header">
-          <span class="tpms-card-title"><i class="bi bi-clock-history me-2 text-secondary"></i> Past Recruitment History</span>
+          <span class="tpms-card-title"><i class="bi bi-clock-history me-2 text-secondary"></i> Past drives</span>
         </div>
         <div class="tpms-card-body p-0">
           <div class="tpms-table-container border-0">
@@ -192,7 +192,7 @@
                       <div class="text-muted small">{{ pd.job_location }}</div>
                     </td>
                     <td>{{ pd.drive_date|date:"M d, Y" }}</td>
-                    <td><strong>{{ pd.package_ctc }} LPA</strong></td>
+                    <td><strong>{{ pd.package_ctc|floatformat:1 }} LPA</strong></td>
                     <td>
                       {% if pd.status == 'CANCELLED' %}
                         <span class="badge bg-danger-subtle text-danger">Cancelled</span>
@@ -204,7 +204,7 @@
                     </td>
                     <td class="text-end">
                       <a href="{% url 'placements:drive_detail' pd.id %}" class="btn btn-sm btn-outline-secondary py-0 px-2" style="font-size: 0.75rem;">
-                        View Drive &rarr;
+                        View Drive
                       </a>
                     </td>
                   </tr>

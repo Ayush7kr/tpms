@@ -7,8 +7,8 @@ from django.urls import reverse
 class UserRole(models.TextChoices):
     ADMIN = 'ADMIN', 'Administrator'
     PRINCIPAL = 'PRINCIPAL', 'Principal'
-    TNP_OFFICER = 'TNP_OFFICER', 'TnP Officer'
-    TNP_ASSISTANT = 'TNP_ASSISTANT', 'TnP Assistant'
+    TNP_OFFICER = 'TNP_OFFICER', 'Placement officer'
+    TNP_ASSISTANT = 'TNP_ASSISTANT', 'Department coordinator'
     STUDENT = 'STUDENT', 'Student'
 
 

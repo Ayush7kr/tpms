@@ -5,14 +5,14 @@
 {% block content %}
 <div class="d-flex justify-content-between align-items-center mb-4">
   <div>
-    <h4 class="fw-bold text-dark mb-1">Campus Placement Drive Approvals</h4>
-    <p class="text-muted small mb-0">Review central placement drives posted by the TPO and approve or reject participation for your department.</p>
+    <h1 class="page-title">Drive approvals</h1>
+    <p class="text-muted small mb-0">A drive only reaches your students after you approve it for your branch.</p>
   </div>
 </div>
 
 <div class="tpms-card">
   <div class="tpms-card-header">
-    <span class="tpms-card-title"><i class="bi bi-patch-check me-2 text-primary"></i> Pending & Reviewed Branch Drives</span>
+    <span class="tpms-card-title"><i class="bi bi-patch-check me-2 text-primary"></i> Drives for your branches</span>
     <span class="badge bg-light text-dark">{{ approvals|length }} Drives</span>
   </div>
 
@@ -38,7 +38,7 @@
                 <div class="text-muted small">{{ apprv.job_opening.company.name }} • <i class="bi bi-geo-alt"></i> {{ apprv.job_opening.job_location }}</div>
               </td>
               <td><span class="badge bg-primary-subtle text-primary">{{ apprv.department.code }}</span></td>
-              <td><span class="fw-bold text-success">{{ apprv.job_opening.package_ctc }} LPA</span></td>
+              <td><span class="fw-bold">{{ apprv.job_opening.package_ctc|floatformat:1 }} LPA</span></td>
               <td>
                 <div class="small">CGPA: <strong>{{ apprv.job_opening.min_graduation_cgpa }}</strong></div>
                 <div class="text-muted small">Max Backlogs: {{ apprv.job_opening.max_active_backlogs }}</div>

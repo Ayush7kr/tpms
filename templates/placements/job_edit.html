@@ -9,7 +9,7 @@
   </a>
   <div class="d-flex justify-content-between align-items-center mt-2">
     <div>
-      <h4 class="fw-bold text-dark mb-1">Edit Campus Drive: {{ job.title }}</h4>
+      <h1 class="page-title">Edit drive: {{ job.title }}</h1>
       <p class="text-muted small mb-0">{{ job.company.name }} • Drive Date: {{ job.drive_date|date:"F d, Y" }}</p>
     </div>
     <span class="badge-tpms badge-brand-subtle">{{ job.get_status_display }}</span>
@@ -33,7 +33,7 @@
     <div class="col-lg-8">
       <div class="tpms-card mb-4">
         <div class="tpms-card-header">
-          <span class="tpms-card-title"><i class="bi bi-pencil-square me-2 text-primary"></i> Drive Details & Lifecycle</span>
+          <span class="tpms-card-title"><i class="bi bi-pencil-square me-2 text-primary"></i> Drive details</span>
         </div>
         <div class="tpms-card-body">
           <div class="row g-3 mb-3">
@@ -85,7 +85,7 @@
 
           <div class="d-flex justify-content-end gap-2 mt-4">
             <a href="{% url 'placements:drive_detail' job.id %}" class="btn btn-outline-secondary">Cancel</a>
-            <button type="submit" class="btn btn-primary px-4">Save Changes</button>
+            <button type="submit" class="btn btn-primary px-4">Save changes</button>
           </div>
         </div>
       </div>
@@ -93,22 +93,41 @@
 
     <div class="col-lg-4">
       <div class="tpms-card">
-        <div class="tpms-card-header">
-          <span class="tpms-card-title"><i class="bi bi-info-circle me-2 text-primary"></i> Target Branches</span>
-        </div>
+        <div class="tpms-card-header"><h2 class="tpms-card-title">Cut-offs</h2></div>
         <div class="tpms-card-body">
-          <p class="text-muted small mb-2">Branches eligible for this recruitment drive:</p>
-          <div class="d-flex flex-wrap gap-1 mb-3">
-            {% for dept in job.allowed_departments.all %}
-              <span class="badge bg-light text-dark border">{{ dept.code }} — {{ dept.name }}</span>
-            {% endfor %}
+          <div class="row g-2">
+            <div class="col-6">
+              <label class="form-label" for="min_graduation_cgpa">Min CGPA</label>
+              <input type="number" step="0.01" min="0" max="10" name="min_graduation_cgpa" id="min_graduation_cgpa" class="form-control" value="{{ job.min_graduation_cgpa }}">
+            </div>
+            <div class="col-6">
+              <label class="form-label" for="max_active_backlogs">Max backlogs</label>
+              <input type="number" min="0" name="max_active_backlogs" id="max_active_backlogs" class="form-control" value="{{ job.max_active_backlogs }}">
+            </div>
+            <div class="col-6">
+              <label class="form-label" for="min_tenth_percentage">Min 10th %</label>
+              <input type="number" step="0.01" min="0" max="100" name="min_tenth_percentage" id="min_tenth_percentage" class="form-control" value="{{ job.min_tenth_percentage }}">
+            </div>
+            <div class="col-6">
+              <label class="form-label" for="min_twelfth_percentage">Min 12th %</label>
+              <input type="number" step="0.01" min="0" max="100" name="min_twelfth_percentage" id="min_twelfth_percentage" class="form-control" value="{{ job.min_twelfth_percentage }}">
+            </div>
           </div>
-          <div class="p-3 bg-light rounded small border">
-            <div class="mb-1"><strong>Company:</strong> {{ job.company.name }}</div>
-            <div class="mb-1"><strong>Min CGPA:</strong> {{ job.min_graduation_cgpa }}</div>
-            <div class="mb-1"><strong>Max Backlogs:</strong> {{ job.max_active_backlogs }}</div>
-            <div><strong>Batches:</strong> {{ job.allowed_batches }}</div>
-          </div>
+          {% if errors.cutoffs %}<div class="field-error">{{ errors.cutoffs }}</div>{% endif %}
+          <p class="form-hint mb-0">Students who already applied keep their application even if they no longer meet a stricter cut-off.</p>
+        </div>
+      </div>
+
+      <div class="tpms-card">
+        <div class="tpms-card-header"><h2 class="tpms-card-title">Branches</h2></div>
+        <div class="tpms-card-body">
+          {% for dept in departments %}
+            <div class="form-check">
+              <input class="form-check-input" type="checkbox" name="allowed_departments" value="{{ dept.id }}" id="dept{{ dept.id }}" {% if dept.id in selected_dept_ids %}checked{% endif %}>
+              <label class="form-check-label small" for="dept{{ dept.id }}"><strong>{{ dept.code }}</strong> {{ dept.name }}</label>
+            </div>
+          {% endfor %}
+          <p class="form-hint mb-0">A newly added branch needs its coordinator's approval before its students can apply.</p>
         </div>
       </div>
     </div>

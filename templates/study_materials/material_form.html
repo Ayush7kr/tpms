@@ -7,8 +7,8 @@
   <a href="{% url 'study_materials:list' %}" class="text-muted small text-decoration-none">
     <i class="bi bi-arrow-left me-1"></i> Back to Study Library
   </a>
-  <h4 class="fw-bold text-dark mt-2 mb-1">Upload Preparation Resource</h4>
-  <p class="text-muted small mb-0">Publish study guides, video lecture playlists, practice links, or drive-specific materials.</p>
+  <h1 class="page-title">Add study material</h1>
+  <p class="text-muted small mb-0">A PDF, a video or a link. Tag it to a drive to show it on that drive's page.</p>
 </div>
 
 {% if errors %}
@@ -26,7 +26,7 @@
   <div class="col-lg-8">
     <div class="tpms-card">
       <div class="tpms-card-header">
-        <span class="tpms-card-title"><i class="bi bi-journal-plus me-2 text-primary"></i> Resource Specifications</span>
+        <span class="tpms-card-title"><i class="bi bi-journal-plus me-2 text-primary"></i> Material details</span>
       </div>
       <div class="tpms-card-body">
         <form method="POST" enctype="multipart/form-data">

@@ -81,5 +81,5 @@ class AnalyticsService:
             'dept_enrolled': enrolled,
             'dept_placed': placed,
             'tier_distribution': [tier_1, tier_2, tier_3],
-            'tier_labels': ['Tier 1 (>12 LPA)', 'Tier 2 (6-12 LPA)', 'Tier 3 (<6 LPA)']
+            'tier_labels': ['Dream (12+ LPA)', 'Core (6-12 LPA)', 'Mass (under 6 LPA)']
         }

@@ -7,15 +7,15 @@
   <a href="{% url 'admin_panel:users' %}" class="text-muted small text-decoration-none">
     <i class="bi bi-arrow-left me-1"></i> Back to User Directory
   </a>
-  <h4 class="fw-bold text-dark mt-2 mb-1">{% if is_create %}Provision New User Account{% else %}Edit User: {{ user_obj.get_full_name }}{% endif %}</h4>
-  <p class="text-muted small mb-0">Custom administrator account creation with manual server-side security checks.</p>
+  <h1 class="page-title">{% if is_create %}Add a staff account{% else %}Edit {{ user_obj.get_full_name }}{% endif %}</h1>
+  <p class="text-muted small mb-0">Students are added by their department coordinator, not here.</p>
 </div>
 
 <div class="row">
   <div class="col-lg-8">
     <div class="tpms-card">
       <div class="tpms-card-header">
-        <span class="tpms-card-title"><i class="bi bi-shield-person me-2 text-primary"></i> Account Credentials & Profile</span>
+        <span class="tpms-card-title"><i class="bi bi-shield-person me-2 text-primary"></i> Account</span>
       </div>
       <div class="tpms-card-body">
         <form method="POST">
@@ -126,9 +126,9 @@
     <div class="card p-3 border shadow-xs bg-light rounded-3">
       <h6 class="fw-bold text-dark"><i class="bi bi-info-circle-fill text-primary me-1"></i> Role Guidance</h6>
       <ul class="text-muted small ps-3 mb-0 lh-lg">
-        <li><strong>Principal:</strong> Executive viewing & institutional placement analytics.</li>
-        <li><strong>TnP Officer:</strong> Posts campus drives, manages companies, publishes study assets.</li>
-        <li><strong>TnP Assistant:</strong> Uploads student rosters and approves jobs for assigned branch.</li>
+        <li><strong>Principal:</strong> Read-only reports across all branches.</li>
+        <li><strong>Placement officer:</strong> Posts campus drives, manages companies, publishes study assets.</li>
+        <li><strong>Department coordinator:</strong> Uploads student rosters and approves jobs for assigned branch.</li>
         <li><strong>Student:</strong> Applies to eligible drives and tracks round status.</li>
       </ul>
     </div>

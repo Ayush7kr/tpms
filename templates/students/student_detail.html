@@ -9,11 +9,11 @@
   </a>
   <div class="d-flex justify-content-between align-items-center mt-2">
     <div>
-      <h4 class="fw-bold text-dark mb-1">{{ student.user.get_full_name }} ({{ student.roll_number }})</h4>
+      <h1 class="page-title">{{ student.user.get_full_name }} ({{ student.roll_number }})</h1>
       <p class="text-muted small mb-0">{{ student.department.name }} ({{ student.department.code }}) • Batch: {{ student.batch_year }} • Degree: {{ student.degree }}</p>
     </div>
     {% if student.placement_status == 'PLACED' %}
-      <span class="badge-tpms badge-success-subtle fs-6"><i class="bi bi-trophy"></i> Placed at {{ student.placed_company.name }} ({{ student.salary_package }} LPA)</span>
+      <span class="badge-tpms badge-success-subtle fs-6"><i class="bi bi-trophy"></i> Placed at {{ student.placed_company.name }} ({{ student.salary_package|floatformat:1 }} LPA)</span>
     {% else %}
       <span class="badge-tpms badge-info-subtle fs-6">Unplaced</span>
     {% endif %}
@@ -24,7 +24,7 @@
   <div class="col-lg-4">
     <div class="tpms-card mb-4">
       <div class="tpms-card-header">
-        <span class="tpms-card-title"><i class="bi bi-mortarboard me-2 text-primary"></i> Academic Scores</span>
+        <span class="tpms-card-title"><i class="bi bi-mortarboard me-2 text-primary"></i> Marks</span>
       </div>
       <div class="tpms-card-body p-0">
         <ul class="list-group list-group-flush small">
@@ -59,7 +59,7 @@
     <!-- Contact & Social Profile -->
     <div class="tpms-card">
       <div class="tpms-card-header">
-        <span class="tpms-card-title"><i class="bi bi-person-lines-fill me-2 text-indigo"></i> Candidate Contact</span>
+        <span class="tpms-card-title"><i class="bi bi-person-lines-fill me-2 text-indigo"></i> Contact</span>
       </div>
       <div class="tpms-card-body small">
         <div class="mb-2"><i class="bi bi-envelope text-muted me-2"></i> {{ student.user.email }}</div>
@@ -84,7 +84,7 @@
   <div class="col-lg-8">
     <div class="tpms-card">
       <div class="tpms-card-header">
-        <span class="tpms-card-title"><i class="bi bi-briefcase me-2 text-primary"></i> Application & Drive History</span>
+        <span class="tpms-card-title"><i class="bi bi-briefcase me-2 text-primary"></i> Applications</span>
         <span class="badge bg-light text-dark">{{ applications|length }} Drives</span>
       </div>
       <div class="tpms-card-body p-0">
@@ -106,7 +106,7 @@
                     <div class="fw-bold text-dark">{{ app.job_opening.title }}</div>
                     <div class="text-muted small">{{ app.job_opening.company.name }}</div>
                   </td>
-                  <td><span class="fw-bold text-success">{{ app.job_opening.package_ctc }} LPA</span></td>
+                  <td><span class="fw-bold">{{ app.job_opening.package_ctc|floatformat:1 }} LPA</span></td>
                   <td class="text-muted small">{{ app.applied_at|date:"M d, Y" }}</td>
                   <td>
                     {% if app.verification_status == 'VERIFIED' %}

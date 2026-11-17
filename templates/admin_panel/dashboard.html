@@ -5,12 +5,12 @@
 {% block content %}
 <div class="d-flex justify-content-between align-items-center mb-4">
   <div>
-    <h4 class="fw-bold text-dark mb-1">Administrator Control Panel</h4>
-    <p class="text-muted small mb-0">System-wide governance, user provisioning, department allocation and placement monitoring.</p>
+    <h1 class="page-title">Overview</h1>
+    <p class="text-muted small mb-0">Accounts, departments and recent activity across the portal.</p>
   </div>
   <div class="d-flex gap-2">
     <a href="{% url 'admin_panel:user_create' %}" class="btn-tpms-primary">
-      <i class="bi bi-person-plus-fill"></i> Provision Staff
+      <i class="bi bi-person-plus-fill"></i> Add staff
     </a>
     <a href="{% url 'admin_panel:department_create' %}" class="btn-tpms-outline">
       <i class="bi bi-plus-lg"></i> Add Department
@@ -22,17 +22,17 @@
 <div class="row g-3 mb-4">
   <div class="col-sm-6 col-xl-3">
     <div class="metric-card">
-      <div class="metric-label">Total Registered Users</div>
+      <div class="metric-label">Users</div>
       <div class="metric-value">{{ total_users }}</div>
       <div class="metric-sub text-muted">
-        <i class="bi bi-people text-primary"></i> Across 5 institutional roles
+        <i class="bi bi-people text-primary"></i> Across all roles
       </div>
     </div>
   </div>
 
   <div class="col-sm-6 col-xl-3">
     <div class="metric-card">
-      <div class="metric-label">Active Academic Branches</div>
+      <div class="metric-label">Departments</div>
       <div class="metric-value">{{ total_departments }}</div>
       <div class="metric-sub text-muted">
         <i class="bi bi-diagram-3 text-info"></i> With departmental coordinators
@@ -52,10 +52,10 @@
 
   <div class="col-sm-6 col-xl-3">
     <div class="metric-card">
-      <div class="metric-label">Total Placed Candidates</div>
+      <div class="metric-label">Placed students</div>
       <div class="metric-value text-success">{{ placed_students }}</div>
       <div class="metric-sub text-success">
-        <i class="bi bi-check-circle-fill"></i> Verified corporate job offers
+        <i class="bi bi-check-circle-fill"></i> With an offer
       </div>
     </div>
   </div>
@@ -66,8 +66,8 @@
   <div class="col-lg-7">
     <div class="tpms-card mb-0 h-100">
       <div class="tpms-card-header">
-        <span class="tpms-card-title"><i class="bi bi-building me-2 text-primary"></i> Department-Wise Student & Placement Roster</span>
-        <a href="{% url 'admin_panel:departments' %}" class="btn btn-sm btn-link text-decoration-none">Manage Branches &rarr;</a>
+        <span class="tpms-card-title"><i class="bi bi-building me-2 text-primary"></i> Students by branch</span>
+        <a href="{% url 'admin_panel:departments' %}" class="btn btn-sm btn-link text-decoration-none">Departments</a>
       </div>
       <div class="tpms-card-body p-0">
         <div class="tpms-table-container border-0">
@@ -112,8 +112,8 @@
   <div class="col-lg-5">
     <div class="tpms-card mb-4">
       <div class="tpms-card-header">
-        <span class="tpms-card-title"><i class="bi bi-person-lines-fill me-2 text-indigo"></i> Recently Provisioned Accounts</span>
-        <a href="{% url 'admin_panel:users' %}" class="btn btn-sm btn-link text-decoration-none">All Users &rarr;</a>
+        <span class="tpms-card-title"><i class="bi bi-person-lines-fill me-2 text-indigo"></i> Newest accounts</span>
+        <a href="{% url 'admin_panel:users' %}" class="btn btn-sm btn-link text-decoration-none">Users</a>
       </div>
       <div class="tpms-card-body p-0">
         <div class="list-group list-group-flush">
@@ -135,17 +135,15 @@
     <!-- Quick Navigation Links -->
     <div class="tpms-card mb-0">
       <div class="tpms-card-header">
-        <span class="tpms-card-title"><i class="bi bi-lightning-charge-fill me-2 text-warning"></i> Operational Shortcuts</span>
+        <span class="tpms-card-title"><i class="bi bi-lightning-charge-fill me-2 text-warning"></i> Shortcuts</span>
       </div>
       <div class="tpms-card-body p-3">
         <div class="d-grid gap-2">
           <a href="{% url 'admin_panel:assistant_assignments' %}" class="btn-tpms-outline justify-content-between">
             <span><i class="bi bi-person-gear me-2"></i> Assign Department to Assistant</span>
-            <i class="bi bi-arrow-right"></i>
           </a>
           <a href="{% url 'admin_panel:audit_logs' %}" class="btn-tpms-outline justify-content-between">
             <span><i class="bi bi-shield-check me-2"></i> Inspect Security Audit Trail</span>
-            <i class="bi bi-arrow-right"></i>
           </a>
         </div>
       </div>

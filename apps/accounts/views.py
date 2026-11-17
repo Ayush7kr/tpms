@@ -1,3 +1,5 @@
+from django.conf import settings
+from django.http import Http404
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import login, logout, update_session_auth_hash
 from django.contrib import messages
@@ -9,66 +11,11 @@ from apps.audit.models import AuditLog
 
 
 ROLES_METADATA = {
-    'STUDENT': {
-        'code': 'STUDENT',
-        'title': 'Student Portal',
-        'badge': 'Student Candidate',
-        'badge_class': 'success',
-        'icon': 'bi-mortarboard-fill',
-        'description': 'Explore eligible campus drives, apply with 1-click, track interview rounds & study materials.',
-        'placeholder': 'e.g. 21cse001@apex.edu.in or email',
-        'demo_email': 'aarav.mehta@apex.edu.in',
-        'demo_name': 'Aarav Mehta (B.Tech CSE - Eligible)',
-        'accent_color': '#10b981',
-    },
-    'TNP_OFFICER': {
-        'code': 'TNP_OFFICER',
-        'title': 'T&P Officer Portal',
-        'badge': 'Placement Directorate',
-        'badge_class': 'primary',
-        'icon': 'bi-briefcase-fill',
-        'description': 'Post campus drives, manage corporate partners, review branch approvals & track central hiring pipeline.',
-        'placeholder': 'e.g. tpo@apex.edu.in',
-        'demo_email': 'tpo@apex.edu.in',
-        'demo_name': 'Prof. Vikram Malhotra (TPO)',
-        'accent_color': '#2563eb',
-    },
-    'TNP_ASSISTANT': {
-        'code': 'TNP_ASSISTANT',
-        'title': 'TnP Assistant Portal',
-        'badge': 'Department Coordinator',
-        'badge_class': 'info',
-        'icon': 'bi-diagram-3-fill',
-        'description': 'Verify student profiles & resumes, review branch-specific job drives, & maintain department roster.',
-        'placeholder': 'e.g. assistant.cse@apex.edu.in',
-        'demo_email': 'assistant.cse@apex.edu.in',
-        'demo_name': 'Ananya Deshmukh (CSE Assistant)',
-        'accent_color': '#06b6d4',
-    },
-    'PRINCIPAL': {
-        'code': 'PRINCIPAL',
-        'title': 'Principal & Director Portal',
-        'badge': 'Executive Oversight',
-        'badge_class': 'warning',
-        'icon': 'bi-speedometer2',
-        'description': 'Executive placement KPI dashboard, department-wise analytics, cut-off queries & CSV reporting.',
-        'placeholder': 'e.g. principal@apex.edu.in',
-        'demo_email': 'principal@apex.edu.in',
-        'demo_name': 'Dr. Rajesh Sharma (Principal)',
-        'accent_color': '#f59e0b',
-    },
-    'ADMIN': {
-        'code': 'ADMIN',
-        'title': 'System Administrator Portal',
-        'badge': 'IT Governance & Master Control',
-        'badge_class': 'danger',
-        'icon': 'bi-shield-lock-fill',
-        'description': 'Master user accounts, academic departments, assistant allocations & chronological audit trails.',
-        'placeholder': 'e.g. admin@apex.edu.in',
-        'demo_email': 'admin@apex.edu.in',
-        'demo_name': 'System Administrator',
-        'accent_color': '#ef4444',
-    },
+    'STUDENT': {'code': 'STUDENT', 'short': 'Student', 'who': 'Aarav Mehta, CSE', 'demo_email': 'aarav.mehta@apex.edu.in'},
+    'TNP_OFFICER': {'code': 'TNP_OFFICER', 'short': 'Placement officer', 'who': 'Runs drives', 'demo_email': 'tpo@apex.edu.in'},
+    'TNP_ASSISTANT': {'code': 'TNP_ASSISTANT', 'short': 'Coordinator', 'who': 'CSE and IT branches', 'demo_email': 'assistant.cse@apex.edu.in'},
+    'PRINCIPAL': {'code': 'PRINCIPAL', 'short': 'Principal', 'who': 'Reports and analytics', 'demo_email': 'principal@apex.edu.in'},
+    'ADMIN': {'code': 'ADMIN', 'short': 'Administrator', 'who': 'Users and departments', 'demo_email': 'admin@apex.edu.in'},
 }
 
 
@@ -105,7 +52,7 @@ def login_view(request):
         remember_me = request.POST.get('remember_me')
 
         if not email or not password:
-            return render(request, 'public/login.html', {
+            return _render_login(request, {
                 'error': 'Please provide both institutional email and password.',
                 'submitted_email': email,
             })
@@ -114,7 +61,7 @@ def login_view(request):
 
         if user and user.check_password(password):
             if not user.is_active:
-                return render(request, 'public/login.html', {
+                return _render_login(request, {
                     'error': 'This account has been deactivated. Please contact the institutional administrator.',
                     'submitted_email': email,
                 })
@@ -145,14 +92,25 @@ def login_view(request):
                 return redirect(next_url)
             return redirect(user.get_dashboard_url())
         else:
-            return render(request, 'public/login.html', {
+            return _render_login(request, {
                 'error': 'Invalid credentials. Please verify your institutional email and password.',
                 'submitted_email': email,
             })
 
-    return render(request, 'public/login.html', {
+    return _render_login(request, {
         'submitted_email': request.GET.get('email', ''),
     })
+
+
+def _render_login(request, context):
+    context['demo_accounts'] = _demo_accounts()
+    return render(request, 'public/login.html', context)
+
+
+def _demo_accounts():
+    if not settings.DEMO_MODE:
+        return []
+    return [ROLES_METADATA[r] for r in ('STUDENT', 'TNP_OFFICER', 'TNP_ASSISTANT', 'PRINCIPAL', 'ADMIN')]
 
 
 def logout_view(request):
@@ -175,21 +133,31 @@ def role_redirect_view(request):
 
 def quick_switch_view(request, role):
     """
-    DEMONSTRATION TOOL: Allows instant 1-click role switching for project mentor evaluation.
+    Demo helper: sign in as the first active user of a role.
+    Only available when DEMO_MODE is on, because it bypasses passwords entirely.
     """
+    if not settings.DEMO_MODE:
+        raise Http404()
+    if request.method != 'POST':
+        return redirect('accounts:login')
+
     valid_roles = [r[0] for r in UserRole.choices]
     if role not in valid_roles:
         messages.error(request, "Invalid role requested for demonstration switch.")
         return redirect('accounts:login')
 
-    target_user = User.objects.filter(role=role, is_active=True).first()
+    demo_email = ROLES_METADATA.get(role, {}).get('demo_email')
+    target_user = (
+        User.objects.filter(email=demo_email, role=role, is_active=True).first()
+        or User.objects.filter(role=role, is_active=True).order_by('id').first()
+    )
     if not target_user:
         messages.warning(request, f"No active user found with role {role}. Please ensure database is seeded.")
         return redirect('accounts:login')
 
     # Switch session to target user
     login(request, target_user)
-    messages.success(request, f"Switched to [{target_user.get_role_display()}] view as {target_user.get_full_name()}.")
+    messages.success(request, f"Signed in as {target_user.get_full_name()} ({target_user.get_role_display()}).")
     return redirect(target_user.get_dashboard_url())
 
 
@@ -199,17 +167,27 @@ def notifications_view(request):
     Lists notifications for the authenticated user and allows marking as read.
     Supports both direct user notifications and role-based broadcasts.
     """
+    from apps.core.context_processors import unread_notifications_for
+
     user_notifications = Notification.objects.filter(
-        Q(recipient=request.user) | Q(target_role=request.user.role)
+        Q(recipient=request.user) | Q(recipient__isnull=True, target_role=request.user.role)
     )
 
     if request.method == 'POST' and request.POST.get('action') == 'mark_all_read':
         Notification.objects.filter(recipient=request.user).update(is_read=True)
+        for n in user_notifications.filter(recipient__isnull=True).exclude(read_by=request.user):
+            n.read_by.add(request.user)
         messages.success(request, "All notifications marked as read.")
         return redirect('accounts:notifications')
 
+    unread_ids = set(unread_notifications_for(request.user).values_list('id', flat=True))
+    items = list(user_notifications.order_by('-created_at')[:50])
+    for n in items:
+        n.unread = n.id in unread_ids
+
     return render(request, 'base/notifications.html', {
-        'notifications': user_notifications.order_by('-created_at')[:50],
+        'notifications': items,
+        'unread_count': len(unread_ids),
         'active_nav': 'notifications'
     })
 

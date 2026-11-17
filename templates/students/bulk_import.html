@@ -5,15 +5,15 @@
 {% block content %}
 <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
   <div>
-    <h4 class="fw-bold text-dark mb-1">Bulk Student Data Ingestion (CSV / Excel)</h4>
-    <p class="text-muted small mb-0">Onboard hundreds of department students in seconds with automatic account creation and duplicate prevention.</p>
+    <h1 class="page-title">Import students</h1>
+    <p class="text-muted small mb-0">Upload a CSV or Excel sheet. Each row becomes a student login; rows already on file are skipped.</p>
   </div>
   <div class="d-flex gap-2">
     <a href="{% url 'students:download_template' 'csv' %}" class="btn-tpms-outline">
-      <i class="bi bi-filetype-csv me-1"></i> CSV Template
+      <i class="bi bi-filetype-csv me-1"></i> Template (.csv)
     </a>
     <a href="{% url 'students:download_template' 'xlsx' %}" class="btn-tpms-outline">
-      <i class="bi bi-file-earmark-spreadsheet me-1"></i> Excel / Tabular
+      <i class="bi bi-file-earmark-spreadsheet me-1"></i> Template (.csv)
     </a>
   </div>
 </div>
@@ -51,7 +51,7 @@
   <div class="col-lg-7">
     <div class="tpms-card">
       <div class="tpms-card-header">
-        <span class="tpms-card-title"><i class="bi bi-file-earmark-spreadsheet-fill me-2 text-success"></i> Upload Dataset</span>
+        <span class="tpms-card-title"><i class="bi bi-file-earmark-spreadsheet-fill me-2 text-success"></i> Upload file</span>
       </div>
       <div class="tpms-card-body">
         <form method="POST" enctype="multipart/form-data">
@@ -64,7 +64,7 @@
                 <option value="{{ d.id }}">{{ d.code }} — {{ d.name }}</option>
               {% endfor %}
             </select>
-            <div class="text-muted small mt-1">Imported student profiles will be strictly bounded to this branch.</div>
+            <div class="text-muted small mt-1">Every student in the file is added to this department.</div>
           </div>
 
           <!-- Drag and Drop File Upload Area -->
@@ -72,7 +72,7 @@
             <label class="form-label-custom">Select CSV or Excel (.xlsx) File <span class="text-danger">*</span></label>
             <div class="file-drop-area border-2 border-dashed rounded-3 p-4 text-center bg-light" style="border-style: dashed !important; border-color: #cbd5e1 !important;">
               <i class="bi bi-cloud-arrow-up text-primary display-5 d-block mb-2"></i>
-              <div class="fw-semibold text-dark mb-1">Click to browse or drag & drop candidate file</div>
+              <div class="fw-semibold text-dark mb-1">Drop your file here, or browse</div>
               <div class="text-muted small file-name-preview mb-3">Accepts .csv or .xlsx (Max 15MB)</div>
               <input type="file" name="student_file" class="d-none" id="student_file" accept=".csv, .xlsx" required>
               <label for="student_file" class="btn btn-sm btn-outline-primary px-3">
@@ -82,14 +82,14 @@
           </div>
 
           <div class="p-3 bg-light rounded-3 small text-muted mb-4 border">
-            <div class="fw-semibold text-dark mb-1"><i class="bi bi-shield-lock-fill text-indigo me-1"></i> Automatic Credentials & Security</div>
+            <div class="fw-semibold text-dark mb-1"><i class="bi bi-shield-lock-fill text-indigo me-1"></i> What happens on import</div>
             <div>• Each student will automatically receive a user account with their email.</div>
             <div>• Default initial password will be set to <code class="text-primary">apex@123</code>.</div>
             <div>• Duplicates based on email or roll number will be safely skipped.</div>
           </div>
 
           <button type="submit" class="btn-tpms-primary w-100 justify-content-center py-2 fs-6">
-            <i class="bi bi-upload me-1"></i> Ingest Student Records
+            <i class="bi bi-upload me-1"></i> Import students
           </button>
         </form>
       </div>
@@ -128,7 +128,7 @@
           </table>
         </div>
         <a href="{% url 'students:download_template' 'csv' %}" class="btn btn-sm btn-outline-secondary w-100 mt-2">
-          <i class="bi bi-file-earmark-arrow-down"></i> Download Sample CSV File
+          <i class="bi bi-file-earmark-arrow-down"></i> Download template
         </a>
       </div>
     </div>

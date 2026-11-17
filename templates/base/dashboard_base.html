@@ -1,246 +1,142 @@
 {% extends 'base/base.html' %}
-{% load static %}
 
 {% block layout_content %}
+<a href="#main" class="visually-hidden-focusable position-absolute top-0 start-0 m-2 btn btn-sm btn-primary" style="z-index:2000">Skip to content</a>
 <div class="dashboard-wrapper">
-  <!-- Sidebar Navigation -->
-  <aside class="dashboard-sidebar">
-    <div class="sidebar-header">
-      <div class="sidebar-brand-icon">
-        <i class="bi bi-mortarboard-fill"></i>
-      </div>
+  <aside class="dashboard-sidebar" aria-label="Main navigation">
+    <a href="{{ request.user.get_dashboard_url }}" class="sidebar-header">
+      <div class="sidebar-brand-icon" aria-hidden="true">TP</div>
       <div>
-        <div class="sidebar-brand-text">{{ INSTITUTE_SHORT_NAME }} TPMS</div>
-        <div class="sidebar-brand-subtitle">{{ request.user.get_role_display }}</div>
+        <div class="sidebar-brand-text">Placement Cell</div>
+        <div class="sidebar-brand-subtitle">{{ INSTITUTE_NAME }}</div>
       </div>
-    </div>
+    </a>
 
-    <div class="sidebar-menu">
-      <!-- Role: ADMIN -->
+    <nav class="sidebar-menu">
       {% if request.user.is_admin %}
-        <div class="sidebar-section-title">Administration</div>
-        <a href="{% url 'admin_panel:dashboard' %}" class="nav-item-custom {% if active_nav == 'dashboard' %}active{% endif %}">
-          <i class="bi bi-grid-1x2-fill"></i> Dashboard
-        </a>
-        <a href="{% url 'admin_panel:users' %}" class="nav-item-custom {% if active_nav == 'users' %}active{% endif %}">
-          <i class="bi bi-people-fill"></i> User Directory
-        </a>
-        <a href="{% url 'admin_panel:departments' %}" class="nav-item-custom {% if active_nav == 'departments' %}active{% endif %}">
-          <i class="bi bi-diagram-3-fill"></i> Departments
-        </a>
-        <a href="{% url 'admin_panel:assistant_assignments' %}" class="nav-item-custom {% if active_nav == 'assignments' %}active{% endif %}">
-          <i class="bi bi-person-gear"></i> Assistant Allocations
-        </a>
-        <div class="sidebar-section-title">Reports & Audit</div>
-        <a href="{% url 'analytics:placement_stats' %}" class="nav-item-custom {% if active_nav == 'analytics' %}active{% endif %}">
-          <i class="bi bi-graph-up"></i> Placement Reports
-        </a>
-        <a href="{% url 'admin_panel:audit_logs' %}" class="nav-item-custom {% if active_nav == 'audit' %}active{% endif %}">
-          <i class="bi bi-shield-check"></i> System Audit Log
-        </a>
+        <a href="{% url 'admin_panel:dashboard' %}" class="nav-item-custom {% if active_nav == 'dashboard' %}active{% endif %}"><i class="bi bi-grid-1x2"></i> Overview</a>
+        <a href="{% url 'admin_panel:users' %}" class="nav-item-custom {% if active_nav == 'users' %}active{% endif %}"><i class="bi bi-people"></i> Users</a>
+        <a href="{% url 'admin_panel:departments' %}" class="nav-item-custom {% if active_nav == 'departments' %}active{% endif %}"><i class="bi bi-diagram-3"></i> Departments</a>
+        <a href="{% url 'admin_panel:assistant_assignments' %}" class="nav-item-custom {% if active_nav == 'assignments' %}active{% endif %}"><i class="bi bi-person-gear"></i> Coordinator assignments</a>
+        <div class="sidebar-section-title">Records</div>
+        <a href="{% url 'analytics:placement_stats' %}" class="nav-item-custom {% if active_nav == 'analytics' %}active{% endif %}"><i class="bi bi-bar-chart"></i> Placement report</a>
+        <a href="{% url 'admin_panel:audit_logs' %}" class="nav-item-custom {% if active_nav == 'audit' %}active{% endif %}"><i class="bi bi-clock-history"></i> Activity log</a>
 
-      <!-- Role: PRINCIPAL -->
       {% elif request.user.is_principal %}
-        <div class="sidebar-section-title">Institutional Oversight</div>
-        <a href="{% url 'principal_panel:dashboard' %}" class="nav-item-custom {% if active_nav == 'dashboard' %}active{% endif %}">
-          <i class="bi bi-speedometer2"></i> Executive Dashboard
-        </a>
-        <a href="{% url 'principal_panel:department_reports' %}" class="nav-item-custom {% if active_nav == 'departments' %}active{% endif %}">
-          <i class="bi bi-building"></i> Department Analytics
-        </a>
-        <a href="{% url 'principal_panel:company_reports' %}" class="nav-item-custom {% if active_nav == 'companies' %}active{% endif %}">
-          <i class="bi bi-briefcase-fill"></i> Corporate Ties
-        </a>
-        <a href="{% url 'analytics:salary_stats' %}" class="nav-item-custom {% if active_nav == 'salary' %}active{% endif %}">
-          <i class="bi bi-cash-stack"></i> Salary Benchmarks
-        </a>
+        <a href="{% url 'principal_panel:dashboard' %}" class="nav-item-custom {% if active_nav == 'dashboard' %}active{% endif %}"><i class="bi bi-grid-1x2"></i> Overview</a>
+        <a href="{% url 'principal_panel:department_reports' %}" class="nav-item-custom {% if active_nav == 'departments' %}active{% endif %}"><i class="bi bi-mortarboard"></i> Student records</a>
+        <a href="{% url 'principal_panel:company_reports' %}" class="nav-item-custom {% if active_nav == 'companies' %}active{% endif %}"><i class="bi bi-buildings"></i> Recruiters</a>
+        <a href="{% url 'applications:central_tracker' %}" class="nav-item-custom {% if active_nav == 'applications' %}active{% endif %}"><i class="bi bi-kanban"></i> Applications</a>
+        <div class="sidebar-section-title">Reports</div>
+        <a href="{% url 'analytics:placement_stats' %}" class="nav-item-custom {% if active_nav == 'analytics' %}active{% endif %}"><i class="bi bi-bar-chart"></i> Placement report</a>
+        <a href="{% url 'analytics:salary_stats' %}" class="nav-item-custom {% if active_nav == 'salary' %}active{% endif %}"><i class="bi bi-cash-stack"></i> Salary report</a>
 
-      <!-- Role: TNP_OFFICER -->
       {% elif request.user.is_tnp_officer %}
-        <div class="sidebar-section-title">T&P Central Operations</div>
-        <a href="{% url 'tpo_panel:dashboard' %}" class="nav-item-custom {% if active_nav == 'dashboard' %}active{% endif %}">
-          <i class="bi bi-grid-fill"></i> Officer Dashboard
-        </a>
-        <a href="{% url 'companies:list' %}" class="nav-item-custom {% if active_nav == 'companies' %}active{% endif %}">
-          <i class="bi bi-buildings-fill"></i> Corporate Directory
-        </a>
-        <a href="{% url 'placements:drives_list' %}" class="nav-item-custom {% if active_nav == 'drives' %}active{% endif %}">
-          <i class="bi bi-megaphone-fill"></i> Placement Drives
-        </a>
-        <a href="{% url 'tpo_panel:post_job' %}" class="nav-item-custom {% if active_nav == 'post_job' %}active{% endif %}">
-          <i class="bi bi-plus-circle-fill"></i> Post New Opening
-        </a>
-        <a href="{% url 'applications:central_tracker' %}" class="nav-item-custom {% if active_nav == 'applications' %}active{% endif %}">
-          <i class="bi bi-file-earmark-person"></i> Central Applications
-        </a>
-        <div class="sidebar-section-title">Content & Intelligence</div>
-        <a href="{% url 'study_materials:list' %}" class="nav-item-custom {% if active_nav == 'materials' %}active{% endif %}">
-          <i class="bi bi-folder-fill"></i> Study Materials
-        </a>
-        <a href="{% url 'analytics:placement_stats' %}" class="nav-item-custom {% if active_nav == 'analytics' %}active{% endif %}">
-          <i class="bi bi-bar-chart-line-fill"></i> Placement Analytics
-        </a>
+        <a href="{% url 'tpo_panel:dashboard' %}" class="nav-item-custom {% if active_nav == 'dashboard' %}active{% endif %}"><i class="bi bi-grid-1x2"></i> Overview</a>
+        <a href="{% url 'placements:drives_list' %}" class="nav-item-custom {% if active_nav == 'drives' %}active{% endif %}"><i class="bi bi-megaphone"></i> Drives</a>
+        <a href="{% url 'tpo_panel:post_job' %}" class="nav-item-custom {% if active_nav == 'post_job' %}active{% endif %}"><i class="bi bi-plus-square"></i> Post a drive</a>
+        <a href="{% url 'applications:central_tracker' %}" class="nav-item-custom {% if active_nav == 'applications' %}active{% endif %}"><i class="bi bi-kanban"></i> Applications</a>
+        <a href="{% url 'companies:list' %}" class="nav-item-custom {% if active_nav == 'companies' %}active{% endif %}"><i class="bi bi-buildings"></i> Companies</a>
+        <div class="sidebar-section-title">Resources</div>
+        <a href="{% url 'study_materials:list' %}" class="nav-item-custom {% if active_nav == 'materials' %}active{% endif %}"><i class="bi bi-journal-text"></i> Study material</a>
+        <a href="{% url 'analytics:placement_stats' %}" class="nav-item-custom {% if active_nav == 'analytics' %}active{% endif %}"><i class="bi bi-bar-chart"></i> Placement report</a>
 
-      <!-- Role: TNP_ASSISTANT -->
       {% elif request.user.is_tnp_assistant %}
-        <div class="sidebar-section-title">Department Operations</div>
-        <a href="{% url 'assistant_panel:dashboard' %}" class="nav-item-custom {% if active_nav == 'dashboard' %}active{% endif %}">
-          <i class="bi bi-columns-gap"></i> Branch Dashboard
-        </a>
-        <a href="{% url 'assistant_panel:student_roster' %}" class="nav-item-custom {% if active_nav == 'students' %}active{% endif %}">
-          <i class="bi bi-mortarboard"></i> Student Roster
-        </a>
-        <a href="{% url 'students:bulk_import' %}" class="nav-item-custom {% if active_nav == 'bulk_import' %}active{% endif %}">
-          <i class="bi bi-cloud-arrow-up-fill"></i> CSV / Excel Ingestion
-        </a>
-        <a href="{% url 'assistant_panel:job_approvals' %}" class="nav-item-custom {% if active_nav == 'job_approvals' %}active{% endif %}">
-          <i class="bi bi-check2-circle"></i> Drive Approvals
-        </a>
-        <a href="{% url 'assistant_panel:verify_applications' %}" class="nav-item-custom {% if active_nav == 'verify_apps' %}active{% endif %}">
-          <i class="bi bi-patch-check-fill"></i> Verify Candidates
-        </a>
-        <a href="{% url 'placements:post_job' %}" class="nav-item-custom {% if active_nav == 'post_job' %}active{% endif %}">
-          <i class="bi bi-plus-circle-fill"></i> Post Branch Opening
-        </a>
-        <a href="{% url 'study_materials:list' %}" class="nav-item-custom {% if active_nav == 'materials' %}active{% endif %}">
-          <i class="bi bi-book-half"></i> Department Prep Kits
-        </a>
+        <a href="{% url 'assistant_panel:dashboard' %}" class="nav-item-custom {% if active_nav == 'dashboard' %}active{% endif %}"><i class="bi bi-grid-1x2"></i> Overview</a>
+        <a href="{% url 'assistant_panel:student_roster' %}" class="nav-item-custom {% if active_nav == 'students' %}active{% endif %}"><i class="bi bi-mortarboard"></i> Students</a>
+        <a href="{% url 'students:bulk_import' %}" class="nav-item-custom {% if active_nav == 'bulk_import' %}active{% endif %}"><i class="bi bi-upload"></i> Import students</a>
+        <div class="sidebar-section-title">Drives</div>
+        <a href="{% url 'assistant_panel:job_approvals' %}" class="nav-item-custom {% if active_nav == 'job_approvals' %}active{% endif %}"><i class="bi bi-check2-square"></i> Drive approvals</a>
+        <a href="{% url 'assistant_panel:verify_applications' %}" class="nav-item-custom {% if active_nav == 'verify_apps' %}active{% endif %}"><i class="bi bi-patch-check"></i> Verify applicants</a>
+        <a href="{% url 'placements:drives_list' %}" class="nav-item-custom {% if active_nav == 'drives' %}active{% endif %}"><i class="bi bi-megaphone"></i> All drives</a>
+        <a href="{% url 'placements:post_job' %}" class="nav-item-custom {% if active_nav == 'post_job' %}active{% endif %}"><i class="bi bi-plus-square"></i> Post a drive</a>
+        <a href="{% url 'study_materials:list' %}" class="nav-item-custom {% if active_nav == 'materials' %}active{% endif %}"><i class="bi bi-journal-text"></i> Study material</a>
 
-      <!-- Role: STUDENT -->
       {% elif request.user.is_student %}
-        <div class="sidebar-section-title">Candidate Portal</div>
-        <a href="{% url 'student_panel:dashboard' %}" class="nav-item-custom {% if active_nav == 'dashboard' %}active{% endif %}">
-          <i class="bi bi-house-door-fill"></i> My Dashboard
-        </a>
-        <a href="{% url 'student_panel:eligible_jobs' %}" class="nav-item-custom {% if active_nav == 'eligible_jobs' %}active{% endif %}">
-          <i class="bi bi-briefcase"></i> Explore Job Openings
-        </a>
-        <a href="{% url 'student_panel:my_applications' %}" class="nav-item-custom {% if active_nav == 'my_applications' %}active{% endif %}">
-          <i class="bi bi-send-check-fill"></i> Applied Drives
-        </a>
-        <a href="{% url 'student_panel:profile' %}" class="nav-item-custom {% if active_nav == 'profile' %}active{% endif %}">
-          <i class="bi bi-person-badge-fill"></i> Academic Vault & Resume
-        </a>
-        <a href="{% url 'study_materials:list' %}" class="nav-item-custom {% if active_nav == 'materials' %}active{% endif %}">
-          <i class="bi bi-journal-bookmark-fill"></i> Preparation Resources
-        </a>
-        <a href="{% url 'career_assistant:career_assistant' %}" class="nav-item-custom {% if active_nav == 'career_assistant' %}active{% endif %}">
-          <i class="bi bi-robot text-primary"></i> AI Career Assistant
-        </a>
+        <a href="{% url 'student_panel:dashboard' %}" class="nav-item-custom {% if active_nav == 'dashboard' %}active{% endif %}"><i class="bi bi-house"></i> Home</a>
+        <a href="{% url 'student_panel:eligible_jobs' %}" class="nav-item-custom {% if active_nav == 'eligible_jobs' %}active{% endif %}"><i class="bi bi-megaphone"></i> Open drives</a>
+        <a href="{% url 'student_panel:my_applications' %}" class="nav-item-custom {% if active_nav == 'my_applications' %}active{% endif %}"><i class="bi bi-send-check"></i> My applications</a>
+        <a href="{% url 'student_panel:profile' %}" class="nav-item-custom {% if active_nav == 'profile' %}active{% endif %}"><i class="bi bi-person-vcard"></i> Profile & resume</a>
+        <div class="sidebar-section-title">Prepare</div>
+        <a href="{% url 'study_materials:list' %}" class="nav-item-custom {% if active_nav == 'materials' %}active{% endif %}"><i class="bi bi-journal-text"></i> Study material</a>
+        <a href="{% url 'career_assistant:career_assistant' %}" class="nav-item-custom {% if active_nav == 'career_assistant' %}active{% endif %}"><i class="bi bi-chat-square-text"></i> Career assistant</a>
       {% endif %}
 
-      <div class="sidebar-section-title mt-3">Account</div>
+      <div class="sidebar-section-title">Account</div>
       <a href="{% url 'accounts:notifications' %}" class="nav-item-custom {% if active_nav == 'notifications' %}active{% endif %}">
-        <i class="bi bi-bell-fill"></i> Notifications
-        {% if UNREAD_NOTIFICATIONS_COUNT > 0 %}
-          <span class="badge bg-danger ms-auto rounded-pill">{{ UNREAD_NOTIFICATIONS_COUNT }}</span>
-        {% endif %}
+        <i class="bi bi-bell"></i> Notifications
+        {% if UNREAD_NOTIFICATIONS_COUNT %}<span class="nav-count" aria-label="{{ UNREAD_NOTIFICATIONS_COUNT }} unread">{{ UNREAD_NOTIFICATIONS_COUNT }}</span>{% endif %}
       </a>
-      <a href="{% url 'accounts:logout' %}" class="nav-item-custom text-danger">
-        <i class="bi bi-box-arrow-right"></i> Sign Out
-      </a>
-    </div>
+      <a href="{% url 'accounts:change_password' %}" class="nav-item-custom {% if active_nav == 'change_password' %}active{% endif %}"><i class="bi bi-key"></i> Change password</a>
+    </nav>
 
-    <!-- Demonstration Switcher Footer -->
     <div class="sidebar-footer">
-      <div class="text-xs text-muted mb-1 d-flex justify-content-between align-items-center">
-        <span>DEMO ROLE SWITCH</span>
-        <i class="bi bi-shuffle"></i>
+      <div class="sidebar-user mb-2">
+        <div class="avatar avatar-sm">{{ request.user.first_name|slice:":1" }}{{ request.user.last_name|slice:":1" }}</div>
+        <div class="min-w-0">
+          <div class="sidebar-user-name">{{ request.user.get_full_name }}</div>
+          <div class="sidebar-user-email" title="{{ request.user.email }}">{{ request.user.get_role_display }}</div>
+        </div>
+        <a href="{% url 'accounts:logout' %}" class="ms-auto text-white-50" title="Sign out" aria-label="Sign out"><i class="bi bi-box-arrow-right"></i></a>
       </div>
-      <div class="dropdown">
-        <button class="btn btn-sm btn-dark w-100 text-start d-flex justify-content-between align-items-center text-truncate py-1 px-2" style="font-size: 0.75rem;" data-bs-toggle="dropdown">
-          <span>Switch Role View</span>
-          <i class="bi bi-chevron-down ms-1"></i>
+      {% if DEMO_MODE %}
+      <div class="dropup">
+        <button class="btn btn-sm w-100 justify-content-between" style="background:rgba(255,255,255,.07);color:rgba(255,255,255,.75);border:0" data-bs-toggle="dropdown" aria-expanded="false">
+          <span><i class="bi bi-arrow-left-right me-1"></i> Demo: switch role</span><i class="bi bi-chevron-up"></i>
         </button>
-        <ul class="dropdown-menu dropdown-menu-dark shadow" style="font-size: 0.8rem;">
-          <li><a class="dropdown-item" href="{% url 'accounts:quick_switch' 'ADMIN' %}"><span class="badge bg-danger me-1">ADM</span> Administrator</a></li>
-          <li><a class="dropdown-item" href="{% url 'accounts:quick_switch' 'PRINCIPAL' %}"><span class="badge bg-warning text-dark me-1">PRN</span> Principal</a></li>
-          <li><a class="dropdown-item" href="{% url 'accounts:quick_switch' 'TNP_OFFICER' %}"><span class="badge bg-primary me-1">TPO</span> TnP Officer</a></li>
-          <li><a class="dropdown-item" href="{% url 'accounts:quick_switch' 'TNP_ASSISTANT' %}"><span class="badge bg-info text-dark me-1">AST</span> TnP Assistant (CSE)</a></li>
-          <li><a class="dropdown-item" href="{% url 'accounts:quick_switch' 'STUDENT' %}"><span class="badge bg-success me-1">STU</span> Student Candidate</a></li>
-        </ul>
+        <div class="dropdown-menu w-100">
+          <form method="post" action="{% url 'accounts:quick_switch' 'STUDENT' %}">{% csrf_token %}<button class="dropdown-item">Student</button></form>
+          <form method="post" action="{% url 'accounts:quick_switch' 'TNP_OFFICER' %}">{% csrf_token %}<button class="dropdown-item">Placement officer</button></form>
+          <form method="post" action="{% url 'accounts:quick_switch' 'TNP_ASSISTANT' %}">{% csrf_token %}<button class="dropdown-item">Department coordinator</button></form>
+          <form method="post" action="{% url 'accounts:quick_switch' 'PRINCIPAL' %}">{% csrf_token %}<button class="dropdown-item">Principal</button></form>
+          <form method="post" action="{% url 'accounts:quick_switch' 'ADMIN' %}">{% csrf_token %}<button class="dropdown-item">Administrator</button></form>
+        </div>
       </div>
+      {% endif %}
     </div>
   </aside>
 
-  <!-- Main Content Area -->
-  <main class="dashboard-main">
-    <!-- Topbar -->
+  <div class="dashboard-main">
     <header class="dashboard-topbar">
-      <div class="d-flex align-items-center gap-3">
-        <button class="btn btn-sm btn-light d-md-none" id="sidebarToggleBtn" type="button" aria-label="Toggle Sidebar Navigation">
-          <i class="bi bi-list fs-5"></i>
-        </button>
-        <div>
-          <span class="text-muted small">Academic Year: <strong>{{ CURRENT_ACADEMIC_YEAR }}</strong></span>
-          <span class="mx-2 text-muted">•</span>
-          <span class="small fw-semibold text-dark">{{ INSTITUTE_NAME }}</span>
-        </div>
-      </div>
-
       <div class="d-flex align-items-center gap-2">
-        <!-- Live Notifications Link -->
-        <a href="{% url 'accounts:notifications' %}" class="btn btn-sm btn-light position-relative rounded-circle p-2 d-flex align-items-center justify-content-center" title="Notifications" style="width: 36px; height: 36px;">
-          <i class="bi bi-bell text-secondary"></i>
-          {% if UNREAD_NOTIFICATIONS_COUNT > 0 %}
-            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="font-size: 0.65rem;">
-              {{ UNREAD_NOTIFICATIONS_COUNT }}
-            </span>
-          {% endif %}
+        <button class="icon-btn" id="sidebarToggleBtn" type="button" aria-label="Open menu"><i class="bi bi-list"></i></button>
+        <a href="{{ request.user.get_dashboard_url }}" class="topbar-brand d-lg-none">Placement Cell</a>
+        <div class="topbar-context d-none d-lg-block"><strong>{{ INSTITUTE_NAME }}</strong> <span class="ms-2">Academic year {{ CURRENT_ACADEMIC_YEAR }}</span></div>
+      </div>
+      <div class="d-flex align-items-center gap-2">
+        <a href="{% url 'accounts:notifications' %}" class="icon-btn" title="Notifications" aria-label="Notifications{% if UNREAD_NOTIFICATIONS_COUNT %}, {{ UNREAD_NOTIFICATIONS_COUNT }} unread{% endif %}">
+          <i class="bi bi-bell"></i>{% if UNREAD_NOTIFICATIONS_COUNT %}<span class="dot"></span>{% endif %}
         </a>
-
-        <!-- User Role Pill & Name -->
-        <div class="d-flex align-items-center gap-2 border-start ps-3">
-          <div class="text-end d-none d-sm-block">
-            <div class="fw-bold small text-dark lh-1">{{ request.user.get_full_name }}</div>
-            <span class="role-pill role-{{ request.user.role|lower }}">{{ request.user.get_role_display }}</span>
-          </div>
-          <div class="dropdown">
-            <button class="btn p-0 border-0" data-bs-toggle="dropdown">
-              <div class="avatar-circle bg-primary text-white rounded-circle d-flex align-items-center justify-content-center fw-bold" style="width: 38px; height: 38px; font-size: 0.9rem;">
-                {{ request.user.first_name|slice:":1" }}{{ request.user.last_name|slice:":1" }}
-              </div>
-            </button>
-            <ul class="dropdown-menu dropdown-menu-end shadow-sm">
-              <li class="dropdown-header">
-                <strong>{{ request.user.get_full_name }}</strong><br>
-                <small class="text-muted">{{ request.user.email }}</small>
-              </li>
-              <li><hr class="dropdown-divider"></li>
-              <li><a class="dropdown-item" href="{% url 'accounts:change_password' %}"><i class="bi bi-key me-2 text-primary"></i> Change Password</a></li>
-              <li><a class="dropdown-item" href="{% url 'accounts:logout' %}"><i class="bi bi-box-arrow-right text-danger me-2"></i> Sign Out</a></li>
-            </ul>
-          </div>
+        <div class="dropdown">
+          <button class="btn p-0 border-0 d-flex align-items-center gap-2" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Account menu">
+            <span class="avatar">{{ request.user.first_name|slice:":1" }}{{ request.user.last_name|slice:":1" }}</span>
+          </button>
+          <ul class="dropdown-menu dropdown-menu-end">
+            <li class="dropdown-header"><strong class="text-dark d-block">{{ request.user.get_full_name }}</strong>{{ request.user.email }}</li>
+            <li><hr class="dropdown-divider"></li>
+            {% if request.user.is_student %}<li><a class="dropdown-item" href="{% url 'student_panel:profile' %}"><i class="bi bi-person-vcard me-2"></i>Profile & resume</a></li>{% endif %}
+            <li><a class="dropdown-item" href="{% url 'accounts:change_password' %}"><i class="bi bi-key me-2"></i>Change password</a></li>
+            <li><a class="dropdown-item" href="{% url 'accounts:logout' %}"><i class="bi bi-box-arrow-right me-2"></i>Sign out</a></li>
+          </ul>
         </div>
       </div>
     </header>
 
-    <!-- Content Workspace -->
-    <div class="dashboard-content">
-      <!-- Flash Messages -->
+    <main class="dashboard-content" id="main" tabindex="-1">
       {% if messages %}
-        <div class="messages-container mb-3">
+        <div class="flash-stack" role="status">
           {% for message in messages %}
-            <div class="alert alert-{{ message.tags|default:'info' }} alert-dismissible fade show shadow-xs d-flex align-items-center gap-2" role="alert">
-              {% if message.tags == 'success' %}
-                <i class="bi bi-check-circle-fill fs-5 text-success"></i>
-              {% elif message.tags == 'error' or message.tags == 'danger' %}
-                <i class="bi bi-exclamation-triangle-fill fs-5 text-danger"></i>
-              {% elif message.tags == 'warning' %}
-                <i class="bi bi-exclamation-circle-fill fs-5 text-warning"></i>
-              {% else %}
-                <i class="bi bi-info-circle-fill fs-5 text-info"></i>
-              {% endif %}
+            <div class="alert alert-{{ message.tags|default:'info' }} alert-dismissible fade show d-flex align-items-center gap-2 mb-0">
+              {% if message.tags == 'success' %}<i class="bi bi-check-circle-fill"></i>{% elif message.tags == 'danger' %}<i class="bi bi-exclamation-octagon-fill"></i>{% elif message.tags == 'warning' %}<i class="bi bi-exclamation-triangle-fill"></i>{% else %}<i class="bi bi-info-circle-fill"></i>{% endif %}
               <div>{{ message }}</div>
-              <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+              <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Dismiss"></button>
             </div>
           {% endfor %}
         </div>
       {% endif %}
 
-      {% block content %}
-      {% endblock %}
-    </div>
-  </main>
+      {% block content %}{% endblock %}
+    </main>
+  </div>
 </div>
 {% endblock %}

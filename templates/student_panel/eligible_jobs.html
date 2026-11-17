@@ -1,131 +1,50 @@
 {% extends 'base/dashboard_base.html' %}
 
-{% block title %}Explore Campus Drives — {{ block.super }}{% endblock %}
+{% block title %}Open drives{% endblock %}
 
 {% block content %}
-<div class="d-flex justify-content-between align-items-center mb-4">
+<div class="page-head">
   <div>
-    <h4 class="fw-bold text-dark mb-1">Campus Placement Drives</h4>
-    <p class="text-muted small mb-0">Explore ongoing corporate recruitment drives with real-time automated eligibility evaluation.</p>
+    <h1>Open drives</h1>
+    <p>Each drive shows your record next to its cut-offs. Red means that's the one holding you back.</p>
   </div>
-
-  <div class="btn-group shadow-xs">
-    <a href="?filter=all" class="btn btn-sm {% if filter_mode == 'all' %}btn-primary{% else %}btn-outline-secondary bg-white{% endif %}">
-      All Drives
-    </a>
-    <a href="?filter=eligible_only" class="btn btn-sm {% if filter_mode == 'eligible_only' %}btn-primary{% else %}btn-outline-secondary bg-white{% endif %}">
-      <i class="bi bi-check2-circle me-1"></i> Eligible Only
-    </a>
-    <a href="?filter=applied" class="btn btn-sm {% if filter_mode == 'applied' %}btn-primary{% else %}btn-outline-secondary bg-white{% endif %}">
-      Applied Drives
-    </a>
-  </div>
+  <nav class="seg" aria-label="Filter drives">
+    <a href="?filter=all" class="{% if filter_mode == 'all' %}active{% endif %}">All<span class="count">{{ counts.all }}</span></a>
+    <a href="?filter=eligible_only" class="{% if filter_mode == 'eligible_only' %}active{% endif %}">Eligible<span class="count">{{ counts.eligible_only }}</span></a>
+    <a href="?filter=applied" class="{% if filter_mode == 'applied' %}active{% endif %}">Applied<span class="count">{{ counts.applied }}</span></a>
+  </nav>
 </div>
 
-<div class="row g-4">
+<div class="tpms-card">
+  <div class="tpms-card-header">
+    <h2 class="tpms-card-title">Your record</h2>
+    <span class="small text-muted">
+      CGPA <strong class="text-dark">{{ profile.graduation_cgpa }}</strong>
+      <span class="ms-3">10th <strong class="text-dark">{{ profile.tenth_percentage|floatformat:"-2" }}%</strong></span>
+      <span class="ms-3">12th <strong class="text-dark">{{ profile.twelfth_percentage|floatformat:"-2" }}%</strong></span>
+      <span class="ms-3">Backlogs <strong class="text-dark">{{ profile.active_backlogs }}</strong></span>
+      <span class="ms-3">{{ profile.department.code }}, batch {{ profile.batch_year }}</span>
+    </span>
+  </div>
   {% for item in evaluated_jobs %}
-    <div class="col-lg-6">
-      <div class="tpms-card h-100 d-flex flex-column mb-0">
-        <div class="tpms-card-header">
-          <div>
-            <a href="{% url 'placements:drive_detail' item.job.id %}" class="fw-bold text-dark fs-6 drive-link text-decoration-none d-block">
-              {{ item.job.title }}
-            </a>
-            <div class="text-muted small">
-              <a href="{% url 'placements:drive_detail' item.job.id %}" class="text-muted drive-sublink text-decoration-none">
-                {{ item.job.company.name }}
-              </a> • <i class="bi bi-geo-alt"></i> {{ item.job.job_location }}
-            </div>
-          </div>
-          <span class="fs-5 fw-bold text-success">{{ item.job.package_ctc }} LPA</span>
-        </div>
-
-        <div class="tpms-card-body flex-grow-1">
-          <p class="text-muted small mb-3">{{ item.job.role_description|truncatewords:25 }}</p>
-
-          <!-- Cut-offs Summary List -->
-          <div class="row g-2 mb-3 small">
-            <div class="col-6">
-              <div class="p-2 bg-light rounded border">
-                <span class="text-muted d-block" style="font-size: 0.7rem;">MIN GRADUATION CGPA</span>
-                <strong class="text-dark">{{ item.job.min_graduation_cgpa }} / 10.0</strong>
-              </div>
-            </div>
-            <div class="col-6">
-              <div class="p-2 bg-light rounded border">
-                <span class="text-muted d-block" style="font-size: 0.7rem;">MAX LIVE BACKLOGS</span>
-                <strong class="text-dark">{{ item.job.max_active_backlogs }}</strong>
-              </div>
-            </div>
-          </div>
-
-          <!-- Real-Time Eligibility Verdict -->
-          {% if item.eval.is_eligible %}
-            <div class="eligibility-box eligibility-pass mb-3">
-              <div class="d-flex align-items-center gap-2">
-                <i class="bi bi-check-circle-fill fs-5"></i>
-                <div>
-                  <strong>You meet all cut-off criteria!</strong>
-                  <div class="small" style="font-size: 0.75rem;">Your CGPA ({{ profile.graduation_cgpa }}) and academic record qualify for this drive.</div>
-                </div>
-              </div>
-            </div>
-          {% else %}
-            <div class="eligibility-box eligibility-fail mb-3">
-              <div class="d-flex align-items-start gap-2">
-                <i class="bi bi-x-circle-fill fs-5 mt-1"></i>
-                <div>
-                  <strong>You are not eligible for this drive:</strong>
-                  <ul class="mb-0 ps-3 mt-1" style="font-size: 0.75rem;">
-                    {% for reason in item.eval.failed_criteria %}
-                      <li>{{ reason }}</li>
-                    {% endfor %}
-                  </ul>
-                </div>
-              </div>
-            </div>
-          {% endif %}
-
-          <div class="text-muted small d-flex justify-content-between align-items-center">
-            <span><i class="bi bi-calendar3 me-1"></i> Drive: {{ item.job.drive_date|date:"M d, Y" }}</span>
-            <span class="{% if item.job.is_deadline_passed %}text-danger fw-semibold{% endif %}">
-              <i class="bi bi-clock me-1"></i> Deadline: {{ item.job.application_deadline|date:"M d, H:i" }}
-            </span>
-          </div>
-        </div>
-
-        <div class="tpms-card-header bg-light border-top">
-          <a href="{% url 'placements:drive_detail' item.job.id %}" class="btn btn-sm btn-outline-secondary">
-            <i class="bi bi-info-circle me-1"></i> View Full Notice
-          </a>
-
-          {% if item.eval.has_applied %}
-            <span class="badge-tpms badge-brand-subtle py-2 px-3">
-              <i class="bi bi-check2-circle"></i> Applied ({{ item.eval.application.get_stage_display }})
-            </span>
-          {% elif item.eval.can_apply %}
-            <form method="POST" action="{% url 'applications:apply' item.job.id %}">
-              {% csrf_token %}
-              <button type="submit" class="btn-tpms-primary py-1 px-3">
-                <i class="bi bi-send me-1"></i> 1-Click Apply
-              </button>
-            </form>
-          {% else %}
-            <button class="btn btn-sm btn-secondary" disabled>
-              {% if item.eval.is_deadline_passed %}Deadline Closed{% else %}Ineligible to Apply{% endif %}
-            </button>
-          {% endif %}
-        </div>
-      </div>
-    </div>
+    {% include 'includes/drive_row.html' %}
   {% empty %}
-    <div class="col-12">
-      <div class="card p-5 text-center text-muted border rounded-3 bg-white">
-        <i class="bi bi-briefcase-slash fs-1 mb-2"></i>
-        <h5>No campus drives match your selected filter</h5>
-        <p class="small mb-0">Check back later or adjust your filter selection.</p>
-      </div>
+    <div class="empty-state">
+      <i class="bi bi-megaphone"></i>
+      {% if filter_mode == 'applied' %}
+        <h3>You haven't applied to any open drive</h3>
+        <p>Drives you apply to will show up here with their current round.</p>
+        <a href="?filter=eligible_only" class="btn btn-primary btn-sm">See drives you can apply to</a>
+      {% elif filter_mode == 'eligible_only' %}
+        <h3>No open drive matches your record yet</h3>
+        <p>Check the full list to see which cut-off each drive needs. New drives are announced in your notifications.</p>
+        <a href="?filter=all" class="btn btn-outline-secondary btn-sm">Show all drives</a>
+      {% else %}
+        <h3>No drives are open right now</h3>
+        <p>You'll get a notification as soon as the placement office posts one.</p>
+      {% endif %}
     </div>
   {% endfor %}
 </div>
+<p class="small text-muted">Marks look wrong? Your department coordinator can correct your academic record.</p>
 {% endblock %}

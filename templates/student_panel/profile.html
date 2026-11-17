@@ -4,17 +4,17 @@
 
 {% block content %}
 <div class="mb-4">
-  <h4 class="fw-bold text-dark mb-1">Academic Vault & Resume</h4>
-  <p class="text-muted small mb-0">Your verified academic metrics, uploaded PDF resume, and technical skills profile.</p>
+  <h1 class="page-title">Profile & resume</h1>
+  <p class="text-muted small mb-0">Your academic record, resume and skills. Recruiters see this when you apply.</p>
 </div>
 
 <div class="row g-4">
-  <!-- Left Column: Verified Academic Scores (Read-Only) -->
+  <!-- Left Column: Verified Marks (Read-Only) -->
   <div class="col-lg-5">
     <div class="tpms-card mb-4">
       <div class="tpms-card-header">
-        <span class="tpms-card-title"><i class="bi bi-shield-check me-2 text-success"></i> Verified Academic Metrics</span>
-        <span class="badge bg-light text-muted border">Managed by TnP Cell</span>
+        <span class="tpms-card-title"><i class="bi bi-shield-check me-2 text-success"></i> Academic record</span>
+        <span class="badge bg-light text-muted border">Set by your coordinator</span>
       </div>
       <div class="tpms-card-body p-0">
         <ul class="list-group list-group-flush small">
@@ -57,7 +57,7 @@
           <li class="list-group-item d-flex justify-content-between">
             <span class="text-muted">Placement Status</span>
             {% if profile.placement_status == 'PLACED' %}
-              <span class="badge bg-success-subtle text-success"><i class="bi bi-trophy"></i> Placed ({{ profile.salary_package }} LPA)</span>
+              <span class="badge bg-success-subtle text-success"><i class="bi bi-trophy"></i> Placed ({{ profile.salary_package|floatformat:1 }} LPA)</span>
             {% else %}
               <span class="badge bg-info-subtle text-dark">Active Candidate</span>
             {% endif %}
@@ -71,7 +71,7 @@
   <div class="col-lg-7">
     <div class="tpms-card">
       <div class="tpms-card-header">
-        <span class="tpms-card-title"><i class="bi bi-file-earmark-person me-2 text-primary"></i> Resume & Candidate Portfolio</span>
+        <span class="tpms-card-title"><i class="bi bi-file-earmark-person me-2 text-primary"></i> Resume and links</span>
       </div>
       <div class="tpms-card-body">
         <form method="POST" enctype="multipart/form-data">

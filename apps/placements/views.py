@@ -16,6 +16,34 @@ from apps.audit.models import AuditLog
 from apps.notifications.models import Notification
 
 
+def parse_deadline(value):
+    """Parses an <input type=datetime-local> value into an aware datetime, or None."""
+    from django.utils.dateparse import parse_datetime
+    if not value:
+        return None
+    dt = parse_datetime(value.replace('T', ' ').strip())
+    if dt and timezone.is_naive(dt):
+        dt = timezone.make_aware(dt)
+    return dt
+
+
+def parse_day(value):
+    from django.utils.dateparse import parse_date
+    try:
+        return parse_date(value) if value else None
+    except ValueError:
+        return None
+
+
+def validate_cutoffs(min_tenth, min_twelfth, min_cgpa, max_backlogs, errors):
+    if not (0 <= min_tenth <= 100) or not (0 <= min_twelfth <= 100):
+        errors['cutoffs'] = '10th and 12th cut-offs must be between 0 and 100.'
+    elif not (0 <= min_cgpa <= 10):
+        errors['cutoffs'] = 'CGPA cut-off must be between 0 and 10.'
+    elif max_backlogs < 0:
+        errors['cutoffs'] = 'Allowed backlogs cannot be negative.'
+
+
 @login_required_custom
 def drives_list_view(request):
     """
@@ -153,12 +181,27 @@ def post_job_view(request):
             errors['package_ctc'] = 'Invalid compensation format (must be e.g. 12.50).'
 
         try:
-            min_tenth = Decimal(min_tenth_str)
-            min_twelfth = Decimal(min_twelfth_str)
-            min_cgpa = Decimal(min_cgpa_str)
-            max_backlogs = int(max_backlogs_str)
+            min_tenth = Decimal(min_tenth_str or '0')
+            min_twelfth = Decimal(min_twelfth_str or '0')
+            min_cgpa = Decimal(min_cgpa_str or '0')
+            max_backlogs = int(max_backlogs_str or '0')
+            validate_cutoffs(min_tenth, min_twelfth, min_cgpa, max_backlogs, errors)
         except (InvalidOperation, ValueError):
-            errors['cutoffs'] = 'Invalid cut-off numeric parameters.'
+            errors['cutoffs'] = 'Cut-offs must be numbers.'
+
+        deadline = parse_deadline(deadline_str)
+        drive_date = parse_day(drive_date_str)
+        if deadline_str and not deadline:
+            errors['application_deadline'] = 'Enter a valid deadline.'
+        elif deadline and deadline <= timezone.now():
+            errors['application_deadline'] = 'Deadline must be in the future.'
+        if drive_date_str and not drive_date:
+            errors['drive_date'] = 'Enter a valid drive date.'
+        elif deadline and drive_date and drive_date < timezone.localtime(deadline).date():
+            errors['drive_date'] = 'Drive date cannot be before the application deadline.'
+
+        if company_id and not Company.objects.filter(id=company_id if str(company_id).isdigit() else 0, is_active=True).exists():
+            errors['company_id'] = 'Please select a hiring company.'
 
         if errors:
             return render(request, 'placements/post_job.html', {
@@ -184,8 +227,8 @@ def post_job_view(request):
             max_active_backlogs=max_backlogs,
             allowed_degrees=allowed_degrees,
             allowed_batches=allowed_batches,
-            application_deadline=deadline_str,
-            drive_date=drive_date_str,
+            application_deadline=deadline,
+            drive_date=drive_date,
             created_by=request.user,
             status=JobStatus.PUBLISHED
         )
@@ -215,7 +258,7 @@ def post_job_view(request):
         Notification.objects.create(
             target_role='STUDENT',
             title=f"New Campus Drive: {company.name} ({title})",
-            message=f"{company.name} announced a drive for {title} offering {package_ctc} LPA. Check eligibility now!",
+            message=f"{company.name} is hiring for {title} ({package_ctc} LPA). Check whether you're eligible.",
             action_url=f"/student/jobs/"
         )
 
@@ -227,7 +270,7 @@ def post_job_view(request):
             details=f"Posted campus drive: {title} at {company.name} ({package_ctc} LPA)"
         )
 
-        messages.success(request, f"Drive for {title} at {company.name} published successfully.")
+        messages.success(request, f"Published: {company.name}, {title}.")
         return redirect('placements:drive_detail', job_id=job.id)
 
     return render(request, 'placements/post_job.html', {
@@ -259,12 +302,33 @@ def job_edit_view(request, job_id):
         status = request.POST.get('status', job.status)
         deadline_str = request.POST.get('application_deadline')
         drive_date_str = request.POST.get('drive_date')
+        allowed_dept_ids = request.POST.getlist('allowed_departments')
 
         errors = {}
         if not title:
             errors['title'] = 'Title is required.'
         if not role_description:
             errors['role_description'] = 'Job description is required.'
+        if status not in JobStatus.values:
+            errors['status'] = 'Choose a valid status.'
+
+        try:
+            min_tenth = Decimal(request.POST.get('min_tenth_percentage') or job.min_tenth_percentage)
+            min_twelfth = Decimal(request.POST.get('min_twelfth_percentage') or job.min_twelfth_percentage)
+            min_cgpa = Decimal(request.POST.get('min_graduation_cgpa') or job.min_graduation_cgpa)
+            max_backlogs = int(request.POST.get('max_active_backlogs') or job.max_active_backlogs)
+            validate_cutoffs(min_tenth, min_twelfth, min_cgpa, max_backlogs, errors)
+        except (InvalidOperation, ValueError):
+            errors['cutoffs'] = 'Cut-offs must be numbers.'
+
+        deadline = parse_deadline(deadline_str) if deadline_str else job.application_deadline
+        drive_date = parse_day(drive_date_str) if drive_date_str else job.drive_date
+        if deadline_str and not deadline:
+            errors['application_deadline'] = 'Enter a valid deadline.'
+        if drive_date_str and not drive_date:
+            errors['drive_date'] = 'Enter a valid drive date.'
+        elif deadline and drive_date and drive_date < timezone.localtime(deadline).date():
+            errors['drive_date'] = 'Drive date cannot be before the application deadline.'
 
         try:
             package_ctc = Decimal(package_ctc_str)
@@ -278,6 +342,8 @@ def job_edit_view(request, job_id):
                 'job': job,
                 'errors': errors,
                 'statuses': JobStatus.choices,
+                'departments': Department.objects.filter(is_active=True).order_by('code'),
+                'selected_dept_ids': [d.id for d in job.allowed_departments.all()],
                 'active_nav': 'drives'
             })
 
@@ -288,15 +354,22 @@ def job_edit_view(request, job_id):
         job.package_ctc = package_ctc
         job.bond_details = bond_details
         job.status = status
-        if deadline_str:
-            from django.utils.dateparse import parse_datetime
-            dt = parse_datetime(deadline_str.replace('T', ' '))
-            if dt and timezone.is_naive(dt):
-                dt = timezone.make_aware(dt)
-            job.application_deadline = dt if dt else deadline_str
-        if drive_date_str:
-            job.drive_date = drive_date_str
+        job.min_tenth_percentage = min_tenth
+        job.min_twelfth_percentage = min_twelfth
+        job.min_graduation_cgpa = min_cgpa
+        job.max_active_backlogs = max_backlogs
+        job.application_deadline = deadline
+        job.drive_date = drive_date
         job.save()
+
+        # Branch list changes: new branches need their coordinator's approval.
+        if allowed_dept_ids:
+            new_depts = Department.objects.filter(id__in=[i for i in allowed_dept_ids if i.isdigit()])
+            if new_depts.exists():
+                job.allowed_departments.set(new_depts)
+                for dept in new_depts:
+                    DepartmentJobApproval.objects.get_or_create(job_opening=job, department=dept)
+                job.department_approvals.exclude(department__in=new_depts).delete()
 
         # If drive is cancelled, issue notification to all candidates who applied
         if old_status != JobStatus.CANCELLED and status == JobStatus.CANCELLED:
@@ -316,11 +389,14 @@ def job_edit_view(request, job_id):
             details=f"Updated job {job.title} at {job.company.name} (Status: {old_status} -> {status})"
         )
 
-        messages.success(request, f"Drive '{job.title}' updated successfully.")
+        messages.success(request, f"Saved changes to {job.company.name}, {job.title}.")
         return redirect('placements:drive_detail', job_id=job.id)
 
     return render(request, 'placements/job_edit.html', {
         'job': job,
         'statuses': JobStatus.choices,
+        'departments': Department.objects.filter(is_active=True).order_by('code'),
+        'selected_dept_ids': [d.id for d in job.allowed_departments.all()],
+        'errors': {},
         'active_nav': 'drives'
     })

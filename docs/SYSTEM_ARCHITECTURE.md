@@ -124,7 +124,7 @@ The Training and Placement Management System (TPMS) follows a **Modular Monolith
 - **Key Components**:
   - `Conversation`: Threaded session model binding student profiles to chat histories with automatic contextual naming.
   - `ChatMessage`: Individual message entities storing sender role (`STUDENT`, `ASSISTANT`), raw markdown content, and timestamps.
-  - `AICareerAssistantService`: Orchestration layer integrating Google Gemini API (`gemini-1.5-flash`) with automatic fallback to an institutional rule-based guidance engine.
+  - `AICareerAssistantService`: Orchestration layer integrating Google Gemini REST API (`GEMINI_MODEL`, defaulting to `gemini-flash-latest`) with automatic fallback to an institutional rule-based guidance engine.
   - `CareerContextBuilder`: Assembles real-time academic standing (CGPA, active backlogs), verified technical skills, applied drives, and upcoming campus openings into prompt context.
   - `CareerPromptBuilder`: Formats structured system instructions prompting comprehensive Markdown output (actionable roadmaps, skill gap tables, preparation tips).
   - Presentation: Interactive conversational UI (`career_assistant.html`) with dual-engine Markdown parser (`marked.js` + secure fallback `customSafeMarkdownParser`).
@@ -174,12 +174,14 @@ f:\tpms\
 │
 ├── static/                   # Static Frontend Assets
 │   ├── css/
-│   │   ├── bootstrap.min.css
-│   │   └── style.css         # Modern SaaS Design System (Linear/Stripe theme)
+│   │   └── style.css         # Modern Institutional Design System (Ink Navy & Marigold)
 │   ├── js/
-│   │   ├── bootstrap.bundle.min.js
-│   │   ├── chart.min.js
 │   │   └── app.js
+│   ├── vendor/               # Bundled Vendor Dependencies (100% Offline Capability)
+│   │   ├── bootstrap/        # Bootstrap 5.3 CSS & JS Bundle
+│   │   ├── bootstrap-icons/  # Complete vector icon font library
+│   │   ├── chartjs/          # Chart.js library
+│   │   └── fonts/            # Schibsted Grotesk & Public Sans WOFF2 fonts
 │   └── img/
 │       └── logo.svg
 │
@@ -189,7 +191,9 @@ f:\tpms\
 │   │   └── dashboard_base.html
 │   ├── public/
 │   │   ├── landing.html
-│   │   └── login.html
+│   │   ├── login.html
+│   │   ├── error.html
+│   │   └── profile_missing.html
 │   ├── admin_panel/
 │   ├── principal_panel/
 │   ├── tpo_panel/
@@ -197,16 +201,20 @@ f:\tpms\
 │   └── student_panel/
 │
 ├── media/                    # User & Operational Media Storage
-│   ├── resumes/
+│   ├── resumes/              # Protected candidate resumes (served via permission check only)
 │   ├── study_materials/
 │   └── company_logos/
 │
-└── tests/                    # Automated Test Suite
+└── tests/                    # Automated Test Suite (77 Tests Total)
     ├── test_auth.py
     ├── test_permissions.py
     ├── test_eligibility.py
     ├── test_bulk_import.py
-    └── test_department_scoping.py
+    ├── test_department_scoping.py
+    ├── test_workflows.py
+    ├── test_security_audit.py
+    ├── test_phase3_integration.py
+    └── test_fixes.py
 ```
 
 ---

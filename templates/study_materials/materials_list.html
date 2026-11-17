@@ -5,8 +5,8 @@
 {% block content %}
 <div class="d-flex justify-content-between align-items-center mb-4">
   <div>
-    <h4 class="fw-bold text-dark mb-1">Campus Placement Preparation Library</h4>
-    <p class="text-muted small mb-0">Curated aptitude kits, technical coding problems, core engineering concepts, and company-specific resources.</p>
+    <h1 class="page-title">Study material</h1>
+    <p class="text-muted small mb-0">Aptitude, coding, core subjects and interview prep shared by the placement office.</p>
   </div>
   {% if can_upload %}
     <a href="{% url 'study_materials:upload' %}" class="btn-tpms-primary">
@@ -46,7 +46,7 @@
 
 <div class="tpms-card">
   <div class="tpms-card-header">
-    <span class="tpms-card-title"><i class="bi bi-journal-text me-2 text-primary"></i> Available Study Materials</span>
+    <span class="tpms-card-title"><i class="bi bi-journal-text me-2 text-primary"></i> Material</span>
     <span class="badge bg-light text-dark">{{ materials|length }} Resources</span>
   </div>
 

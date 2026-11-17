@@ -25,8 +25,8 @@ def apply_view(request, job_id):
     job = get_object_or_404(JobOpening, id=job_id)
 
     if request.method == 'POST':
-        # Check existing submission
-        if JobApplication.objects.filter(job_opening=job, student=profile).exists():
+        # Check existing submission (a withdrawn one can be reopened)
+        if JobApplication.objects.filter(job_opening=job, student=profile).exclude(stage=ApplicationStage.WITHDRAWN).exists():
             messages.warning(request, f"You have already applied for {job.title} at {job.company.name}.")
             return redirect('student_panel:my_applications')
 
@@ -43,12 +43,16 @@ def apply_view(request, job_id):
                 messages.error(request, f"You do not meet the cut-off criteria: {reasons}")
             return redirect('student_panel:eligible_jobs')
 
-        # Persist 1-Click Application
-        application = JobApplication.objects.create(
+        application, _ = JobApplication.objects.update_or_create(
             job_opening=job,
             student=profile,
-            stage=ApplicationStage.APPLIED,
-            verification_status=VerificationStatus.PENDING
+            defaults={
+                'stage': ApplicationStage.APPLIED,
+                'verification_status': VerificationStatus.PENDING,
+                'applied_at': timezone.now(),
+                'stage_updated_at': timezone.now(),
+                'remarks': '',
+            }
         )
 
         # Notify Student
@@ -67,7 +71,7 @@ def apply_view(request, job_id):
             details=f"Student {profile.roll_number} applied for {job.title} at {job.company.name}"
         )
 
-        messages.success(request, f"Successfully applied for {job.title} at {job.company.name}!")
+        messages.success(request, f"Applied to {job.company.name} for {job.title}.")
         return redirect('student_panel:my_applications')
 
     return redirect('student_panel:eligible_jobs')
@@ -197,24 +201,48 @@ def update_stage_view(request, application_id):
         # Automatic status sync upon placement offer release
         if new_stage == ApplicationStage.OFFERED:
             student = application.student
-            student.placement_status = PlacementStatus.PLACED
-            student.placed_company = application.job_opening.company
-            student.salary_package = application.job_opening.package_ctc
-            student.save()
+            # Keep the better offer if the student already holds one.
+            if not (student.placement_status == PlacementStatus.PLACED and student.salary_package
+                    and student.salary_package > application.job_opening.package_ctc):
+                student.placement_status = PlacementStatus.PLACED
+                student.placed_company = application.job_opening.company
+                student.salary_package = application.job_opening.package_ctc
+                student.save()
 
             Notification.objects.create(
                 recipient=student.user,
-                title=f"🎉 Congratulations! Placement Offer from {application.job_opening.company.name}",
+                title=f"Offer from {application.job_opening.company.name}",
                 message=f"You have been officially selected for {application.job_opening.title} with a compensation package of {application.job_opening.package_ctc} LPA!",
                 action_url="/student/profile/"
             )
         elif old_stage == ApplicationStage.OFFERED and new_stage != ApplicationStage.OFFERED:
-            # Revoke offer and revert placement status
+            # Offer revoked: fall back to the student's best remaining offer, if any.
             student = application.student
-            student.placement_status = PlacementStatus.UNPLACED
-            student.placed_company = None
-            student.salary_package = None
+            best_other = (
+                JobApplication.objects.filter(student=student, stage=ApplicationStage.OFFERED)
+                .exclude(id=application.id)
+                .select_related('job_opening__company')
+                .order_by('-job_opening__package_ctc')
+                .first()
+            )
+            if best_other:
+                student.placement_status = PlacementStatus.PLACED
+                student.placed_company = best_other.job_opening.company
+                student.salary_package = best_other.job_opening.package_ctc
+            else:
+                student.placement_status = PlacementStatus.UNPLACED
+                student.placed_company = None
+                student.salary_package = None
             student.save()
+
+        if new_stage != old_stage and new_stage not in (ApplicationStage.OFFERED,):
+            Notification.objects.create(
+                recipient=application.student.user,
+                title=f"{application.job_opening.company.name}: {application.get_stage_display()}",
+                message=f"Your application for {application.job_opening.title} moved to: {application.get_stage_display()}."
+                        + (f" Note: {remarks}" if remarks else ""),
+                action_url="/student/applications/"
+            )
 
         AuditLog.objects.create(
             user=request.user,

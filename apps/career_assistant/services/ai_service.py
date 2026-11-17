@@ -44,41 +44,40 @@ class AICareerAssistantService:
         return cls._generate_institutional_response(context, query_text)
 
     @classmethod
+    def get_model_name(cls) -> str:
+        return os.environ.get('GEMINI_MODEL') or getattr(settings, 'GEMINI_MODEL', '') or 'gemini-flash-latest'
+
+    @classmethod
     def _call_gemini_api(cls, api_key: str, system_instruction: str, conversation: Conversation, user_message: str) -> str:
-        try:
-            import google.generativeai as genai
-            genai.configure(api_key=api_key)
-            model = genai.GenerativeModel(
-                model_name='gemini-1.5-flash',
-                system_instruction=system_instruction
-            )
+        """Calls the Gemini REST API with the last few turns of this conversation."""
+        import requests
 
-            # Build history from previous messages in this conversation (up to last 10)
-            history = []
-            previous_messages = conversation.messages.order_by('timestamp')[:10]
-            for msg in previous_messages:
-                role = 'user' if msg.sender == 'STUDENT' else 'model'
-                history.append({
-                    'role': role,
-                    'parts': [msg.content]
-                })
+        # Last 12 messages, oldest first. The newest student message is already saved,
+        # so it is part of this history and is not sent a second time.
+        recent = list(conversation.messages.order_by('-timestamp')[:12])[::-1]
+        contents = []
+        for msg in recent:
+            role = 'user' if msg.sender == 'STUDENT' else 'model'
+            if contents and contents[-1]['role'] == role:
+                contents[-1]['parts'][0]['text'] += "\n\n" + msg.content
+            else:
+                contents.append({'role': role, 'parts': [{'text': msg.content}]})
+        # Gemini expects the conversation to start with a user turn.
+        while contents and contents[0]['role'] != 'user':
+            contents.pop(0)
+        if not contents or contents[-1]['role'] != 'user':
+            contents.append({'role': 'user', 'parts': [{'text': user_message}]})
 
-            chat = model.start_chat(history=history)
-            response = chat.send_message(user_message)
-            return response.text
-        except Exception as e:
-            # Try REST API fallback if package fails
-            import requests
-            url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={api_key}"
-            payload = {
-                "system_instruction": {"parts": [{"text": system_instruction}]},
-                "contents": [{"parts": [{"text": user_message}]}]
-            }
-            resp = requests.post(url, json=payload, timeout=20)
-            if resp.status_code == 200:
-                data = resp.json()
-                return data['candidates'][0]['content']['parts'][0]['text']
-            raise e
+        url = f"https://generativelanguage.googleapis.com/v1beta/models/{cls.get_model_name()}:generateContent"
+        payload = {
+            "system_instruction": {"parts": [{"text": system_instruction}]},
+            "contents": contents,
+        }
+        resp = requests.post(url, json=payload, headers={'x-goog-api-key': api_key}, timeout=30)
+        resp.raise_for_status()
+        data = resp.json()
+        parts = data['candidates'][0]['content']['parts']
+        return "".join(p.get('text', '') for p in parts).strip()
 
     @classmethod
     def _generate_institutional_response(cls, context: dict, query: str) -> str:
@@ -139,7 +138,7 @@ Hello **{name}**, here is your personalized preparation strategy for the upcomin
    - Research {comp_name}'s core values, recent projects, and market presence.
    - Prepare STAR-format (Situation, Task, Action, Result) answers for teamwork and problem-solving scenarios.
 {res_recommendations}
-> *Note: AI Career Assistant is operating in institutional guidance mode. Grounded in actual AIT placement records.*"""
+> *These are built-in suggestions based on your record. Live AI answers turn on when the placement office adds a Gemini API key.*"""
 
         # ----------------------------------------------------------------------
         # Case B: 30-Day or Learning Roadmap Request
@@ -170,7 +169,7 @@ Hello **{name}**, tailored for your background in **{dept}** (Graduation Batch {
 - **Resume Check**: Ensure your uploaded PDF resume in the **Academic Vault** features verifiable project metrics.
 - **Review**: Re-read company-specific interview archives in the [TPMS Preparation Resources](/study-materials/).
 
-> *Note: AI Career Assistant is operating in institutional guidance mode. Structured for AIT placement cycles.*"""
+> *These are built-in suggestions based on your record. Live AI answers turn on when the placement office adds a Gemini API key.*"""
 
         # ----------------------------------------------------------------------
         # Case C: Skill-Gap Analysis & Role In-Demand Skills
@@ -198,7 +197,7 @@ Based on your recorded profile in **{dept}** and current corporate hiring requir
 1. Update your skills in [Academic Vault & Resume](/student/profile/) so corporate cut-off filters reflect your latest competencies.
 2. Explore available practice assets in [TPMS Preparation Resources](/study-materials/).
 
-> *Note: AI Career Assistant is operating in institutional guidance mode.*"""
+> *These are built-in suggestions based on your record. Live AI answers turn on when the placement office adds a Gemini API key.*"""
 
         # ----------------------------------------------------------------------
         # Case D: Resume Improvement
@@ -223,7 +222,7 @@ Based on your recorded profile in **{dept}** and current corporate hiring requir
 4. **Highlight Academic Standing & Achievements**:
    - State your CGPA (**{cgpa} / 10.0**), academic branch (**{dept}**), and graduation year (**{student.get('batch_year')}**).
 
-> *Note: AI Career Assistant is operating in institutional guidance mode.*"""
+> *These are built-in suggestions based on your record. Live AI answers turn on when the placement office adds a Gemini API key.*"""
 
         # ----------------------------------------------------------------------
         # Case E: Default Personalized Guidance
@@ -247,4 +246,4 @@ Here is a summary of your current institutional placement profile:
 
 What specific placement goal would you like to focus on right now?
 
-> *Note: AI Career Assistant is operating in institutional guidance mode. To activate live Gemini generative models, configure `GEMINI_API_KEY` in your environment.*"""
+> *These are built-in suggestions. Ask the placement office to add a Gemini API key for fuller answers.*"""

@@ -5,17 +5,14 @@
 {% block content %}
 <div class="d-flex justify-content-between align-items-center mb-4">
   <div>
-    <h4 class="fw-bold text-dark mb-1">
-      TnP Assistant Dashboard: 
-      {% for d in assigned_depts %}
-        <span class="badge bg-primary me-1">{{ d.code }}</span>
-      {% endfor %}
-    </h4>
-    <p class="text-muted small mb-0">Department-scoped candidate management, drive approvals, student data ingestion and verification.</p>
+    <h1 class="page-title">
+      Overview: {% for d in assigned_depts %}{{ d.code }}{% if not forloop.last %} and {% endif %}{% endfor %}
+    </h1>
+    <p class="text-muted small mb-0">Your branch's students, drives waiting on your approval, and applicants to verify.</p>
   </div>
   <div class="d-flex gap-2">
     <a href="{% url 'students:bulk_import' %}" class="btn-tpms-primary">
-      <i class="bi bi-cloud-arrow-up-fill"></i> CSV / Excel Ingestion
+      <i class="bi bi-cloud-arrow-up-fill"></i> Import students
     </a>
     <a href="{% url 'assistant_panel:student_create' %}" class="btn-tpms-outline">
       <i class="bi bi-person-plus-fill"></i> Add Student
@@ -27,7 +24,7 @@
 <div class="row g-3 mb-4">
   <div class="col-sm-6 col-xl-3">
     <div class="metric-card">
-      <div class="metric-label">Branch Enrolled Students</div>
+      <div class="metric-label">Students</div>
       <div class="metric-value">{{ total_students }}</div>
       <div class="metric-sub text-muted">
         <i class="bi bi-people text-primary"></i> In your assigned branches
@@ -37,7 +34,7 @@
 
   <div class="col-sm-6 col-xl-3">
     <div class="metric-card">
-      <div class="metric-label">Branch Placed Students</div>
+      <div class="metric-label">Placed</div>
       <div class="metric-value text-success">{{ placed_students }}</div>
       <div class="metric-sub text-success">
         <i class="bi bi-check2-circle"></i> {{ unplaced_students }} unplaced
@@ -50,7 +47,7 @@
       <div class="metric-label">Drives Pending Approval</div>
       <div class="metric-value {% if pending_approvals > 0 %}text-warning{% else %}text-muted{% endif %}">{{ pending_approvals }}</div>
       <div class="metric-sub text-muted">
-        <a href="{% url 'assistant_panel:job_approvals' %}" class="text-decoration-none">Review drives &rarr;</a>
+        <a href="{% url 'assistant_panel:job_approvals' %}" class="text-decoration-none">Review drives</a>
       </div>
     </div>
   </div>
@@ -60,7 +57,7 @@
       <div class="metric-label">Pending Verifications</div>
       <div class="metric-value {% if pending_verifications > 0 %}text-danger{% else %}text-muted{% endif %}">{{ pending_verifications }}</div>
       <div class="metric-sub text-muted">
-        <a href="{% url 'assistant_panel:verify_applications' %}" class="text-decoration-none">Verify marks &rarr;</a>
+        <a href="{% url 'assistant_panel:verify_applications' %}" class="text-decoration-none">Verify marks</a>
       </div>
     </div>
   </div>
@@ -71,8 +68,8 @@
   <div class="col-md-4">
     <div class="p-3 bg-white border rounded-3 shadow-xs d-flex align-items-center justify-content-between">
       <div>
-        <div class="text-muted text-uppercase" style="font-size: 0.7rem; font-weight: 700;">Branch Min Package</div>
-        <div class="fs-4 fw-bold text-dark">{{ min_package }} LPA</div>
+        <div class="text-muted text-uppercase" style="font-size: 0.7rem; font-weight: 700;">Lowest package</div>
+        <div class="fs-4 fw-bold text-dark">{{ min_package|floatformat:1 }} LPA</div>
       </div>
       <i class="bi bi-cash text-secondary fs-4"></i>
     </div>
@@ -81,8 +78,8 @@
   <div class="col-md-4">
     <div class="p-3 bg-white border rounded-3 shadow-xs d-flex align-items-center justify-content-between">
       <div>
-        <div class="text-muted text-uppercase" style="font-size: 0.7rem; font-weight: 700;">Branch Avg Package</div>
-        <div class="fs-4 fw-bold text-primary">{{ avg_package }} LPA</div>
+        <div class="text-muted text-uppercase" style="font-size: 0.7rem; font-weight: 700;">Average package</div>
+        <div class="fs-4 fw-bold text-primary">{{ avg_package|floatformat:1 }} LPA</div>
       </div>
       <i class="bi bi-graph-up text-primary fs-4"></i>
     </div>
@@ -91,8 +88,8 @@
   <div class="col-md-4">
     <div class="p-3 bg-white border rounded-3 shadow-xs d-flex align-items-center justify-content-between">
       <div>
-        <div class="text-muted text-uppercase" style="font-size: 0.7rem; font-weight: 700;">Branch Max Package</div>
-        <div class="fs-4 fw-bold text-success">{{ max_package }} LPA</div>
+        <div class="text-muted text-uppercase" style="font-size: 0.7rem; font-weight: 700;">Highest package</div>
+        <div class="fs-4 fw-bold">{{ max_package|floatformat:1 }} LPA</div>
       </div>
       <i class="bi bi-trophy text-success fs-4"></i>
     </div>
@@ -102,8 +99,8 @@
 <!-- Department Candidates Preview -->
 <div class="tpms-card mb-0">
   <div class="tpms-card-header">
-    <span class="tpms-card-title"><i class="bi bi-mortarboard-fill me-2 text-primary"></i> Recently Enrolled Branch Candidates</span>
-    <a href="{% url 'assistant_panel:student_roster' %}" class="btn btn-sm btn-link text-decoration-none">Full Branch Roster &rarr;</a>
+    <span class="tpms-card-title"><i class="bi bi-mortarboard-fill me-2 text-primary"></i> Recently added students</span>
+    <a href="{% url 'assistant_panel:student_roster' %}" class="btn btn-sm btn-link text-decoration-none">All students</a>
   </div>
   <div class="tpms-card-body p-0">
     <div class="tpms-table-container border-0">

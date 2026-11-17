@@ -1,4 +1,4 @@
-from django.test import TestCase, Client
+from django.test import TestCase, Client, override_settings
 from django.urls import reverse
 from apps.accounts.models import User, UserRole
 
@@ -76,6 +76,7 @@ class AuthenticationTests(TestCase):
             self.assertEqual(resp.url, expected_target)
             self.client.logout()
 
+    @override_settings(DEMO_MODE=False)
     def test_login_page_renders_cleanly_without_demo_artifacts(self):
         """Verify that login page does not expose demo passwords or unrelated project emails."""
         resp = self.client.get(reverse('accounts:login'))
@@ -85,6 +86,5 @@ class AuthenticationTests(TestCase):
         self.assertNotContains(resp, 'Mentor Demo Tools')
         self.assertNotContains(resp, 'Autofill')
         self.assertNotContains(resp, 'Instant Direct Login')
-        self.assertContains(resp, 'Your Future Starts Here')
-        self.assertContains(resp, 'student_study.jpg')
+        self.assertContains(resp, 'Your placement season, in one place.')
 

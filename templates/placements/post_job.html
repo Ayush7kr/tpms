@@ -1,14 +1,14 @@
 {% extends 'base/dashboard_base.html' %}
 
-{% block title %}Post New Campus Drive — {{ block.super }}{% endblock %}
+{% block title %}Post a drive — {{ block.super }}{% endblock %}
 
 {% block content %}
 <div class="mb-4">
   <a href="{% url 'placements:drives_list' %}" class="text-muted small text-decoration-none">
-    <i class="bi bi-arrow-left me-1"></i> Back to Placement Drives
+    <i class="bi bi-arrow-left me-1"></i> Drives
   </a>
-  <h4 class="fw-bold text-dark mt-2 mb-1">Post New Campus Placement Drive</h4>
-  <p class="text-muted small mb-0">Define job specifications, compensation package, and programmatic eligibility cut-offs.</p>
+  <h1 class="page-title">Post a drive</h1>
+  <p class="text-muted small mb-0">Students only see the Apply button if they clear every cut-off you set here.</p>
 </div>
 
 {% if errors %}
@@ -29,7 +29,7 @@
     <div class="col-lg-7">
       <div class="tpms-card mb-4">
         <div class="tpms-card-header">
-          <span class="tpms-card-title"><i class="bi bi-briefcase me-2 text-primary"></i> Company & Role Specifications</span>
+          <span class="tpms-card-title"><i class="bi bi-briefcase me-2 text-primary"></i> Company and role</span>
         </div>
         <div class="tpms-card-body">
           <div class="row g-3 mb-3">
@@ -118,7 +118,7 @@
       <!-- Schedule & Timings -->
       <div class="tpms-card">
         <div class="tpms-card-header">
-          <span class="tpms-card-title"><i class="bi bi-calendar-event me-2 text-indigo"></i> Important Deadlines & Schedule</span>
+          <span class="tpms-card-title"><i class="bi bi-calendar-event me-2 text-indigo"></i> Dates</span>
         </div>
         <div class="tpms-card-body">
           <div class="row g-3">
@@ -150,11 +150,11 @@
       </div>
     </div>
 
-    <!-- Right Column: Programmatic Cut-Off Rules -->
+    <!-- Right Column:  Cut-Off Rules -->
     <div class="col-lg-5">
       <div class="tpms-card">
         <div class="tpms-card-header">
-          <span class="tpms-card-title"><i class="bi bi-cpu me-2 text-danger"></i> Programmatic Eligibility Cut-Offs</span>
+          <span class="tpms-card-title"><i class="bi bi-cpu me-2 text-danger"></i> Eligibility cut-offs</span>
         </div>
         <div class="tpms-card-body">
           <p class="text-muted small mb-3">
@@ -214,7 +214,7 @@
           </div>
 
           <div class="mb-3">
-            <label class="form-label-custom">Eligible Academic Departments <span class="text-danger">*</span></label>
+            <label class="form-label-custom">Eligible Departments <span class="text-danger">*</span></label>
             <div class="border rounded p-2 bg-light" style="max-height: 180px; overflow-y: auto;">
               {% for dept in departments %}
                 <div class="form-check">

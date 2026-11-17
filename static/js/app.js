@@ -1,113 +1,102 @@
-/**
- * TPMS — Frontend Interactive Helpers
- * Mobile Sidebar Drawer, Chart.js Defaults, Toast auto-dismissal, live search, drag-and-drop
- */
-
+/* Placement Cell — small interface helpers. No framework, no build step. */
 document.addEventListener('DOMContentLoaded', function () {
-  // Clear any legacy dark-mode storage so presentation remains consistently default
-  try {
-    localStorage.removeItem('tpms-theme');
-    document.documentElement.removeAttribute('data-theme');
-  } catch (e) {}
+  var css = getComputedStyle(document.documentElement);
+  var ink = css.getPropertyValue('--ink').trim() || '#15233f';
+  var muted = css.getPropertyValue('--muted').trim() || '#5b6476';
 
-  // Global Chart.js Configuration
+  // Chart.js defaults that match the interface
   if (typeof Chart !== 'undefined') {
-    Chart.defaults.color = '#64748b';
-    Chart.defaults.font.family = "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif";
+    Chart.defaults.color = muted;
+    Chart.defaults.font.family = "'Public Sans', system-ui, sans-serif";
+    Chart.defaults.font.size = 12;
+    Chart.defaults.plugins.legend.labels.boxWidth = 10;
+    Chart.defaults.plugins.legend.labels.boxHeight = 10;
+    Chart.defaults.plugins.legend.labels.usePointStyle = true;
+    Chart.defaults.plugins.tooltip.backgroundColor = ink;
+    Chart.defaults.plugins.tooltip.padding = 10;
+    Chart.defaults.plugins.tooltip.cornerRadius = 8;
+    Chart.defaults.elements.bar.borderRadius = 4;
     if (Chart.defaults.scale) {
-      if (Chart.defaults.scale.ticks) Chart.defaults.scale.ticks.color = '#64748b';
-      if (Chart.defaults.scale.grid) Chart.defaults.scale.grid.color = 'rgba(0, 0, 0, 0.06)';
+      Chart.defaults.scale.grid.color = 'rgba(21,35,63,0.06)';
+      Chart.defaults.scale.border = { display: false };
     }
   }
 
-  // Mobile Sidebar Toggle
-  const sidebarToggleBtn = document.getElementById('sidebarToggleBtn');
-  const sidebar = document.querySelector('.dashboard-sidebar');
-  let backdrop = document.getElementById('sidebarBackdrop');
-
-  if (sidebar && !backdrop) {
-    backdrop = document.createElement('div');
-    backdrop.id = 'sidebarBackdrop';
+  // Mobile sidebar drawer
+  var toggle = document.getElementById('sidebarToggleBtn');
+  var sidebar = document.querySelector('.dashboard-sidebar');
+  if (toggle && sidebar) {
+    var backdrop = document.createElement('div');
     backdrop.className = 'sidebar-backdrop d-none';
     document.body.appendChild(backdrop);
-  }
 
-  function closeMobileSidebar() {
-    if (sidebar) sidebar.classList.remove('mobile-open');
-    if (backdrop) backdrop.classList.add('d-none');
-    document.body.style.overflow = '';
-  }
-
-  function openMobileSidebar() {
-    if (sidebar) sidebar.classList.add('mobile-open');
-    if (backdrop) backdrop.classList.remove('d-none');
-    document.body.style.overflow = 'hidden';
-  }
-
-  if (sidebarToggleBtn && sidebar) {
-    sidebarToggleBtn.addEventListener('click', function (e) {
-      e.preventDefault();
-      if (sidebar.classList.contains('mobile-open')) {
-        closeMobileSidebar();
-      } else {
-        openMobileSidebar();
-      }
+    var close = function () {
+      sidebar.classList.remove('mobile-open');
+      backdrop.classList.add('d-none');
+      document.body.style.overflow = '';
+      toggle.setAttribute('aria-expanded', 'false');
+    };
+    var open = function () {
+      sidebar.classList.add('mobile-open');
+      backdrop.classList.remove('d-none');
+      document.body.style.overflow = 'hidden';
+      toggle.setAttribute('aria-expanded', 'true');
+    };
+    toggle.setAttribute('aria-expanded', 'false');
+    toggle.addEventListener('click', function () {
+      sidebar.classList.contains('mobile-open') ? close() : open();
     });
+    backdrop.addEventListener('click', close);
+    document.addEventListener('keydown', function (e) { if (e.key === 'Escape') close(); });
   }
 
-  if (backdrop) {
-    backdrop.addEventListener('click', closeMobileSidebar);
-  }
-
-  // Auto-dismiss alerts after 5 seconds
-  const alerts = document.querySelectorAll('.alert-dismissible');
-  alerts.forEach(function (alert) {
+  // Success and info messages fade on their own; errors stay until dismissed.
+  document.querySelectorAll('.alert-success.alert-dismissible, .alert-info.alert-dismissible').forEach(function (el) {
     setTimeout(function () {
-      if (typeof bootstrap !== 'undefined' && bootstrap.Alert) {
-        const bsAlert = bootstrap.Alert.getOrCreateInstance(alert);
-        if (bsAlert) {
-          bsAlert.close();
-        }
-      }
-    }, 5000);
+      if (window.bootstrap && bootstrap.Alert) bootstrap.Alert.getOrCreateInstance(el).close();
+    }, 6000);
   });
 
-  // Client-side quick table search
-  const searchInputs = document.querySelectorAll('[data-tpms-table-search]');
-  searchInputs.forEach(function (input) {
-    const targetTableId = input.getAttribute('data-tpms-table-search');
-    const table = document.getElementById(targetTableId);
+  // Quick client-side filter for tables: <input data-tpms-table-search="tableId">
+  document.querySelectorAll('[data-tpms-table-search]').forEach(function (input) {
+    var table = document.getElementById(input.getAttribute('data-tpms-table-search'));
     if (!table) return;
-
-    input.addEventListener('keyup', function () {
-      const query = this.value.toLowerCase();
-      const rows = table.querySelectorAll('tbody tr');
-
-      rows.forEach(function (row) {
-        const text = row.textContent.toLowerCase();
-        if (text.includes(query)) {
-          row.style.display = '';
-        } else {
-          row.style.display = 'none';
-        }
+    input.addEventListener('input', function () {
+      var q = this.value.toLowerCase();
+      table.querySelectorAll('tbody tr').forEach(function (row) {
+        row.style.display = row.textContent.toLowerCase().indexOf(q) > -1 ? '' : 'none';
       });
     });
   });
 
-  // Drag and drop file upload preview
-  const fileDropAreas = document.querySelectorAll('.file-drop-area');
-  fileDropAreas.forEach(function (area) {
-    const input = area.querySelector('input[type="file"]');
-    const label = area.querySelector('.file-name-preview');
+  // File inputs inside .file-drop-area: show chosen file name, support drag and drop
+  document.querySelectorAll('.file-drop-area').forEach(function (area) {
+    var input = area.querySelector('input[type="file"]');
+    var label = area.querySelector('.file-name-preview');
+    if (!input) return;
+    var show = function () {
+      if (label && input.files && input.files.length) {
+        label.textContent = input.files[0].name;
+        label.classList.remove('text-muted');
+        label.classList.add('fw-semibold', 'text-dark');
+      }
+    };
+    input.addEventListener('change', show);
+    ['dragenter', 'dragover'].forEach(function (ev) {
+      area.addEventListener(ev, function (e) { e.preventDefault(); area.classList.add('is-dragging'); });
+    });
+    ['dragleave', 'drop'].forEach(function (ev) {
+      area.addEventListener(ev, function (e) { e.preventDefault(); area.classList.remove('is-dragging'); });
+    });
+    area.addEventListener('drop', function (e) {
+      if (e.dataTransfer && e.dataTransfer.files.length) { input.files = e.dataTransfer.files; show(); }
+    });
+  });
 
-    if (input && label) {
-      input.addEventListener('change', function () {
-        if (input.files && input.files.length > 0) {
-          label.textContent = input.files[0].name;
-          label.classList.remove('text-muted');
-          label.classList.add('text-success', 'fw-bold');
-        }
-      });
-    }
+  // Confirm before destructive submits: <form data-confirm="Delete this?">
+  document.querySelectorAll('form[data-confirm]').forEach(function (form) {
+    form.addEventListener('submit', function (e) {
+      if (!window.confirm(form.getAttribute('data-confirm'))) e.preventDefault();
+    });
   });
 });

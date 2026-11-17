@@ -3,9 +3,9 @@ from django.utils import timezone
 
 
 class CompanyTier(models.TextChoices):
-    TIER_1_DREAM = 'TIER_1_DREAM', 'Tier 1 / Dream (> 12 LPA)'
-    TIER_2_CORE = 'TIER_2_CORE', 'Tier 2 / Core (6 - 12 LPA)'
-    TIER_3_MASS = 'TIER_3_MASS', 'Tier 3 / Mass Recruitment (< 6 LPA)'
+    TIER_1_DREAM = 'TIER_1_DREAM', 'Dream (12+ LPA)'
+    TIER_2_CORE = 'TIER_2_CORE', 'Core (6-12 LPA)'
+    TIER_3_MASS = 'TIER_3_MASS', 'Mass (under 6 LPA)'
 
 
 class Company(models.Model):

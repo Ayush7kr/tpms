@@ -123,7 +123,7 @@ class AICareerAssistantTests(TestCase):
         url = reverse('career_assistant:career_assistant')
         response = self.client_alpha.get(url)
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, 'AI Career &amp; Placement Assistant')
+        self.assertContains(response, 'Career assistant')
         self.assertContains(response, 'Alpha')
 
         # Assert default conversation was created
@@ -234,5 +234,5 @@ class AICareerAssistantTests(TestCase):
         url = reverse('student_panel:dashboard')
         response = self.client_alpha.get(url)
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, 'drive-link')
+        self.assertContains(response, 'drive-title')
         self.assertContains(response, reverse('placements:drive_detail', kwargs={'job_id': self.drive.id}))

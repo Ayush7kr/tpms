@@ -19,11 +19,11 @@ This document establishes the definitive Role-Based Access Control (RBAC) author
 | :--- | :---: | :---: | :---: | :---: | :---: | :--- |
 | **Authentication & Profile** |
 | Access Public Landing & Login | Yes | Yes | Yes | Yes | Yes | Public Route |
+| Quick Switch Demo Persona | Yes | Yes | Yes | Yes | Yes | POST Only (`DEMO_MODE=True`) |
 | Update Own Password & Basic Profile | Yes | Yes | Yes | Yes | Yes | Session User Check |
 | **User & Staff Governance** |
-| Add / Edit / Deactivate Principal | **Yes** | No | No | No | No | `@role_required(['ADMIN'])` |
-| Add / Edit / Deactivate TnP Officer | **Yes** | No | No | No | No | `@role_required(['ADMIN'])` |
-| Add / Edit / Deactivate TnP Assistant | **Yes** | No | No | No | No | `@role_required(['ADMIN'])` |
+| Add / Edit Staff Account | **Yes** | No | No | No | No | `@role_required(['ADMIN'])` |
+| Toggle Staff Active State | **Yes** | No | No | No | No | `@role_required(['ADMIN'])` (POST Only, Self-Protected) |
 | Reset Staff Password | **Yes** | No | No | No | No | `@role_required(['ADMIN'])` |
 | **Department Management** |
 | Create / Edit / Deactivate Department | **Yes** | View Only | View Only | View Only | View Only | `@role_required(['ADMIN'])` |
@@ -33,6 +33,7 @@ This document establishes the definitive Role-Based Access Control (RBAC) author
 | Bulk Import Students (CSV / Excel) | No | No | No | **Yes (Assigned Dept)** | No | `@role_required(['TNP_ASSISTANT'])` + Atomic Ingestion |
 | Edit Student Academic Information | No | No | View Only | **Yes (Assigned Dept)** | No | `@role_required(['TNP_ASSISTANT'])` + Dept Check |
 | Update Student Resume & Skills | No | No | No | No | **Yes (Own Profile)** | `@role_required(['STUDENT'])` + ID Match |
+| Download Student Resume PDF | View (All) | View (All) | **Yes** | **Yes (Assigned Dept)** | **Yes (Own Resume)** | `students:download_resume` View Check (Media Direct URL 404) |
 | View Student Full Profiles | View (All) | View (All) | View (All) | **View (Assigned Dept)** | View (Own Only) | Multi-tenant ORM Filter |
 | **Corporate Directory** |
 | Add / Edit / Deactivate Company | No | View Only | **Yes** | View Only | View (Public Info) | `@role_required(['TNP_OFFICER'])` |

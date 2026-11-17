@@ -5,8 +5,8 @@
 {% block content %}
 <div class="d-flex justify-content-between align-items-center mb-4">
   <div>
-    <h4 class="fw-bold text-dark mb-1">TnP Assistant Department Allocations</h4>
-    <p class="text-muted small mb-0">Assign coordinators to specific academic branches. Enforces strict department-level data isolation.</p>
+    <h1 class="page-title">Coordinator assignments</h1>
+    <p class="text-muted small mb-0">A coordinator only sees students and drives for the branches assigned here.</p>
   </div>
 </div>
 
@@ -15,7 +15,7 @@
   <div class="col-lg-4">
     <div class="tpms-card">
       <div class="tpms-card-header">
-        <span class="tpms-card-title"><i class="bi bi-person-plus me-2 text-primary"></i> Allocate Assistant</span>
+        <span class="tpms-card-title"><i class="bi bi-person-plus me-2 text-primary"></i> Assign a coordinator</span>
       </div>
       <div class="tpms-card-body">
         <form method="POST">
@@ -23,7 +23,7 @@
           <input type="hidden" name="action" value="assign">
 
           <div class="mb-3">
-            <label class="form-label-custom" for="assistant_id">TnP Assistant Staff <span class="text-danger">*</span></label>
+            <label class="form-label-custom" for="assistant_id">Coordinator <span class="text-danger">*</span></label>
             <select name="assistant_id" id="assistant_id" class="form-select-custom" required>
               <option value="">Select Assistant</option>
               {% for a in assistants %}
@@ -54,7 +54,7 @@
   <div class="col-lg-8">
     <div class="tpms-card">
       <div class="tpms-card-header">
-        <span class="tpms-card-title"><i class="bi bi-diagram-3 me-2 text-indigo"></i> Active Department Allocations</span>
+        <span class="tpms-card-title"><i class="bi bi-diagram-3 me-2 text-indigo"></i> Current assignments</span>
         <span class="badge bg-light text-dark">{{ assignments|length }} Active</span>
       </div>
       <div class="tpms-card-body p-0">

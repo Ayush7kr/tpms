@@ -5,12 +5,12 @@
 {% block content %}
 <div class="mb-4">
   <a href="{% url 'placements:drives_list' %}" class="text-muted small text-decoration-none">
-    <i class="bi bi-arrow-left me-1"></i> Back to Placement Drives
+    <i class="bi bi-arrow-left me-1"></i> Drives
   </a>
   <div class="d-flex justify-content-between align-items-center mt-2">
     <div>
-      <h4 class="fw-bold text-dark mb-1">{{ job.title }} — {{ job.company.name }}</h4>
-      <p class="text-muted small mb-0"><i class="bi bi-geo-alt"></i> {{ job.job_location }} • Package: <strong class="text-success">{{ job.package_ctc }} LPA</strong> • Drive Date: {{ job.drive_date|date:"F d, Y" }}</p>
+      <h1 class="page-title">{{ job.title }} — {{ job.company.name }}</h1>
+      <p class="text-muted small mb-0"><i class="bi bi-geo-alt"></i> {{ job.job_location }} • Package: <strong>{{ job.package_ctc|floatformat:1 }} LPA</strong> • Drive Date: {{ job.drive_date|date:"F d, Y" }}</p>
     </div>
     <div class="d-flex align-items-center gap-2">
       <span class="badge-tpms badge-brand-subtle fs-6">{{ job.get_status_display }}</span>
@@ -28,7 +28,7 @@
   <div class="col-lg-4">
     <div class="tpms-card mb-4">
       <div class="tpms-card-header">
-        <span class="tpms-card-title"><i class="bi bi-cpu me-2 text-primary"></i> Cut-Off Eligibility Rules</span>
+        <span class="tpms-card-title"><i class="bi bi-cpu me-2 text-primary"></i> Cut-offs</span>
       </div>
       <div class="tpms-card-body p-0">
         <ul class="list-group list-group-flush small">
@@ -97,7 +97,7 @@
   <div class="col-lg-8">
     <div class="tpms-card mb-4">
       <div class="tpms-card-header">
-        <span class="tpms-card-title"><i class="bi bi-file-text me-2 text-primary"></i> Job Role & Responsibilities</span>
+        <span class="tpms-card-title"><i class="bi bi-file-text me-2 text-primary"></i> About the role</span>
       </div>
       <div class="tpms-card-body">
         <p class="text-dark small lh-base mb-3">{{ job.role_description|linebreaks }}</p>
@@ -113,70 +113,49 @@
       <!-- Student Personal Application & Eligibility Status -->
       <div class="tpms-card">
         <div class="tpms-card-header">
-          <span class="tpms-card-title"><i class="bi bi-person-check me-2 text-primary"></i> Your Application Status</span>
+          <span class="tpms-card-title"><i class="bi bi-person-check me-2 text-primary"></i> Your application</span>
         </div>
         <div class="tpms-card-body">
-          {% if student_application %}
-            <div class="p-3 timeline-card rounded border mb-3">
-              <div class="d-flex justify-content-between align-items-center mb-2">
-                <div>
-                  <h6 class="fw-bold mb-0 text-dark">Application Submitted</h6>
-                  <span class="text-muted small">Submitted on {{ student_application.applied_at|date:"F d, Y • H:i" }}</span>
+          {% if eligibility %}
+            <p class="small text-muted mb-2">Your record against this drive's cut-offs</p>
+            <div class="cutoffs mb-2">
+              {% for c in eligibility.checks %}
+                <div class="cutoff {% if not c.ok %}is-fail{% elif not c.needed and c.kind == 'min' %}is-none{% else %}is-ok{% endif %}">
+                  <div class="cutoff-label">{{ c.label }} <i class="bi {% if c.ok %}bi-check-circle-fill{% else %}bi-x-circle-fill{% endif %}"></i></div>
+                  <div class="cutoff-figures">
+                    {% if c.label == 'CGPA' %}{{ c.yours|floatformat:2 }}{% elif c.suffix %}{{ c.yours|floatformat:"-1" }}{{ c.suffix }}{% else %}{{ c.yours }}{% endif %}
+                    {% if c.kind == 'max' %}<span class="need">/ max {{ c.needed }}</span>{% elif c.needed %}<span class="need">/ {% if c.label == 'CGPA' %}{{ c.needed|floatformat:2 }}{% else %}{{ c.needed|floatformat:"-1" }}{{ c.suffix }}{% endif %}</span>{% else %}<span class="need">no cut-off</span>{% endif %}
+                  </div>
                 </div>
-                {% if student_application.stage == 'OFFERED' %}
-                  <span class="badge bg-success fs-6"><i class="bi bi-trophy-fill me-1"></i> Offer Received</span>
-                {% elif student_application.stage == 'REJECTED' %}
-                  <span class="badge bg-danger fs-6">Not Selected</span>
-                {% elif student_application.stage == 'WITHDRAWN' %}
-                  <span class="badge bg-secondary fs-6"><i class="bi bi-dash-circle me-1"></i> Withdrawn</span>
-                {% else %}
-                  <span class="badge bg-primary fs-6">{{ student_application.get_stage_display }}</span>
-                {% endif %}
-              </div>
-              {% if student_application.remarks %}
-                <div class="small text-muted border-top pt-2 mt-2">
-                  <strong>Recruiter Feedback / Notes:</strong> {{ student_application.remarks }}
-                </div>
-              {% endif %}
+              {% endfor %}
             </div>
-            <a href="{% url 'student_panel:my_applications' %}" class="btn btn-outline-primary btn-sm">
-              <i class="bi bi-arrow-right me-1"></i> View All Applications
-            </a>
-          {% else %}
-            {% if job.is_deadline_passed %}
-              <div class="status-notice-box status-notice-withdrawn mb-3 d-flex align-items-center gap-3">
-                <i class="bi bi-clock-history fs-4 text-warning"></i>
-                <div>
-                  <strong class="d-block text-dark">Application Deadline Closed</strong>
-                  <span class="text-muted small">The application deadline for this campus drive closed on {{ job.application_deadline|date:"F d, Y • H:i" }}.</span>
-                </div>
-              </div>
-            {% elif eligibility and eligibility.can_apply %}
-              <div class="alert alert-success d-flex align-items-center gap-2 mb-3">
-                <i class="bi bi-check-circle-fill fs-5 text-success"></i>
-                <div>
-                  <strong>You are eligible for this campus drive!</strong>
-                  <div class="small">Your academic profile meets all cut-off criteria defined by {{ job.company.name }}.</div>
-                </div>
-              </div>
-              <form method="POST" action="{% url 'applications:apply' job.id %}">
-                {% csrf_token %}
-                <button type="submit" class="btn btn-primary px-4 py-2">
-                  <i class="bi bi-send-fill me-2"></i> Submit 1-Click Application
-                </button>
-              </form>
-            {% elif eligibility %}
-              <div class="alert alert-warning mb-3">
-                <h6 class="alert-heading fw-bold small"><i class="bi bi-exclamation-triangle-fill me-1"></i> Not Eligible for this Drive</h6>
-                <p class="small mb-1">Your academic profile does not meet the specified cut-offs:</p>
-                <ul class="small mb-0 ps-3">
-                  {% for reason in eligibility.failed_criteria %}
-                    <li>{{ reason }}</li>
-                  {% endfor %}
-                </ul>
-              </div>
-            {% endif %}
+            {% if eligibility.other_reasons %}<ul class="reason-list mb-0">{% for r in eligibility.other_reasons %}<li>{{ r }}</li>{% endfor %}</ul>{% endif %}
           {% endif %}
+
+          <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mt-3 pt-3 border-top">
+            {% if student_application and student_application.stage != 'WITHDRAWN' %}
+              <div>
+                {% if student_application.stage == 'OFFERED' %}<span class="verdict offer"><i class="bi bi-trophy-fill"></i> Offer made</span>
+                {% elif student_application.stage == 'REJECTED' %}<span class="verdict no">Not selected</span>
+                {% else %}<span class="verdict applied">Applied, {{ student_application.get_stage_display|lower }}</span>{% endif %}
+                <div class="small text-muted mt-1">Applied {{ student_application.applied_at|date:"j M Y" }}{% if student_application.remarks %}. {{ student_application.remarks }}{% endif %}</div>
+              </div>
+              <a href="{% url 'student_panel:my_applications' %}" class="btn btn-outline-secondary btn-sm">Track application</a>
+            {% elif eligibility.can_apply %}
+              <span class="verdict ok"><i class="bi bi-check-circle-fill"></i> You meet every cut-off{% if student_application %}; you withdrew earlier and can apply again{% endif %}</span>
+              <form method="post" action="{% url 'applications:apply' job.id %}" data-confirm="Apply to {{ job.company.name }} for {{ job.title }}? Your profile and resume will be shared with the placement office.">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-primary">Apply to this drive</button>
+              </form>
+            {% elif eligibility.is_deadline_passed %}
+              <span class="verdict closed"><i class="bi bi-lock"></i> Applications closed {{ job.application_deadline|date:"j M, g:i A" }}</span>
+            {% elif job.status != 'PUBLISHED' %}
+              <span class="verdict closed">This drive isn't accepting applications ({{ job.get_status_display|lower }}).</span>
+            {% else %}
+              <span class="verdict no"><i class="bi bi-x-circle"></i> Not eligible</span>
+              <span class="small text-muted">Marks wrong? Your department coordinator can correct them.</span>
+            {% endif %}
+          </div>
         </div>
       </div>
     {% else %}
@@ -204,7 +183,7 @@
                   <th>Applied Date</th>
                   <th>Stage</th>
                   {% if request.user.is_tnp_officer or request.user.is_tnp_assistant %}
-                    <th class="text-end">Manage Stage</th>
+                    <th class="text-end">Round</th>
                   {% endif %}
                 </tr>
               </thead>
@@ -220,7 +199,7 @@
                     <td class="text-muted small">{{ app.applied_at|date:"M d, H:i" }}</td>
                     <td>
                       {% if app.stage == 'OFFERED' %}
-                        <span class="badge bg-success-subtle text-success"><i class="bi bi-trophy"></i> Selected / Placed</span>
+                        <span class="badge bg-success-subtle text-success"><i class="bi bi-trophy"></i> Offer made</span>
                       {% elif app.stage == 'REJECTED' %}
                         <span class="badge bg-danger-subtle text-danger">Rejected</span>
                       {% else %}
@@ -230,7 +209,7 @@
                     {% if request.user.is_tnp_officer or request.user.is_tnp_assistant %}
                       <td class="text-end">
                         <a href="{% url 'applications:update_stage' app.id %}" class="btn btn-sm btn-outline-primary py-1 px-2" style="font-size: 0.75rem;">
-                          Update Round &rarr;
+                          Update
                         </a>
                       </td>
                     {% endif %}

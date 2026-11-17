@@ -5,33 +5,33 @@
 {% block content %}
 <div class="d-flex justify-content-between align-items-center mb-4">
   <div>
-    <h4 class="fw-bold text-dark mb-1">Salary Benchmarks & Compensation Reports</h4>
-    <p class="text-muted small mb-0">Institutional CTC percentiles, tier breakdown, and department compensation averages.</p>
+    <h1 class="page-title">Salary report</h1>
+    <p class="text-muted small mb-0">Offered packages across placed students, by band and by branch.</p>
   </div>
 </div>
 
 <div class="row g-3 mb-4">
   <div class="col-md-4">
     <div class="metric-card">
-      <div class="metric-label">Minimum Offered CTC</div>
-      <div class="metric-value text-dark">{{ metrics.min_pkg }} LPA</div>
-      <div class="metric-sub text-muted">Baseline compensation</div>
+      <div class="metric-label">Lowest package</div>
+      <div class="metric-value text-dark">{{ metrics.min_pkg|floatformat:1 }} LPA</div>
+      <div class="metric-sub text-muted">Across placed students</div>
     </div>
   </div>
 
   <div class="col-md-4">
     <div class="metric-card">
-      <div class="metric-label">Institutional Average CTC</div>
-      <div class="metric-value text-primary">{{ metrics.avg_pkg }} LPA</div>
+      <div class="metric-label">Average package</div>
+      <div class="metric-value text-primary">{{ metrics.avg_pkg|floatformat:1 }} LPA</div>
       <div class="metric-sub text-muted">Across all placed candidates</div>
     </div>
   </div>
 
   <div class="col-md-4">
     <div class="metric-card">
-      <div class="metric-label">Highest Offered CTC</div>
-      <div class="metric-value text-success">{{ metrics.max_pkg }} LPA</div>
-      <div class="metric-sub text-success"><i class="bi bi-trophy"></i> Dream Tier package</div>
+      <div class="metric-label">Highest package</div>
+      <div class="metric-value">{{ metrics.max_pkg|floatformat:1 }} LPA</div>
+      <div class="metric-sub"><i class="bi bi-trophy"></i> Dream band</div>
     </div>
   </div>
 </div>
@@ -41,7 +41,7 @@
   <div class="col-lg-5">
     <div class="tpms-card h-100 mb-0">
       <div class="tpms-card-header">
-        <span class="tpms-card-title"><i class="bi bi-pie-chart me-2 text-indigo"></i> Compensation Tier Distribution</span>
+        <span class="tpms-card-title"><i class="bi bi-pie-chart me-2 text-indigo"></i> Students by salary band</span>
       </div>
       <div class="tpms-card-body d-flex flex-column align-items-center justify-content-center">
         <div style="height: 240px; width: 100%; position: relative;">
@@ -54,7 +54,7 @@
   <div class="col-lg-7">
     <div class="tpms-card h-100 mb-0">
       <div class="tpms-card-header">
-        <span class="tpms-card-title"><i class="bi bi-table me-2 text-primary"></i> Department Average CTC Benchmarks</span>
+        <span class="tpms-card-title"><i class="bi bi-table me-2 text-primary"></i> Average package by branch</span>
       </div>
       <div class="tpms-card-body p-0">
         <div class="tpms-table-container border-0">
@@ -64,7 +64,7 @@
                 <th>Branch</th>
                 <th>Department Name</th>
                 <th>Placed Count</th>
-                <th>Average Compensation</th>
+                <th>Average package</th>
               </tr>
             </thead>
             <tbody>
@@ -73,7 +73,7 @@
                   <td><strong class="text-dark">{{ d.code }}</strong></td>
                   <td>{{ d.name }}</td>
                   <td><span class="badge bg-success-subtle text-success">{{ d.placed }}</span></td>
-                  <td><strong class="text-primary">{{ d.avg_pkg }} LPA</strong></td>
+                  <td><strong class="text-primary">{{ d.avg_pkg|floatformat:1 }} LPA</strong></td>
                 </tr>
               {% empty %}
                 <tr>
@@ -100,7 +100,7 @@ document.addEventListener('DOMContentLoaded', function() {
         labels: {{ chart_data.tier_labels|safe }},
         datasets: [{
           data: {{ chart_data.tier_distribution|safe }},
-          backgroundColor: ['#ef4444', '#4f46e5', '#94a3b8'],
+          backgroundColor: ['#e3a02f', '#15233f', '#b9c0cc'],
           hoverOffset: 4
         }]
       },

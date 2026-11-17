@@ -110,6 +110,8 @@ def user_create_view(request):
 
         if not password or len(password) < 8:
             errors['password'] = 'Password must be at least 8 characters long.'
+        if role == UserRole.STUDENT:
+            errors['role'] = 'Students need an academic record. Enroll them from Students → Add student, or bulk import.'
 
         if errors:
             return render(request, 'admin_panel/user_form.html', {
@@ -176,6 +178,14 @@ def user_edit_view(request, user_id):
             errors['email'] = 'Email is required.'
         elif User.objects.filter(email=email).exclude(id=user_obj.id).exists():
             errors['email'] = 'Another user already exists with this email.'
+        if role not in [r[0] for r in UserRole.choices]:
+            errors['role'] = 'Please select a valid role.'
+        elif role == UserRole.STUDENT and user_obj.role != UserRole.STUDENT:
+            errors['role'] = 'Staff accounts cannot be converted into students.'
+        elif user_obj.role == UserRole.STUDENT and role != UserRole.STUDENT:
+            errors['role'] = 'Student accounts cannot be converted into staff.'
+        if user_obj.id == request.user.id and (role != UserRole.ADMIN or not is_active):
+            errors['role'] = 'You cannot remove your own admin access or deactivate yourself.'
 
         if errors:
             return render(request, 'admin_panel/user_form.html', {
@@ -226,6 +236,8 @@ def user_toggle_status_view(request, user_id):
     Toggles user active / inactive status.
     """
     user_obj = get_object_or_404(User, id=user_id)
+    if request.method != 'POST':
+        return redirect('admin_panel:users')
     if user_obj.id == request.user.id:
         messages.error(request, "You cannot deactivate your own administrative account.")
         return redirect('admin_panel:users')

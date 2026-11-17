@@ -13,6 +13,19 @@ from apps.applications.models import JobApplication, VerificationStatus, Applica
 from apps.audit.models import AuditLog
 
 
+def validate_academics(tenth, twelfth, cgpa, backlogs, errors):
+    """Range checks shared by student create/edit."""
+    if not (0 <= tenth <= 100):
+        errors['tenth_percentage'] = '10th percentage must be between 0 and 100.'
+    if not (0 <= twelfth <= 100):
+        errors['twelfth_percentage'] = '12th percentage must be between 0 and 100.'
+    if not (0 <= cgpa <= 10):
+        errors['graduation_cgpa'] = 'CGPA must be between 0 and 10.'
+    if backlogs < 0:
+        errors['active_backlogs'] = 'Backlogs cannot be negative.'
+    return errors
+
+
 def get_assistant_departments(user):
     """Returns queryset of departments assigned to this assistant."""
     if user.is_superuser or user.role in [UserRole.ADMIN, UserRole.PRINCIPAL, UserRole.TNP_OFFICER]:
@@ -169,7 +182,7 @@ def student_create_view(request):
         elif StudentProfile.objects.filter(prn_number=prn_number).exists():
             errors['prn_number'] = 'A student with this PRN already exists.'
 
-        if not department_id or int(department_id) not in assigned_depts.values_list('id', flat=True):
+        if not (department_id or '').isdigit() or int(department_id) not in assigned_depts.values_list('id', flat=True):
             errors['department_id'] = 'You can only enroll students into your assigned departments.'
 
         try:
@@ -178,8 +191,13 @@ def student_create_view(request):
             cgpa = Decimal(cgpa_str)
             backlogs = int(backlogs_str)
             batch_year = int(batch_year_str)
+            validate_academics(tenth, twelfth, cgpa, backlogs, errors)
+            if not (2000 <= batch_year <= 2100):
+                errors['batch_year'] = 'Enter a valid passing year.'
         except (InvalidOperation, ValueError):
-            errors['numbers'] = 'Invalid numeric academic values.'
+            errors['numbers'] = 'Marks, CGPA, backlogs and batch must be numbers.'
+        if gender not in Gender.values:
+            gender = Gender.OTHER
 
         if errors:
             return render(request, 'assistant_panel/student_form.html', {
@@ -270,7 +288,17 @@ def student_edit_view(request, student_id):
             cgpa = Decimal(cgpa_str)
             backlogs = int(backlogs_str)
         except (InvalidOperation, ValueError):
-            messages.error(request, "Invalid numeric values provided.")
+            messages.error(request, "Marks, CGPA and backlogs must be numbers.")
+            return redirect('assistant_panel:student_edit', student_id=profile.id)
+
+        range_errors = validate_academics(tenth, twelfth, cgpa, backlogs, {})
+        if not first_name or not last_name:
+            range_errors['name'] = 'First and last name are required.'
+        if placement_status not in PlacementStatus.values:
+            range_errors['placement_status'] = 'Choose a valid placement status.'
+        if range_errors:
+            for msg in range_errors.values():
+                messages.error(request, msg)
             return redirect('assistant_panel:student_edit', student_id=profile.id)
 
         profile.user.first_name = first_name
@@ -312,6 +340,9 @@ def job_approvals_view(request):
         decision = request.POST.get('decision')
         comments = request.POST.get('comments', '').strip()
 
+        if decision not in ('APPROVED', 'REJECTED') or not (approval_id or '').isdigit():
+            messages.error(request, "Choose approve or reject.")
+            return redirect('assistant_panel:job_approvals')
         approval = get_object_or_404(DepartmentJobApproval, id=approval_id, department_id__in=dept_ids)
         if decision == 'APPROVED':
             approval.status = ApprovalStatus.APPROVED
@@ -358,11 +389,25 @@ def verify_applications_view(request):
         ver_status = request.POST.get('verification_status')
         notes = request.POST.get('verification_notes', '').strip()
 
+        if ver_status not in VerificationStatus.values or not (app_id or '').isdigit():
+            messages.error(request, "Choose a valid verification status.")
+            return redirect('assistant_panel:verify_applications')
+
         application = get_object_or_404(
             JobApplication,
             id=app_id,
             student__department_id__in=dept_ids
         )
+
+        if ver_status == VerificationStatus.FLAGGED and application.verification_status != VerificationStatus.FLAGGED:
+            from apps.notifications.models import Notification
+            Notification.objects.create(
+                recipient=application.student.user,
+                title=f"Check your marks: {application.job_opening.company.name}",
+                message="Your department coordinator flagged a mismatch in your academic record for this application."
+                        + (f" Note: {notes}" if notes else " Please contact them."),
+                action_url="/student/applications/",
+            )
 
         application.verification_status = ver_status
         application.verified_by = request.user

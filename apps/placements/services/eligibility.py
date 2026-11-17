@@ -34,6 +34,13 @@ class EligibilityEngine:
             if str(student_profile.batch_year) not in batches:
                 failed_criteria.append(f"Batch {student_profile.batch_year} not eligible (Target: {job_opening.allowed_batches}).")
 
+        # 3b. Degree check
+        if job_opening.allowed_degrees:
+            degrees = [d.strip().lower().replace('.', '') for d in job_opening.allowed_degrees.split(',') if d.strip()]
+            student_degree = (student_profile.degree or '').strip().lower().replace('.', '')
+            if degrees and student_degree not in degrees:
+                failed_criteria.append(f"Degree {student_profile.degree} not eligible (Open to: {job_opening.allowed_degrees}).")
+
         # 4. 10th Percentage Cut-off
         if job_opening.min_tenth_percentage > 0:
             if student_profile.tenth_percentage < job_opening.min_tenth_percentage:
@@ -62,10 +69,11 @@ class EligibilityEngine:
             )
 
         # Existing Application Check
+        # A withdrawn application does not block re-applying.
         existing_application = JobApplication.objects.filter(
             job_opening=job_opening,
             student=student_profile
-        ).first()
+        ).exclude(stage='WITHDRAWN').first()
 
         # Deadline Check
         deadline = job_opening.application_deadline
@@ -90,7 +98,23 @@ class EligibilityEngine:
 
         can_apply = is_eligible and not is_deadline_passed and existing_application is None and job_opening.status == 'PUBLISHED'
 
+        checks = [
+            {'label': 'CGPA', 'yours': student_profile.graduation_cgpa, 'needed': job_opening.min_graduation_cgpa,
+             'ok': student_profile.graduation_cgpa >= job_opening.min_graduation_cgpa, 'kind': 'min'},
+            {'label': '10th', 'yours': student_profile.tenth_percentage, 'needed': job_opening.min_tenth_percentage,
+             'ok': student_profile.tenth_percentage >= job_opening.min_tenth_percentage, 'kind': 'min', 'suffix': '%'},
+            {'label': '12th', 'yours': student_profile.twelfth_percentage, 'needed': job_opening.min_twelfth_percentage,
+             'ok': student_profile.twelfth_percentage >= job_opening.min_twelfth_percentage, 'kind': 'min', 'suffix': '%'},
+            {'label': 'Backlogs', 'yours': student_profile.active_backlogs, 'needed': job_opening.max_active_backlogs,
+             'ok': student_profile.active_backlogs <= job_opening.max_active_backlogs, 'kind': 'max'},
+        ]
+
+        other_reasons = [r for r in failed_criteria
+                         if not r.startswith(('10th', '12th', 'Graduation CGPA', 'Active Backlogs'))]
+
         return {
+            'checks': checks,
+            'other_reasons': other_reasons,
             'is_eligible': is_eligible,
             'can_apply': can_apply,
             'failed_criteria': failed_criteria,

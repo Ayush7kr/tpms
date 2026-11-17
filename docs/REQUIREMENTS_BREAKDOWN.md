@@ -233,26 +233,41 @@ This document provides the exhaustive breakdown of all functional modules, field
 
 ## 10. UI/UX Design System & Interface Gallery
 
-The user interface follows the **Linear / Stripe Enterprise Light Theme Design Language**:
+The user interface follows the **Ink Navy & Marigold Institutional Design System**:
 
 ### 10.1 UI Design System Standards
-- **Palette**: Pure white and subtle off-white backgrounds (`#ffffff`, `#f8fafc`, `#f1f5f9`), slate borders (`#e2e8f0`, `#cbd5e1`), deep slate typography (`#0f172a`, `#334155`, `#64748b`), and indigo brand accents (`#4f46e5`, `#2563eb`).
-- **Typography**: Inter / system-ui typography with strict weight hierarchy and high-contrast readability.
-- **Zero Dark-Mode Overhead**: Removed all theme-toggling complexity and dark selectors to guarantee institutional clarity, optimal printability, and distraction-free operation.
+- **Palette**: Deep ink navy (`#0B192C`, `#1E3E62`), warm marigold accent (`#FF9F43`, `#F39C12`), crisp white card surfaces (`#FFFFFF`), subtle borders (`#E2E8F0`), and accessible high-contrast neutral backgrounds (`#F8FAFC`).
+- **Typography**: Schibsted Grotesk for crisp headings and Public Sans for legible editorial and data tables.
+- **Offline Self-Contained Assets**: All CSS, JS, Bootstrap 5.3, Bootstrap Icons, Chart.js, and font families are bundled locally in `static/vendor/` with zero external CDN dependencies.
+- **Mobile Responsive Architecture**: Off-canvas responsive navigation drawer for mobile screens and fluid auto-reflowing cut-off comparison grids.
+- **Zero Dark-Mode Overhead**: Streamlined distraction-free light aesthetic optimized for institutional reporting, screen readability, and audit clarity.
 
 ### 10.2 Screenshots & Visual Highlights
 
-#### Student Portal & Career Guidance Interface
-![Student Portal Career Guidance](screenshots/04_student_career_assistant.png)
+#### Student Open Drives & Cut-Off Comparison Engine
+Shows candidate metrics side-by-side with drive cut-offs; missed criteria highlighted in high-contrast red.
+![Student Drives and Cut-Offs](screenshots/04_student_drives_cutoffs.png)
 
-#### Student Dashboard with Interactive Ongoing Drives
-![Student Dashboard](screenshots/03_student_dashboard.png)
+#### Student Portal Dashboard & Ongoing Drives
+Personalized candidate home with ongoing recruitment drives and application pipeline summary.
+![Student Dashboard](screenshots/03_student_home.png)
 
-#### Role-Based Authentication Portal
-![Role-Based Sign-In](screenshots/02_role_based_login.png)
-
-#### Corporate Campus Drives Catalog & Cut-Off Engine
-![Explore Campus Drives](screenshots/05_student_eligible_jobs.png)
+#### Role-Based Authentication & Demo Sign-In
+Clean login portal featuring single-click persona switching for mentor evaluation.
+![Role-Based Sign-In](screenshots/02_login.png)
 
 #### Candidate Applied Drives Pipeline Stepper
-![Applied Drives Pipeline](screenshots/06_student_my_applications.png)
+Application lifecycle tracker detailing interview stage movement and coordinator verification status.
+![Applied Drives Pipeline](screenshots/05_student_applications.png)
+
+#### AI Career & Placement Mentorship Assistant
+Conversational guidance interface powered by Gemini with robust local rules-based fallback for student profile analysis.
+![AI Career Assistant](screenshots/06_career_assistant.png)
+
+#### Placement Officer (TPO) Operations Command Center
+Placement officer management portal for monitoring active drives, recruitment stages, and company records.
+![TPO Dashboard](screenshots/07_officer_overview.png)
+
+#### Executive Placement Analytics (Principal)
+Branch-wise placement percentages, salary distribution charts, and student selection rosters.
+![Principal Executive Analytics](screenshots/09_principal_overview.png)

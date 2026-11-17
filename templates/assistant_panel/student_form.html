@@ -7,8 +7,8 @@
   <a href="{% url 'assistant_panel:student_roster' %}" class="text-muted small text-decoration-none">
     <i class="bi bi-arrow-left me-1"></i> Back to Student Roster
   </a>
-  <h4 class="fw-bold text-dark mt-2 mb-1">{% if is_create %}Enroll New Student Candidate{% else %}Edit Candidate: {{ profile.roll_number }} — {{ profile.user.get_full_name }}{% endif %}</h4>
-  <p class="text-muted small mb-0">Academic metrics are used by the automated eligibility cut-off engine.</p>
+  <h1 class="page-title">{% if is_create %}Add a student{% else %}Edit {{ profile.user.get_full_name }}{% endif %}</h1>
+  <p class="text-muted small mb-0">These marks decide which drives the student can apply to, so double-check them.</p>
 </div>
 
 {% if errors %}
@@ -26,7 +26,7 @@
   <div class="col-lg-8">
     <div class="tpms-card mb-4">
       <div class="tpms-card-header">
-        <span class="tpms-card-title"><i class="bi bi-person-vcard me-2 text-primary"></i> Personal & Department Identification</span>
+        <span class="tpms-card-title"><i class="bi bi-person-vcard me-2 text-primary"></i> Student details</span>
       </div>
       <div class="tpms-card-body">
         <form method="POST">
@@ -151,8 +151,8 @@
             </div>
           </div>
 
-          <!-- Academic Scores Vault -->
-          <h6 class="fw-bold text-dark border-top pt-3 mb-3"><i class="bi bi-award me-1 text-primary"></i> Academic Scores & Backlog Record</h6>
+          <!-- Marks Vault -->
+          <h6 class="fw-bold text-dark border-top pt-3 mb-3"><i class="bi bi-award me-1 text-primary"></i> Marks & Backlog Record</h6>
 
           <div class="row g-3 mb-3">
             <div class="col-md-4">
@@ -249,7 +249,7 @@
     <div class="card p-3 border shadow-xs bg-light rounded-3 mb-3">
       <h6 class="fw-bold text-dark"><i class="bi bi-shield-check text-primary me-1"></i> Department Isolation Rule</h6>
       <p class="text-muted small mb-0 lh-base">
-        TnP Assistants can only enroll candidates and edit profiles for students who belong to their assigned engineering branches. All operations are audited.
+        Coordinators can only enroll candidates and edit profiles for students who belong to their assigned engineering branches. All operations are audited.
       </p>
     </div>
 

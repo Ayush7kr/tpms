@@ -7,16 +7,16 @@ from apps.departments.models import Department
 
 class JobStatus(models.TextChoices):
     DRAFT = 'DRAFT', 'Draft'
-    PUBLISHED = 'PUBLISHED', 'Published / Accepting Applications'
-    IN_PROGRESS = 'IN_PROGRESS', 'Recruitment Rounds In Progress'
-    COMPLETED = 'COMPLETED', 'Drive Completed'
+    PUBLISHED = 'PUBLISHED', 'Open'
+    IN_PROGRESS = 'IN_PROGRESS', 'Rounds in progress'
+    COMPLETED = 'COMPLETED', 'Completed'
     CANCELLED = 'CANCELLED', 'Cancelled'
 
 
 class ApprovalStatus(models.TextChoices):
-    PENDING = 'PENDING', 'Pending Department Review'
-    APPROVED = 'APPROVED', 'Approved for Department'
-    REJECTED = 'REJECTED', 'Rejected for Department'
+    PENDING = 'PENDING', 'Awaiting approval'
+    APPROVED = 'APPROVED', 'Approved'
+    REJECTED = 'REJECTED', 'Not approved'
 
 
 class JobOpening(models.Model):

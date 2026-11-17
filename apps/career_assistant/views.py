@@ -25,13 +25,13 @@ def career_assistant_view(request, conversation_id=None):
     else:
         active_conversation = Conversation.objects.create(
             student=profile,
-            title='Placement Preparation & Career Guidance'
+            title='Career chat'
         )
         # Pre-seed with welcome message
         ChatMessage.objects.create(
             conversation=active_conversation,
             sender='ASSISTANT',
-            content=f"Hello **{profile.user.first_name}**! I am your personalized **AI Career & Placement Assistant** at Apex Institute of Technology.\n\nI have access to your academic profile in **{profile.department.code}** (CGPA: {profile.graduation_cgpa}), your recorded skills, and active campus drives at AIT.\n\nHow can I help you prepare for your upcoming placement opportunities today?"
+            content=f"Hi {profile.user.first_name}. I can see your record ({profile.department.code}, CGPA {profile.graduation_cgpa}), your skills and the drives that are open right now.\n\nAsk me how to prepare for a specific company, what to add to your resume, or what to study this month."
         )
 
     chat_messages = active_conversation.messages.order_by('timestamp') if active_conversation else []
@@ -88,7 +88,7 @@ def chat_api_view(request):
     )
 
     # Auto-generate dynamic title if default
-    if conversation.title in ('Placement Preparation & Career Guidance', 'New Career Chat', 'Career Guidance Session'):
+    if conversation.title in ('Career chat', 'New chat', 'Placement Preparation & Career Guidance', 'New Career Chat', 'Career Guidance Session'):
         conversation.title = message_text[:40] + ('...' if len(message_text) > 40 else '')
         conversation.save(update_fields=['title', 'updated_at'])
 
@@ -122,12 +122,12 @@ def conversation_create_view(request):
     profile = request.user.student_profile
     new_conv = Conversation.objects.create(
         student=profile,
-        title='New Career Chat'
+        title='New chat'
     )
     ChatMessage.objects.create(
         conversation=new_conv,
         sender='ASSISTANT',
-        content=f"Hello **{profile.user.first_name}**! How can I assist your career and placement goals in this new session?"
+        content=f"New chat started. What would you like to work on, {profile.user.first_name}?"
     )
     return redirect('career_assistant:career_assistant_detail', conversation_id=new_conv.id)
 

@@ -24,7 +24,7 @@ Recruitment workflows in traditional collegiate environments suffer from fragmen
 | **Bulk Data Ingestion** | Tedious individual manual entry of hundreds of student academic profiles every year. | Robust CSV and Excel (.xlsx) parsers with duplicate email/roll number detection, pre-validation error logs, and transactional rollbacks. |
 | **Transparent Selection Pipeline** | Students uncertain about recruitment stages and status updates. | Formal stage progression (`Applied` → `Shortlisted` → `Technical Round` → `HR Round` → `Selected` / `Rejected`) with immediate in-app notifications. |
 | **Executive Real-Time Insights** | Manual compilation of placement stats for accreditation (NAAC/NIRF) taking weeks. | Live dynamic dashboards utilizing Chart.js to render branch-wise placement percentages, salary distribution (Min/Avg/Max CTC), and company hiring trends. |
-| **Enterprise Light UI Aesthetic** | Distracting theme toggles and poor contrast degrading professional readability. | Crisp, high-contrast Linear/Stripe enterprise light theme with unified typography, subtle borders, and accessible badge palettes. |
+| **Enterprise Light UI Aesthetic** | Distracting theme toggles and poor contrast degrading professional readability. | Unified design system in `static/css/style.css`: ink navy (`#0B192C`) and warm marigold (`#FF9F43`) palette, Schibsted Grotesk and Public Sans typography, accessible status badges, responsive mobile drawer, and local bundling in `static/vendor` for 100% offline functionality. |
 
 ---
 
@@ -85,22 +85,52 @@ In strict conformance with approved technical requirements:
 The platform features an enterprise-grade UI engineered for speed, high contrast, and role clarity, captured live from the running system:
 
 #### 5.1 Public Recruitment Portal
-![Landing Hero Overview](screenshots/01_landing_hero.png)
+The public landing page displays live institutional metrics directly queried from the database.
+![Landing Hero Overview](screenshots/01_landing.png)
 
 #### 5.2 Role-Based Authentication & Demo Switcher
-![Role-Based Sign-In](screenshots/02_role_based_login.png)
+Clean sign-in interface supporting single-click demo persona authentication when `DEMO_MODE=True`.
+![Role-Based Sign-In](screenshots/02_login.png)
 
-#### 5.3 Student Candidate Dashboard & Programmatic Eligibility
-![Student Dashboard](screenshots/03_student_dashboard.png)
+#### 5.3 Student Candidate Dashboard
+Personalized student portal displaying ongoing drives, verification status, and active applications.
+![Student Dashboard](screenshots/03_student_home.png)
 
-#### 5.4 AI Career & Placement Mentorship Assistant
-![AI Career Assistant](screenshots/04_student_career_assistant.png)
+#### 5.4 Student Open Drives & Real-Time Cut-Off Engine
+Every campus drive compares candidate academic metrics side-by-side with required cut-offs, highlighting missed criteria in red.
+![Student Drives and Cut-Offs](screenshots/04_student_drives_cutoffs.png)
 
-#### 5.5 TPO Operations Command Center
-![TPO Dashboard](screenshots/07_tpo_dashboard.png)
+#### 5.5 Candidate Applied Drives Pipeline
+Real-time recruitment stage progression tracker across rounds (Applied, Shortlisted, Technical, HR, Offered).
+![Student Applications](screenshots/05_student_applications.png)
 
-#### 5.6 Executive Placement Analytics (Principal)
-![Principal Executive Analytics](screenshots/08_principal_analytics.png)
+#### 5.6 AI Career & Placement Mentorship Assistant
+Conversational guidance interface powered by Gemini with robust local rules-based fallback for student profile analysis.
+![AI Career Assistant](screenshots/06_career_assistant.png)
+
+#### 5.7 TPO Operations Command Center
+Placement officer overview managing active campus drives, company partnerships, and recruitment rounds.
+![TPO Dashboard](screenshots/07_officer_overview.png)
+
+#### 5.8 Drive Detail & Candidate Applications Review
+Deep view into individual placement drives, round movements, and applicant rosters.
+![Drive Detail](screenshots/08_drive_detail.png)
+
+#### 5.9 Executive Placement Analytics (Principal)
+Macro-level placement metrics, salary distribution bands (Min/Avg/Max CTC), and branch-wise placement percentages.
+![Principal Executive Analytics](screenshots/09_principal_overview.png)
+
+#### 5.10 Department Coordinator Student Roster & Verification
+Branch-isolated student academic roster for marks verification and profile auditing.
+![Coordinator Student Roster](screenshots/10_coordinator_students.png)
+
+#### 5.11 Administrator Governance & User Provisioning
+Central administrative management of user accounts, roles, departments, and coordinator allocations.
+![Admin User Management](screenshots/11_admin_users.png)
+
+#### 5.12 Responsive Mobile Experience
+Optimized mobile interface with sidebar navigation refactored into an accessible off-canvas drawer and reflowing cut-off grids.
+![Mobile Drives View](screenshots/12_mobile_drives.png)
 
 ---
 

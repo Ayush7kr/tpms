@@ -1,6 +1,17 @@
-from django.urls import path, include
+from django.urls import path, include, re_path
 from django.conf import settings
 from django.conf.urls.static import static
+from django.http import Http404
+from django.views.static import serve as static_serve
+
+
+def serve_public_media(request, path):
+    # Resumes are private: they are only served through the permission-checked
+    # students:download_resume view, never straight from /media/.
+    if path.startswith('resumes/') or path.startswith('avatars/'):
+        raise Http404()
+    return static_serve(request, path, document_root=settings.MEDIA_ROOT)
+
 
 urlpatterns = [
     # Core public routes & landing page
@@ -28,5 +39,9 @@ urlpatterns = [
 ]
 
 if settings.DEBUG:
-    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+    urlpatterns += [re_path(r'^media/(?P<path>.*)$', serve_public_media)]
     urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+
+handler403 = 'apps.core.views.custom_403_view'
+handler404 = 'apps.core.views.custom_404_view'
+handler500 = 'apps.core.views.custom_500_view'

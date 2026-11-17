@@ -1,467 +1,200 @@
 {% extends 'base/base.html' %}
-{% load static %}
 
-{% block title %}Apex Institute of Technology — Training & Placement Management System{% endblock %}
+{% block title %}Training & Placement Cell{% endblock %}
+{% block body_class %}public-body{% endblock %}
 
 {% block layout_content %}
-<!-- Public Navigation Bar -->
-<nav class="navbar navbar-expand-lg bg-white border-bottom sticky-top py-3">
-  <div class="container">
-    <a class="navbar-brand d-flex align-items-center gap-2" href="{% url 'core:landing' %}">
-      <div class="rounded-3 bg-primary text-white d-flex align-items-center justify-content-center fw-bold shadow-sm" style="width: 40px; height: 40px;">
-        <i class="bi bi-mortarboard-fill fs-5"></i>
-      </div>
-      <div>
-        <div class="fw-bold text-dark lh-1" style="font-size: 1.1rem; letter-spacing: -0.02em;">{{ INSTITUTE_NAME }}</div>
-        <div class="text-muted" style="font-size: 0.72rem; letter-spacing: 0.05em; font-weight: 600;">TPMS ENTERPRISE PORTAL</div>
-      </div>
+<header class="site-nav">
+  <div class="container d-flex align-items-center justify-content-between">
+    <a href="{% url 'core:landing' %}" class="site-brand">
+      <span class="sidebar-brand-icon" aria-hidden="true">TP</span>
+      <span>
+        <span class="site-brand-name d-block">Training & Placement Cell</span>
+        <span class="site-brand-sub">{{ INSTITUTE_NAME }}</span>
+      </span>
     </a>
-
-    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#publicNav">
-      <span class="navbar-toggler-icon"></span>
-    </button>
-
-    <div class="collapse navbar-collapse" id="publicNav">
-      <ul class="navbar-nav mx-auto mb-2 mb-lg-0 fw-medium" style="font-size: 0.9rem;">
-        <li class="nav-item"><a class="nav-link text-dark" href="#about">About</a></li>
-        <li class="nav-item"><a class="nav-link text-dark" href="#features">Features</a></li>
-        <li class="nav-item"><a class="nav-link text-dark" href="#workflow">How It Works</a></li>
-        <li class="nav-item"><a class="nav-link text-dark" href="#recruiters">Recruiters</a></li>
-        <li class="nav-item"><a class="nav-link text-dark" href="#contact">Contact</a></li>
-      </ul>
-
-      <div class="d-flex align-items-center gap-2">
-        {% if user.is_authenticated %}
-          <a href="{{ user.get_dashboard_url }}" class="btn-tpms-primary">
-            <i class="bi bi-speedometer2"></i> Open Dashboard
-          </a>
-        {% else %}
-          <a href="{% url 'accounts:login' %}" class="btn-tpms-outline">
-            <i class="bi bi-box-arrow-in-right"></i> Sign In
-          </a>
-          <a href="{% url 'accounts:login' %}" class="btn-tpms-primary">
-            Get Started <i class="bi bi-arrow-right"></i>
-          </a>
-        {% endif %}
-      </div>
-    </div>
+    <nav class="site-links" aria-label="Page sections">
+      <a href="#how">How it works</a>
+      <a href="#roles">Who uses it</a>
+      <a href="#recruiters">Recruiters</a>
+    </nav>
+    {% if request.user.is_authenticated %}
+      <a href="{{ request.user.get_dashboard_url }}" class="btn btn-primary">Go to dashboard</a>
+    {% else %}
+      <a href="{% url 'accounts:login' %}" class="btn btn-primary">Sign in</a>
+    {% endif %}
   </div>
-</nav>
+</header>
 
-<!-- Hero Section -->
-<section class="py-5 tpms-hero-section">
-  <div class="container py-lg-4">
-    <div class="row align-items-center g-5">
-      <div class="col-lg-6">
-        <div class="d-inline-flex align-items-center gap-2 px-3 py-1 rounded-pill tpms-hero-badge fw-semibold mb-3" style="font-size: 0.8rem;">
-          <span class="badge bg-primary rounded-pill">2025-2026</span> Centralized Campus Placements
-        </div>
-        <h1 class="display-5 fw-extrabold text-dark tracking-tight mb-3" style="font-weight: 800; line-height: 1.15;">
-          Empowering Careers Through Smarter Placements
-        </h1>
-        <p class="lead text-muted mb-4" style="font-size: 1.1rem; line-height: 1.6;">
-          A centralized platform connecting students, placement officers and institutions to simplify recruitment, training and career opportunities with automated eligibility matching and department-level governance.
-        </p>
-
-        <div class="d-flex flex-wrap gap-3 mb-4">
-          <a href="{% url 'accounts:login' %}" class="btn-tpms-primary px-4 py-2" style="font-size: 1rem;">
-            Access Placement Portal <i class="bi bi-arrow-right"></i>
-          </a>
-          <a href="#features" class="btn-tpms-outline px-4 py-2" style="font-size: 1rem;">
-            Explore Features
-          </a>
-        </div>
-
-        <div class="d-flex align-items-center gap-4 pt-2 text-muted small">
-          <div><i class="bi bi-shield-check text-success fs-6 me-1"></i> Role-Based Access Control</div>
-          <div><i class="bi bi-cpu text-primary fs-6 me-1"></i> Programmatic Cut-Offs</div>
-          <div><i class="bi bi-graph-up text-indigo fs-6 me-1"></i> Live Analytics</div>
-        </div>
-      </div>
-
-      <div class="col-lg-6">
-        <!-- Modern Hero Card Dashboard Preview -->
-        <div class="card border shadow-lg rounded-4 overflow-hidden bg-white">
-          <div class="bg-dark p-3 d-flex align-items-center justify-content-between text-white">
-            <div class="d-flex align-items-center gap-2">
-              <span class="rounded-circle bg-danger" style="width: 10px; height: 10px;"></span>
-              <span class="rounded-circle bg-warning" style="width: 10px; height: 10px;"></span>
-              <span class="rounded-circle bg-success" style="width: 10px; height: 10px;"></span>
-              <span class="text-xs text-muted ms-2">TPMS Institutional Overview</span>
-            </div>
-            <span class="badge bg-success-subtle text-success">Live Session</span>
+<main>
+  <section class="hero">
+    <div class="container">
+      <div class="row g-5 align-items-center">
+        <div class="col-lg-6">
+          <h1>Every campus drive on one board.</h1>
+          <p class="hero-lede">Students see which drives they qualify for, and exactly which cut-off they miss when they don't. Department coordinators verify records. The placement office runs each drive from application to offer.</p>
+          <div class="d-flex flex-wrap gap-2">
+            <a href="{% url 'accounts:login' %}" class="btn btn-primary btn-lg">Sign in to the portal</a>
+            <a href="#how" class="btn btn-outline-secondary btn-lg">How it works</a>
           </div>
-          <div class="p-4">
-            <div class="row g-3 mb-3">
-              <div class="col-6">
-                <div class="p-3 bg-light rounded-3 border">
-                  <div class="text-muted text-uppercase" style="font-size: 0.7rem; font-weight: 700;">Placement Rate</div>
-                  <div class="fs-3 fw-bold text-dark">94.2%</div>
-                  <div class="text-success small fw-medium"><i class="bi bi-arrow-up-right"></i> +4.8% vs last year</div>
-                </div>
-              </div>
-              <div class="col-6">
-                <div class="p-3 bg-light rounded-3 border">
-                  <div class="text-muted text-uppercase" style="font-size: 0.7rem; font-weight: 700;">Highest CTC</div>
-                  <div class="fs-3 fw-bold text-dark">45.0 LPA</div>
-                  <div class="text-muted small">Global Cloud Architect</div>
-                </div>
-              </div>
-            </div>
+          <p class="small text-muted mt-3 mb-0">Use your college email. Students get their login from their department coordinator.</p>
+        </div>
 
-            <!-- Active Drives Preview -->
-            <div class="border rounded-3 p-3 mb-3 bg-white">
-              <div class="d-flex justify-content-between align-items-center mb-2">
-                <span class="fw-bold small text-dark">Ongoing Placement Drives</span>
-                <span class="badge bg-primary">5 Active</span>
-              </div>
-              <div class="d-flex align-items-center justify-content-between py-2 border-bottom">
+        <div class="col-lg-6">
+          <div class="board" aria-labelledby="board-title">
+            <div class="board-head">
+              <h2 id="board-title">Open drives</h2>
+              <span>{{ CURRENT_ACADEMIC_YEAR }} season</span>
+            </div>
+            {% for job in open_drives %}
+              <article class="notice">
                 <div>
-                  <div class="fw-semibold small">Google — Software Engineer</div>
-                  <div class="text-muted" style="font-size: 0.75rem;">Cutoff: CGPA 8.0 • 0 Backlogs • 28 LPA</div>
+                  <div class="notice-company">{{ job.company.name }}</div>
+                  <div class="notice-role">{{ job.title }}</div>
                 </div>
-                <span class="badge bg-success-subtle text-success">Eligible</span>
-              </div>
-              <div class="d-flex align-items-center justify-content-between py-2">
-                <div>
-                  <div class="fw-semibold small">Microsoft — Cloud Consultant</div>
-                  <div class="text-muted" style="font-size: 0.75rem;">Cutoff: CGPA 7.5 • 0 Backlogs • 21 LPA</div>
+                <div class="notice-pay">{{ job.package_ctc|floatformat:1 }} <small>LPA</small></div>
+                <div class="notice-foot">
+                  <span>CGPA <strong>{{ job.min_graduation_cgpa|floatformat:1 }}+</strong></span>
+                  <span>{% for d in job.allowed_departments.all %}{{ d.code }}{% if not forloop.last %}, {% endif %}{% endfor %}</span>
+                  <span>Apply by <strong>{{ job.application_deadline|date:"j M" }}</strong></span>
                 </div>
-                <span class="badge bg-success-subtle text-success">Eligible</span>
-              </div>
-            </div>
-
-            <div class="p-3 rounded-3 tpms-preview-success-box">
-              <div class="d-flex align-items-center gap-2 small fw-semibold">
-                <i class="bi bi-check-circle-fill"></i> Multi-Department Data Segregation &amp; Assistant Scoping Enabled
-              </div>
-            </div>
+              </article>
+            {% empty %}
+              <div class="board-empty">No drives are open right now. New drives appear here as soon as the placement office posts them.</div>
+            {% endfor %}
           </div>
         </div>
       </div>
     </div>
-  </div>
-</section>
+  </section>
 
-<!-- Placement Statistics Ribbon -->
-<section class="py-4 bg-white border-bottom border-top">
-  <div class="container">
-    <div class="row text-center g-4">
-      <div class="col-6 col-md-3">
-        <div class="fs-2 fw-bold text-dark">1,250+</div>
-        <div class="text-muted small text-uppercase fw-semibold">Students Enrolled</div>
-      </div>
-      <div class="col-6 col-md-3">
-        <div class="fs-2 fw-bold text-primary">180+</div>
-        <div class="text-muted small text-uppercase fw-semibold">Corporate Partners</div>
-      </div>
-      <div class="col-6 col-md-3">
-        <div class="fs-2 fw-bold text-success">9.8 LPA</div>
-        <div class="text-muted small text-uppercase fw-semibold">Average Package</div>
-      </div>
-      <div class="col-6 col-md-3">
-        <div class="fs-2 fw-bold text-dark">45.0 LPA</div>
-        <div class="text-muted small text-uppercase fw-semibold">Highest Package</div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- About Section -->
-<section class="py-5" id="about">
-  <div class="container py-4">
-    <div class="row g-5 align-items-center">
-      <div class="col-lg-6">
-        <span class="badge bg-primary-subtle text-primary fw-bold text-uppercase mb-2">About The System</span>
-        <h2 class="fw-bold text-dark mb-3">Next-Generation Training & Placement Architecture</h2>
-        <p class="text-muted">
-          The Training and Placement Management System (TPMS) transforms campus recruitment from disparate paper-and-spreadsheet files into an intelligent, auditable, and automated digital ecosystem.
-        </p>
-        <p class="text-muted">
-          Designed specifically to address the complex requirements of multi-department academic institutions, TPMS guarantees strict departmental autonomy for placement coordinators while giving institutional leadership panoramic analytical oversight.
-        </p>
-        <div class="row g-3 pt-2">
-          <div class="col-sm-6">
-            <div class="d-flex align-items-start gap-2">
-              <i class="bi bi-check2-circle text-primary fs-5"></i>
-              <div>
-                <strong class="d-block text-dark">Zero Data Leakage</strong>
-                <span class="text-muted small">Department assistants manage only assigned branch rosters.</span>
-              </div>
-            </div>
-          </div>
-          <div class="col-sm-6">
-            <div class="d-flex align-items-start gap-2">
-              <i class="bi bi-check2-circle text-primary fs-5"></i>
-              <div>
-                <strong class="d-block text-dark">Deterministic Cut-offs</strong>
-                <span class="text-muted small">10th %, 12th %, CGPA & backlogs checked programmatically.</span>
-              </div>
-            </div>
-          </div>
+  <section aria-label="This season so far">
+    <div class="container">
+      <div class="facts">
+        <div class="fact">
+          <div class="fact-value">{{ metrics.placed_students }}<span class="text-muted fs-5 fw-semibold"> / {{ metrics.total_students }}</span></div>
+          <div class="fact-label">Students placed this season</div>
         </div>
-      </div>
-      <div class="col-lg-6">
-        <div class="row g-3">
-          <div class="col-6">
-            <div class="card p-3 border shadow-xs h-100">
-              <i class="bi bi-person-badge text-primary fs-2 mb-2"></i>
-              <h6 class="fw-bold text-dark">Student Self-Service</h6>
-              <p class="text-muted small mb-0">1-click application submission, verified academic vault, and stage progress tracker.</p>
-            </div>
-          </div>
-          <div class="col-6">
-            <div class="card p-3 border shadow-xs h-100">
-              <i class="bi bi-buildings text-indigo fs-2 mb-2" style="color: #4f46e5;"></i>
-              <h6 class="fw-bold text-dark">Recruiter Network</h6>
-              <p class="text-muted small mb-0">Tiered company directory, POC management, and automated drive staging.</p>
-            </div>
-          </div>
-          <div class="col-6">
-            <div class="card p-3 border shadow-xs h-100">
-              <i class="bi bi-file-earmark-spreadsheet text-success fs-2 mb-2"></i>
-              <h6 class="fw-bold text-dark">Bulk Ingestion</h6>
-              <p class="text-muted small mb-0">CSV & Excel import with duplicate detection and atomic rollback protection.</p>
-            </div>
-          </div>
-          <div class="col-6">
-            <div class="card p-3 border shadow-xs h-100">
-              <i class="bi bi-pie-chart text-warning fs-2 mb-2"></i>
-              <h6 class="fw-bold text-dark">NIRF / NAAC Analytics</h6>
-              <p class="text-muted small mb-0">Instant generation of salary distributions, branch placement rates, and rosters.</p>
-            </div>
-          </div>
+        <div class="fact">
+          <div class="fact-value">{{ metrics.placement_rate }}%</div>
+          <div class="fact-label">Placement rate</div>
+        </div>
+        <div class="fact">
+          <div class="fact-value">{{ metrics.max_pkg|floatformat:1 }} <span class="fs-5">LPA</span></div>
+          <div class="fact-label">Highest offer</div>
+        </div>
+        <div class="fact">
+          <div class="fact-value">{{ metrics.total_companies }}</div>
+          <div class="fact-label">Recruiters on record</div>
         </div>
       </div>
     </div>
-  </div>
-</section>
+  </section>
 
-<!-- Five Stakeholders Section -->
-<section class="py-5 bg-light border-top border-bottom" id="features">
-  <div class="container py-4">
-    <div class="text-center max-w-xl mx-auto mb-5">
-      <span class="badge bg-primary-subtle text-primary fw-bold text-uppercase mb-2">Role-Based Modules</span>
-      <h2 class="fw-bold text-dark">Tailored Interfaces for All Five User Roles</h2>
-      <p class="text-muted">Each stakeholder experiences an optimized workspace tailored strictly to their operational mandate.</p>
+  <section class="section" id="how">
+    <div class="container">
+      <div class="section-head">
+        <h2>From announcement to offer letter</h2>
+        <p>A drive moves through four hands. Each one sees only what they need to act on.</p>
+      </div>
+      <div class="flow">
+        <div class="flow-step">
+          <span class="who">Placement officer</span>
+          <h3>Posts the drive</h3>
+          <p>Company, role, package, and the cut-offs: CGPA, 10th and 12th marks, backlogs, branches and batch.</p>
+        </div>
+        <div class="flow-step">
+          <span class="who">Department coordinator</span>
+          <h3>Opens it for the branch</h3>
+          <p>Each branch coordinator approves the drive for their students, or holds it back.</p>
+        </div>
+        <div class="flow-step">
+          <span class="who">Student</span>
+          <h3>Applies in one step</h3>
+          <p>The portal checks every cut-off against the student's record. If one is missed, it says which one.</p>
+        </div>
+        <div class="flow-step">
+          <span class="who">Placement officer</span>
+          <h3>Tracks every round</h3>
+          <p>Shortlist, test, technical and HR rounds, then the offer. Students are notified at each step.</p>
+        </div>
+      </div>
     </div>
+  </section>
 
-    <div class="row g-4">
-      <!-- Admin -->
-      <div class="col-md-4">
-        <div class="card h-100 border p-4 bg-white shadow-xs d-flex flex-column">
-          <div class="d-flex align-items-center justify-content-between mb-3">
-            <span class="role-pill role-admin">Administrator</span>
-            <i class="bi bi-shield-lock-fill text-danger fs-4"></i>
-          </div>
-          <h5 class="fw-bold text-dark">Governance & Access Control</h5>
-          <p class="text-muted small">Manage departments, provision staff accounts (Principal, TPO, Assistant), allocate branches to assistants, and review system audit logs.</p>
-          <ul class="text-muted small ps-3 mb-3 flex-grow-1">
-            <li>User account lifecycle</li>
-            <li>Department catalog management</li>
-            <li>Assistant department allocation</li>
+  <section class="section" id="roles" style="background:var(--paper)">
+    <div class="container">
+      <div class="section-head">
+        <h2>One portal, five roles</h2>
+        <p>Everyone signs in at the same place and lands on their own workspace.</p>
+      </div>
+      <div class="roles">
+        <div class="role bg-white">
+          <h3>Students</h3>
+          <ul>
+            <li><i class="bi bi-check2"></i> See every drive you qualify for</li>
+            <li><i class="bi bi-check2"></i> Track each application round</li>
+            <li><i class="bi bi-check2"></i> Keep your resume and skills current</li>
           </ul>
-          <a href="{% url 'accounts:login' %}" class="btn btn-sm btn-outline-danger w-100">
-            <i class="bi bi-box-arrow-in-right me-1"></i> Sign In as Administrator
-          </a>
         </div>
-      </div>
-
-      <!-- Principal -->
-      <div class="col-md-4">
-        <div class="card h-100 border p-4 bg-white shadow-xs d-flex flex-column">
-          <div class="d-flex align-items-center justify-content-between mb-3">
-            <span class="role-pill role-principal">Principal</span>
-            <i class="bi bi-speedometer2 text-warning fs-4"></i>
-          </div>
-          <h5 class="fw-bold text-dark">Executive Institutional Oversight</h5>
-          <p class="text-muted small">Monitor campus-wide placement metrics, cross-department hiring benchmarks, corporate recruiter participation, and package distributions.</p>
-          <ul class="text-muted small ps-3 mb-3 flex-grow-1">
-            <li>Macro placement rates</li>
-            <li>Department comparisons</li>
-            <li>Salary benchmarks (Min/Avg/Max)</li>
+        <div class="role bg-white">
+          <h3>Placement officer</h3>
+          <ul>
+            <li><i class="bi bi-check2"></i> Post drives with cut-offs</li>
+            <li><i class="bi bi-check2"></i> Move candidates through rounds</li>
+            <li><i class="bi bi-check2"></i> Keep the recruiter directory</li>
           </ul>
-          <a href="{% url 'accounts:login' %}" class="btn btn-sm btn-outline-warning w-100">
-            <i class="bi bi-box-arrow-in-right me-1"></i> Sign In as Principal
-          </a>
         </div>
-      </div>
-
-      <!-- TPO -->
-      <div class="col-md-4">
-        <div class="card h-100 border p-4 bg-white shadow-xs d-flex flex-column">
-          <div class="d-flex align-items-center justify-content-between mb-3">
-            <span class="role-pill role-tpo">TnP Officer</span>
-            <i class="bi bi-briefcase-fill text-primary fs-4"></i>
-          </div>
-          <h5 class="fw-bold text-dark">Central Placement Operations</h5>
-          <p class="text-muted small">Manage recruiter directory, configure campus drives with cut-offs, publish global prep materials, and orchestrate interview rounds.</p>
-          <ul class="text-muted small ps-3 mb-3 flex-grow-1">
-            <li>Job opening creation with cutoffs</li>
-            <li>Recruiter & company registry</li>
-            <li>Multi-round selection updates</li>
+        <div class="role bg-white">
+          <h3>Department coordinators</h3>
+          <ul>
+            <li><i class="bi bi-check2"></i> Import students from Excel or CSV</li>
+            <li><i class="bi bi-check2"></i> Approve drives for the branch</li>
+            <li><i class="bi bi-check2"></i> Verify applicants' marks</li>
           </ul>
-          <a href="{% url 'accounts:login' %}" class="btn btn-sm btn-outline-primary w-100">
-            <i class="bi bi-box-arrow-in-right me-1"></i> Sign In as TPO
-          </a>
         </div>
-      </div>
-
-      <!-- Assistant -->
-      <div class="col-md-6">
-        <div class="card h-100 border p-4 bg-white shadow-xs d-flex flex-column">
-          <div class="d-flex align-items-center justify-content-between mb-3">
-            <span class="role-pill role-assistant">TnP Assistant</span>
-            <i class="bi bi-diagram-3-fill text-info fs-4"></i>
-          </div>
-          <h5 class="fw-bold text-dark">Department-Scoped Management</h5>
-          <p class="text-muted small">Manage branch student records via manual entry or bulk CSV/Excel ingestion, approve/reject drives for their branch, verify applicant credentials, and curate localized study assets.</p>
-          <ul class="text-muted small ps-3 mb-3 flex-grow-1">
-            <li>Department-scoped student directory</li>
-            <li>Bulk CSV/Excel student ingestion</li>
-            <li>Departmental job opening approvals</li>
-            <li>Candidate document verification</li>
+        <div class="role bg-white">
+          <h3>Principal</h3>
+          <ul>
+            <li><i class="bi bi-check2"></i> Placement rate by branch</li>
+            <li><i class="bi bi-check2"></i> Salary bands and top recruiters</li>
+            <li><i class="bi bi-check2"></i> Export records to CSV</li>
           </ul>
-          <a href="{% url 'accounts:login' %}" class="btn btn-sm btn-outline-info w-100">
-            <i class="bi bi-box-arrow-in-right me-1"></i> Sign In as Assistant
-          </a>
         </div>
-      </div>
-
-      <!-- Student -->
-      <div class="col-md-6">
-        <div class="card h-100 border p-4 bg-white shadow-xs d-flex flex-column">
-          <div class="d-flex align-items-center justify-content-between mb-3">
-            <span class="role-pill role-student">Student Candidate</span>
-            <i class="bi bi-mortarboard-fill text-success fs-4"></i>
-          </div>
-          <h5 class="fw-bold text-dark">Candidate Self-Service Portal</h5>
-          <p class="text-muted small">Maintain academic profile and PDF resume, explore eligible drives with live cut-off evaluation, submit 1-click applications, track round status, and access prep kits.</p>
-          <ul class="text-muted small ps-3 mb-3 flex-grow-1">
-            <li>Real-time eligibility checking</li>
-            <li>1-click application submission</li>
-            <li>Interview round status pipeline</li>
-            <li>Aptitude & technical preparation vault</li>
+        <div class="role bg-white">
+          <h3>Administrator</h3>
+          <ul>
+            <li><i class="bi bi-check2"></i> Staff accounts and departments</li>
+            <li><i class="bi bi-check2"></i> Assign coordinators to branches</li>
+            <li><i class="bi bi-check2"></i> Full activity log</li>
           </ul>
-          <a href="{% url 'accounts:login' %}" class="btn btn-sm btn-outline-success w-100">
-            <i class="bi bi-box-arrow-in-right me-1"></i> Sign In as Student Candidate
-          </a>
         </div>
       </div>
     </div>
-  </div>
-</section>
+  </section>
 
-<!-- 4-Step Recruitment Workflow -->
-<section class="py-5" id="workflow">
-  <div class="container py-4">
-    <div class="text-center max-w-xl mx-auto mb-5">
-      <span class="badge bg-primary-subtle text-primary fw-bold text-uppercase mb-2">End-to-End Workflow</span>
-      <h2 class="fw-bold text-dark">How The Placement Cycle Operates</h2>
-      <p class="text-muted">A streamlined, transparent path from student onboarding to corporate job offers.</p>
-    </div>
-
-    <div class="row g-4 text-center">
-      <div class="col-md-3">
-        <div class="p-4 border rounded-3 bg-white h-100">
-          <div class="rounded-circle bg-primary-subtle text-primary d-flex align-items-center justify-content-center mx-auto mb-3 fw-bold fs-4" style="width: 50px; height: 50px;">1</div>
-          <h6 class="fw-bold text-dark">Student Onboarding</h6>
-          <p class="text-muted small mb-0">Assistants import department students via CSV/Excel or individual entry with verified academic records.</p>
-        </div>
+  <section class="section" id="recruiters">
+    <div class="container">
+      <div class="section-head">
+        <h2>Recruiters this season</h2>
+        <p>Companies currently on the placement office's directory.</p>
       </div>
-
-      <div class="col-md-3">
-        <div class="p-4 border rounded-3 bg-white h-100">
-          <div class="rounded-circle bg-primary-subtle text-primary d-flex align-items-center justify-content-center mx-auto mb-3 fw-bold fs-4" style="width: 50px; height: 50px;">2</div>
-          <h6 class="fw-bold text-dark">Drive & Eligibility</h6>
-          <p class="text-muted small mb-0">TPO posts job openings with multi-metric cut-offs; department assistants review and activate for their branch.</p>
-        </div>
-      </div>
-
-      <div class="col-md-3">
-        <div class="p-4 border rounded-3 bg-white h-100">
-          <div class="rounded-circle bg-primary-subtle text-primary d-flex align-items-center justify-content-center mx-auto mb-3 fw-bold fs-4" style="width: 50px; height: 50px;">3</div>
-          <h6 class="fw-bold text-dark">1-Click Application</h6>
-          <p class="text-muted small mb-0">Eligible students submit applications with one click. Assistant checks credentials and verifies submissions.</p>
-        </div>
-      </div>
-
-      <div class="col-md-3">
-        <div class="p-4 border rounded-3 bg-white h-100">
-          <div class="rounded-circle bg-primary-subtle text-primary d-flex align-items-center justify-content-center mx-auto mb-3 fw-bold fs-4" style="width: 50px; height: 50px;">4</div>
-          <h6 class="fw-bold text-dark">Selection & Offers</h6>
-          <p class="text-muted small mb-0">Recruitment rounds progress through Aptitude, Tech, and HR. Final offers automatically update student status.</p>
-        </div>
+      <div class="recruiter-strip">
+        {% for c in recruiters %}<span>{{ c.name }}</span>{% empty %}<span class="text-muted fw-normal">No recruiters added yet.</span>{% endfor %}
       </div>
     </div>
-  </div>
-</section>
+  </section>
+</main>
 
-<!-- Corporate Partners Ribbon -->
-<section class="py-5 bg-light border-top border-bottom" id="recruiters">
-  <div class="container py-3 text-center">
-    <div class="text-muted small text-uppercase fw-bold mb-4 tracking-wider">Trusted By Leading Corporate Employers</div>
-    <div class="row g-4 justify-content-center align-items-center opacity-75">
-      <div class="col-4 col-md-2 fw-bold fs-5 text-secondary">Google</div>
-      <div class="col-4 col-md-2 fw-bold fs-5 text-secondary">Microsoft</div>
-      <div class="col-4 col-md-2 fw-bold fs-5 text-secondary">Amazon</div>
-      <div class="col-4 col-md-2 fw-bold fs-5 text-secondary">Deloitte</div>
-      <div class="col-4 col-md-2 fw-bold fs-5 text-secondary">Infosys</div>
-      <div class="col-4 col-md-2 fw-bold fs-5 text-secondary">TCS</div>
+<footer class="site-footer">
+  <div class="container d-flex flex-wrap justify-content-between gap-3">
+    <div>
+      <strong>Training & Placement Cell</strong>
+      <div>{{ INSTITUTE_NAME }}</div>
     </div>
-  </div>
-</section>
-
-<!-- Contact & Institutional Footer -->
-<footer class="py-5 tpms-footer" id="contact">
-  <div class="container py-4">
-    <div class="row g-4">
-      <div class="col-lg-5">
-        <div class="d-flex align-items-center gap-2 mb-3">
-          <div class="rounded-3 bg-primary text-white d-flex align-items-center justify-content-center fw-bold shadow-xs" style="width: 38px; height: 38px;">
-            <i class="bi bi-mortarboard-fill fs-5"></i>
-          </div>
-          <span class="fs-5 fw-bold text-white">{{ INSTITUTE_NAME }}</span>
-        </div>
-        <p class="tpms-footer-text small pe-lg-4 mb-3">
-          Training &amp; Placement Management System (TPMS) — Centralized academic placement automation, real-time eligibility computation, and institutional recruitment compliance.
-        </p>
-        <div class="tpms-footer-muted small">
-          &copy; {{ CURRENT_ACADEMIC_YEAR }} {{ INSTITUTE_NAME }}. All Rights Reserved.
-        </div>
-      </div>
-
-      <div class="col-lg-3">
-        <h6 class="tpms-footer-heading mb-3 text-uppercase small">Quick Navigation</h6>
-        <ul class="list-unstyled tpms-footer-links small lh-lg mb-0">
-          <li><a href="#about"><i class="bi bi-chevron-right me-1 small"></i> About The Platform</a></li>
-          <li><a href="#features"><i class="bi bi-chevron-right me-1 small"></i> Stakeholder Modules</a></li>
-          <li><a href="#workflow"><i class="bi bi-chevron-right me-1 small"></i> Recruitment Workflow</a></li>
-          <li><a href="{% url 'accounts:login' %}"><i class="bi bi-chevron-right me-1 small"></i> Portal Sign In</a></li>
-        </ul>
-      </div>
-
-      <div class="col-lg-4">
-        <h6 class="tpms-footer-heading mb-3 text-uppercase small">T&amp;P Cell Contact</h6>
-        <div class="tpms-footer-contact small lh-lg">
-          <div class="d-flex align-items-start gap-2 mb-2">
-            <i class="bi bi-geo-alt-fill text-primary mt-1"></i>
-            <span>Academic Block A, Career Development Cell</span>
-          </div>
-          <div class="d-flex align-items-center gap-2 mb-2">
-            <i class="bi bi-envelope-fill text-primary"></i>
-            <a href="mailto:placements@apex.edu.in" class="tpms-footer-link">placements@apex.edu.in</a>
-          </div>
-          <div class="d-flex align-items-center gap-2 mb-2">
-            <i class="bi bi-telephone-fill text-primary"></i>
-            <span>+91 (020) 2765-8000</span>
-          </div>
-          <div class="d-flex align-items-center gap-2">
-            <i class="bi bi-clock-fill text-primary"></i>
-            <span>Mon - Fri, 9:00 AM - 5:00 PM IST</span>
-          </div>
-        </div>
-      </div>
+    <div class="text-md-end">
+      <div>Questions about a drive? Contact your department coordinator.</div>
+      <div><a href="mailto:placements@apex.edu.in">placements@apex.edu.in</a></div>
     </div>
   </div>
 </footer>

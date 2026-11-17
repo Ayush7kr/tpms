@@ -320,31 +320,63 @@ All accounts are pre-seeded in the database with the default password: `apex@123
 
 3. **System Checks & Automated Test Suite**:
    - `python manage.py check`: 0 issues found.
-   - Full automated test suite (`python manage.py test tests apps.career_assistant.tests`): **All 63 tests PASSED (100%) in 180s with 0 failures and 0 errors**.
+   - Full automated test suite (`python manage.py test tests apps.career_assistant.tests`): **All 77 tests PASSED (100%) with 0 failures and 0 errors**.
 
 ---
 
 ## 11. Phase 10 — High-Fidelity Live Platform Screenshot Capture & Integration
 
 1. **Live Interface Capture Pipeline**:
-   - Developed `scratch/capture_all_screenshots.py` using Django's runtime test client and headless Chrome (`--headless=new`, 1440x900 viewport).
-   - Rendered real, active pages with live database context, authentic candidate profiles, and corporate drive records.
-   - Embedded local Bootstrap 5.3, Bootstrap Icons font assets, and custom Linear/Stripe design tokens.
-   - Successfully generated 10 pristine, high-resolution visual captures:
-     - `01_landing_hero.png` (Public landing hero, metrics & partner showcase)
-     - `02_role_based_login.png` (Authentication portal with 1-click persona switcher)
-     - `03_student_dashboard.png` (Candidate dashboard with clickable drives & eligibility verdicts)
-     - `04_student_career_assistant.png` (AI placement mentor with rich Markdown guidance & starter chips)
-     - `05_student_eligible_jobs.png` (Explore campus drives with real-time cut-off calculations)
-     - `06_student_my_applications.png` (Applied drives tracker with recruitment pipeline stepper)
-     - `07_tpo_dashboard.png` (Central placement operations dashboard)
-     - `08_principal_analytics.png` (Institutional executive analytics dashboard)
-     - `09_admin_users_panel.png` (System administrator user provisioning & staff governance panel)
-     - `10_assistant_roster.png` (Department placement assistant scoped student roster)
+   - Developed screenshot capture pipeline using headless Chrome (`--headless=new`, 1440x900 viewport, and 390x844 for mobile) communicating via Chrome DevTools Protocol (CDP).
+   - Rendered real, active pages with live SQLite database context, authentic candidate profiles, and corporate drive records.
+   - Embedded local Bootstrap 5.3, Bootstrap Icons font assets, and custom Ink Navy & Marigold design tokens.
+   - Generated 12 high-resolution visual captures:
+     - `01_landing.png`: Public recruitment portal with live statistics from database
+     - `02_login.png`: Clean authentication portal with 1-click persona switcher (`DEMO_MODE=True`)
+     - `03_student_home.png`: Personalized candidate dashboard with ongoing drives and stage summary
+     - `04_student_drives_cutoffs.png`: Student open drives with side-by-side cut-off evaluation (missed criteria in red)
+     - `05_student_applications.png`: Candidate applied drives tracker with recruitment pipeline stepper
+     - `06_career_assistant.png`: AI placement mentor with structured Markdown guidance and starter chips
+     - `07_officer_overview.png`: Central placement operations command center (TPO)
+     - `08_drive_detail.png`: Detailed drive view with applicant review and round movements
+     - `09_principal_overview.png`: Institutional executive analytics with salary distribution and branch metrics
+     - `10_coordinator_students.png`: Department placement coordinator scoped student roster & verification
+     - `11_admin_users.png`: System governance dashboard managing accounts across staff roles
+     - `12_mobile_drives.png`: Mobile responsive layout with off-canvas drawer navigation
 
 2. **Documentation Modernization**:
    - Integrated live visual captures across `README.md`, `docs/PROJECT_OVERVIEW.md`, `docs/REQUIREMENTS_BREAKDOWN.md`, and `docs/UI_UX_REFINEMENT_REPORT.md`.
    - Purged all legacy and prototype mockups.
+
+---
+
+## 12. Phase 11 — Security Hardening, Defect Remediation & Design System Unification
+
+1. **Security Vulnerability Remediations**:
+   - **Demo Switcher Authentication**: Role switcher (`/auth/switch/<ROLE>/`) restricted strictly to POST requests when `DEMO_MODE=True`; eliminated unauthorized privilege escalation.
+   - **Resume Media Access Control**: Resumes protected behind permission-enforced streaming endpoint (`apps.students.views.download_resume_view`); direct `/media/resumes/` access prohibited.
+   - **Staff Activation Actions**: Switched from vulnerable GET endpoints to CSRF-protected POST requests.
+   - **Placement Analytics Authorization**: Scoped executive salary/placement reports strictly to authenticated staff roles (`ADMIN`, `PRINCIPAL`, `TNP_OFFICER`, `TNP_ASSISTANT`).
+   - **Admin Self-Lockout Prevention**: Prevented administrators from deleting their own admin privilege or deactivating themselves.
+   - **Environment Variable Configuration**: Shifted `SECRET_KEY`, `DEBUG`, `ALLOWED_HOSTS`, and institutional settings to `.env` with fallback defaults.
+
+2. **Business Logic & Workflow Repairs**:
+   - **Per-User Broadcast Notifications**: Added `read_by` ManyToMany relation to `Notification` to accurately track unread badges on role broadcasts.
+   - **Cross-Department Preparation Materials**: Fixed SQL queries for empty/null department filters so college-wide study assets appear correctly.
+   - **Drive Degree Criteria Enforcement**: Validated candidate degrees against allowed degree criteria on drives.
+   - **Re-Application After Withdrawal**: Added re-application capability while drives remain open.
+   - **Multiple Offer Lifecycle**: Fixed salary and placement status handling when multiple offers are received or revoked.
+   - **Gemini Career Assistant REST Engine**: Replaced deprecated `gemini-1.5-flash` with REST integration and configurable `GEMINI_MODEL`.
+   - **CSV Export Filtering**: Aligned placement data exports with active on-screen percentage and search filters.
+
+3. **Design System Unification**:
+   - Implemented Ink Navy (`#0B192C`) and Marigold (`#FF9F43`) palette with Schibsted Grotesk and Public Sans.
+   - Bundled all CSS, JavaScript, icons, and fonts locally in `static/vendor/` for 100% offline functionality.
+   - Implemented responsive mobile off-canvas drawer navigation.
+
+4. **Expanded Automated Regression Suite**:
+   - Authored 14 comprehensive regression tests in `tests/test_fixes.py`.
+   - Expanded test suite to **77 total tests**, all passing with 100% compliance.
 
 
 

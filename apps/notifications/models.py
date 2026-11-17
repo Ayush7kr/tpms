@@ -23,6 +23,12 @@ class Notification(models.Model):
     message = models.TextField()
     action_url = models.CharField(max_length=255, blank=True, null=True)
     is_read = models.BooleanField(default=False, db_index=True)
+    read_by = models.ManyToManyField(
+        settings.AUTH_USER_MODEL,
+        blank=True,
+        related_name='read_broadcasts',
+        help_text="Users who have read this role broadcast"
+    )
     created_at = models.DateTimeField(default=timezone.now, db_index=True)
 
     class Meta:

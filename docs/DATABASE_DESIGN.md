@@ -224,8 +224,17 @@ Inherits from Django `AbstractBaseUser` and `PermissionsMixin`.
 | `title` | VARCHAR(200) | NOT NULL | Brief headline |
 | `message` | TEXT | NOT NULL | Alert content body |
 | `action_url` | VARCHAR(255) | NULL | Deep link to relevant page |
-| `is_read` | BOOLEAN | DEFAULT FALSE, NOT NULL, INDEX | Read status flag |
+| `is_read` | BOOLEAN | DEFAULT FALSE, NOT NULL, INDEX | Read status flag for direct recipient |
 | `created_at` | DATETIME | NOT NULL, INDEX | Dispatch timestamp |
+
+#### `notifications_notification_read_by` (Broadcast Read Tracking)
+Many-to-many relationship tracking which users have dismissed or read role broadcasts (`target_role IS NOT NULL`).
+
+| Column | Type | Constraints | Description |
+| :--- | :--- | :--- | :--- |
+| `id` | BIGINT | PRIMARY KEY, AUTO_INCREMENT | Junction ID |
+| `notification_id` | BIGINT | FOREIGN KEY (`notifications_notification.id`), ON DELETE CASCADE | Broadcast notification |
+| `user_id` | BIGINT | FOREIGN KEY (`accounts_user.id`), ON DELETE CASCADE | User who read the broadcast |
 
 ---
 
