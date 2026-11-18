@@ -82,9 +82,9 @@
               <td class="text-muted small">{{ app.applied_at|date:"M d, Y" }}</td>
               <td>
                 {% if app.stage == 'OFFERED' %}
-                  <span class="badge bg-success-subtle text-success"><i class="bi bi-trophy-fill"></i> Selected</span>
+                  <span class="badge bg-success-subtle text-success"><i class="bi bi-trophy-fill"></i> Offer made</span>
                 {% elif app.stage == 'REJECTED' %}
-                  <span class="badge bg-danger-subtle text-danger">Not Selected</span>
+                  <span class="badge bg-danger-subtle text-danger">Not selected</span>
                 {% elif app.stage == 'WITHDRAWN' %}
                   <span class="badge bg-secondary-subtle text-secondary">Withdrawn</span>
                 {% else %}
@@ -92,9 +92,11 @@
                 {% endif %}
               </td>
               <td class="text-end">
+                {% if not request.user.is_principal %}
                 <a href="{% url 'applications:update_stage' app.id %}" class="btn btn-sm btn-outline-primary py-1 px-2" style="font-size: 0.75rem;">
                   Update
                 </a>
+                {% endif %}
               </td>
             </tr>
           {% empty %}

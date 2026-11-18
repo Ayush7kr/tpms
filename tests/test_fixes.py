@@ -156,3 +156,20 @@ class DriveValidationFixes(Base):
             'application_deadline': (timezone.now() + timedelta(days=3)).strftime('%Y-%m-%dT%H:%M'),
             'drive_date': (timezone.now() + timedelta(days=5)).strftime('%Y-%m-%d')})
         self.assertFalse(JobOpening.objects.filter(title='Bad').exists())
+
+
+class CoordinatorPostingScope(Base):
+    def test_coordinator_post_is_limited_to_own_branches(self):
+        ece = Department.objects.create(code='ECE', name='Electronics')
+        coord = User.objects.create_user(email='coord@t.in', password='pass12345', first_name='C', last_name='O', role=UserRole.TNP_ASSISTANT)
+        AssistantDepartmentAssignment.objects.create(assistant=coord, department=self.cse)
+        c = Client(); c.force_login(coord)
+        c.post(reverse('placements:post_job'), {
+            'company_id': self.company.id, 'title': 'Cross', 'role_description': 'x', 'job_location': 'Pune',
+            'package_ctc': '5', 'allowed_departments': [self.cse.id, ece.id],
+            'application_deadline': (timezone.now() + timedelta(days=3)).strftime('%Y-%m-%dT%H:%M'),
+            'drive_date': (timezone.now() + timedelta(days=5)).strftime('%Y-%m-%d')})
+        job = JobOpening.objects.get(title='Cross')
+        self.assertEqual(list(job.allowed_departments.values_list('code', flat=True)), ['CSE'])
+        self.assertEqual(job.department_approvals.get(department=self.cse).status, ApprovalStatus.APPROVED)
+        self.assertFalse(job.department_approvals.filter(department=ece).exists())

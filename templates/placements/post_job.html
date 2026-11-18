@@ -34,7 +34,7 @@
         <div class="tpms-card-body">
           <div class="row g-3 mb-3">
             <div class="col-md-6">
-              <label class="form-label-custom" for="company_id">Hiring Partner <span class="text-danger">*</span></label>
+              <label class="form-label-custom" for="company_id">Company <span class="text-danger">*</span></label>
               <select name="company_id" id="company_id" class="form-select-custom" required>
                 <option value="">Select Company</option>
                 {% for c in companies %}
@@ -158,7 +158,7 @@
         </div>
         <div class="tpms-card-body">
           <p class="text-muted small mb-3">
-            These rules will be programmatically verified against every student's academic record before allowing 1-click application.
+            Students see the Apply button only if their record clears every cut-off below. Leave a cut-off at 0 for none.
           </p>
 
           <div class="mb-3">

@@ -132,7 +132,7 @@
                   <span class="small fw-semibold text-dark">{{ d.rate }}%</span>
                 </div>
               </td>
-              <td><strong class="text-primary">{{ d.avg_pkg|floatformat:1 }} LPA</strong></td>
+              <td>{% if d.avg_pkg %}<strong>{{ d.avg_pkg|floatformat:1 }} LPA</strong>{% else %}<span class="text-muted">No offers yet</span>{% endif %}</td>
             </tr>
           {% empty %}
             <tr>
