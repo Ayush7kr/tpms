@@ -80,7 +80,7 @@ Every screen, role by role, is in the [user guide](docs/USER_GUIDE.md).
 You need Python 3.10 or newer.
 
 ```bash
-git clone https://github.com/Ayush7kr/tpms.git
+git clone https://github.com/Ayush7kr/TPMS.git
 cd tpms
 
 python -m venv venv
